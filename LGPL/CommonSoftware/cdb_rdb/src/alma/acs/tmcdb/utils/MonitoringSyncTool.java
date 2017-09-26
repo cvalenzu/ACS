@@ -267,9 +267,10 @@ public class MonitoringSyncTool {
     			ex.printStackTrace();
     		}
 	    	//lets invoke the methods
+			SessionFactory sessionF = null;
 	    	try {
 	    		createAcsConfigurationFromDbConfig.invoke(null,dbconf);
-	    		SessionFactory sessionF = (SessionFactory)getSessionFactory.invoke(null);
+	    		sessionF = (SessionFactory)getSessionFactory.invoke(null);
 	    		Session session = sessionF.openSession();
 	    		Transaction tx = session.beginTransaction();
 	            
@@ -311,7 +312,7 @@ public class MonitoringSyncTool {
 			                qstr = "FROM Component WHERE componentType = :type AND configuration = :conf";
 			                query = session.createQuery(qstr);
 			                // let's replace the HibernateUtil
-//              			query.setParameter("type", compType, HibernateUtil.getSessionFactory().getTypeHelper().entity(ComponentType.class));
+			                query.setParameter("type", compType, sessionF.getTypeHelper().entity(ComponentType.class));
 			                query.setParameter("conf", configuration, sessionF.getTypeHelper().entity(Component.class));
 			                components.addAll(query.list());
 			            }
@@ -549,7 +550,10 @@ public class MonitoringSyncTool {
 	    		e.printStackTrace();
     	  	}catch (InvocationTargetException e) {
     	  		e.printStackTrace();
-    	  	}
+    	  	} finally {
+				if (sessionF != null)
+					sessionF.close();
+			}
 	    	
 	    	
         }catch (ClassNotFoundException ex){
