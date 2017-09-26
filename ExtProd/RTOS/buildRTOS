@@ -1,0 +1,423 @@
+#! /bin/sh
+#*******************************************************************************
+# E.S.O. - ACS project
+#
+# "@(#) $Id: buildRTOS,v 1.70 2013/03/07 21:14:06 mmora Exp $"
+#
+# who       when      what
+# --------  --------  ----------------------------------------------
+# bjeram  2004-04-28  created
+#
+
+
+#
+#
+#
+
+KERNEL_VERSION=2.6.29.4
+RTAI_VERSION=3.7.1
+
+# minmal dsik space needed in kbyte
+MIN_DISK_SPACE=400000
+
+
+# signal trap (if any)
+
+LOG=buildRTOS.log
+#
+exec > $LOG 2>&1
+
+date
+
+#
+# parse and check script parameters
+while getopts ho:r:p:l:k:t: o
+do	case "$o" in
+        r)      RTAI_CONFIG_FILE="$OPTARG";;
+	p)  LINUX_PATCH_FILE="$LINUX_PATCH_FILE $OPTARG";;
+	l)	LINUX_CONFIG_FILE="$OPTARG";;
+	k)	KERNEL_VERSION="$OPTARG";;
+	t)	RTAI_VERSION="$OPTARG";;
+	h)	echo
+        echo `basename $0` Usage:
+        echo -p LINUX_PATCH_FILE  - the Linux patch to apply from patches/ dir.
+        echo "                      "Each -p is applied in the order given.
+        echo -l LINUX_CONFIG_FILE - The relative path of the Linux config file.
+        echo -k KERNEL_VERSION    - Version of kernel to patch, eg 2.6.29.4.
+        echo -t RTAI_VERSION      - The version of RTAI to use, eg 3.7.1.
+        echo -r RTAI_CONFIG_FILE  - The relative path of the RTAI config file.
+        echo
+        exit 0
+        ;;
+	[?])	echo "Usage: buildRTOS [-p linux-patch-file] [-l linux-config-file] [-r RTAI-config-file] [-k Kernel version] [-t rTai version]"
+		exit 1;;
+	esac
+done
+
+#
+# Set file names and paths based on user options.
+RTAI_FILE="rtai-$RTAI_VERSION"
+LINUX_FILE="linux-$KERNEL_VERSION"
+RTAI_DIR="$RTAI_FILE"
+
+if [ "$KERNEL_VERSION" = "2.6.15.2" ]; then 
+   RTAI_PATCH_FOR_LINUX="base/arch/i386/patches/hal-linux-2.6.15-i386-1.2-00.patch"
+elif [ "$KERNEL_VERSION" = "2.6.29.4" ]; then
+   RTAI_PATCH_FOR_LINUX="base/arch/x86/patches/hal-linux-2.6.29.4-x86-2.4-01.patch"
+else
+   echo "ERROR: No RTAI patch known for kernel $KERNEL_VERSION"
+fi
+
+
+if [ "X$LINUX_CONFIG_FILE" = X ]
+then
+   echo "==== linux kernel configuration file has to be provided! Use -l linux-configure-file"
+   exit 1
+else
+   if [ ! -f $LINUX_CONFIG_FILE ]
+   then
+      echo "==== linux configuration file: $LINUX_CONFIG_FILE does not exist!"
+      exit 1
+   fi
+fi
+
+if [ "X$RTAI_CONFIG_FILE" = X ]
+then
+   echo "==== RTAI configuration file has to be provided! Use -r RTAI-configure-file"
+   exit 1
+else
+   if [ ! -f $RTAI_CONFIG_FILE ]
+   then
+      echo "==== RTAI configuration file: $RTAI_CONFIG_FILE does not exist!"
+      exit 1
+   fi
+fi
+
+echo "==== LINUX_PATCH_FILE=$LINUX_PATCH_FILE"
+echo "==== LINUX_CONFIG_FILE=$LINUX_CONFIG_FILE"
+
+ALMASW_INSTDIR=$ALMASW_ROOTDIR/$ALMASW_RELEASE
+CUR_DIR=`pwd`
+RTOS_SOURCES=`echo $0 | awk 'BEGIN { FS="/";ORS="/" } END { for (i=1; i<NF; i++) print $i}'`
+
+# was given relative of full path to builRTOS command
+FIRST_PATH=`expr substr $0 1 1`
+if [ $FIRST_PATH != "/" -a $FIRST_PATH != "~" ]
+then
+   RTOS_SOURCES=$PWD/$RTOS_SOURCES
+fi
+
+############################################################
+# check and create folders to install linux and RTAI
+#############################################################
+
+if [ "X$LINUX_HOME" = X ]
+then
+   LINUX_HOME=$ALMASW_ROOTDIR/$ALMASW_RELEASE/rtlinux
+   echo "==== Setting LINUX_HOME to $LINUX_HOME"
+   unset CLASSPATH
+fi
+
+echo ==== Building LINUX from: $RTOS_SOURCES$LINUX_FILE in: $LINUX_HOME  
+
+if [ -h $LINUX_HOME ]
+then
+    echo " $LINUX_HOME is a symlink. It will be replaced by a directory." 
+    echo " It will become a symlink again after installRTOS is run." 
+    rm $LINUX_HOME
+fi
+
+if [ -d $LINUX_HOME ]
+then
+    echo " WARNING: RTOS($LINUX_HOME)   already exists." 
+    OLD_LINUX_HOME=$LINUX_HOME.$$
+    echo " It will be moved in $OLD_LINUX_HOME" 
+    mv $LINUX_HOME   $OLD_LINUX_HOME
+   if [ $? -ne 0 ]
+   then
+        echo "========= FAILED =========="
+	exit 1
+   fi
+fi
+
+
+if [ "X$RTAI_HOME" = X ]
+then
+   RTAI_HOME=$ALMASW_ROOTDIR/$ALMASW_RELEASE/rtai
+   echo "==== Setting RTAI_HOME to $RTAI_HOME"
+   unset CLASSPATH
+fi
+
+echo ==== Building RTAI from: $RTOS_SOURCES$RTAI_DIR  in:  $LINUX_HOME/..
+
+###################################################################
+#
+#     checking disk space
+#
+####################################################################
+
+echo ==== Checking if we have enough disk space for build and installation
+# create temporary $LINUX_HOME folder
+mkdir $LINUX_HOME
+# first check if we have enoug place to buildRTOS (LINUX_HOME/..)
+disk_space=`df --portability --sync $LINUX_HOME/.. | tail -n 1 | awk '{print $4}'`
+if [ $disk_space -lt $MIN_DISK_SPACE ]
+then
+    echo "==== FAILED: There is not enough disc space ($MIN_DISK_SPACE kb) available to build the RTOS kernel under $LINUX_HOME/.."
+    if [ "X$OLD_LINUX_HOME" != X ]
+    then
+	echo "Move back previous $LINUX_HOME"
+	mv $OLD_LINUX_HOME $LINUX_HOME
+    fi
+    exit 1
+else
+    echo "==== We have enoug disk space under $LINUX_HOME/..: $disk_space kb"
+fi
+
+# ... and now let's check if we have enoug place to install the kerenl and RTAI in the system
+disk_space=`df --portability --sync / | tail -n 1 | awk '{print $4}'`
+if [ $disk_space -lt $MIN_DISK_SPACE ]
+then
+    echo "==== FAILED: There is not enough disc space: ($MIN_DISK_SPACE kb) available to install the RTOS kernel under /"
+    if [ "X$OLD_LINUX_HOME" != X ]
+    then
+	echo "Move back previous $LINUX_HOME"
+	mv $OLD_LINUX_HOME $LINUX_HOME
+    fi
+    exit 1
+else
+    echo "==== We have enoug disk space under /: $disk_space kb"
+fi
+
+################################################
+#
+# untaring Linux and RTAI
+#
+################################################
+ARCHIVE_LINUX=$RTOS_SOURCES/$LINUX_FILE.tar.bz2
+ARCHIVE_RTAI=$RTOS_SOURCES/$RTAI_FILE.tar.bz2
+
+echo ==== Untar LINUX $ARCHIVE_LINUX
+
+cd $LINUX_HOME/..
+# delete temporary created $LINUX_HOME
+rm -rf $LINUX_HOME
+tar xjf $ARCHIVE_LINUX
+if [ $? -ne 0 ]
+then
+     echo "========= FAILED to untar  $ARCHIVE_LINUX =========="
+	exit 1
+fi
+mv $LINUX_FILE rtlinux
+
+echo ==== Untar RTOS $ARCHIVE_RTAI
+
+if [ -d $RTOS_SOURCES/$RTAI_DIR ]
+then
+    echo === Old $RTOS_SOURCES/$RTAI_DIR delete it
+    rm -rf $RTOS_SOURCES/$RTAI_DIR
+fi
+
+cd $RTOS_SOURCES
+tar xjf $ARCHIVE_RTAI
+if [ $? -ne 0 ]
+then
+     echo "========= FAILED to untar  $ARCHIVE_RTAI =========="
+	exit 1
+fi
+
+######################################################################
+#
+#   building LINUX
+#
+######################################################################
+echo ==== Patching LINUX
+
+cd $LINUX_HOME
+
+#
+# Apply the autofs patch required to get older kernels to boot on RHEL 5.2
+if [ "$KERNEL_VERSION" = "2.6.15.2" ]; then
+   echo "Applying autofs kernel patch."
+   patch -p1 < $RTOS_SOURCES/patches/autofs4-2.6.15-v5-update.patch
+   if [ $? -ne 0 ]; then
+      echo "========= FAILED to patch the kernel for autofs =========="
+      exit 
+   fi
+fi
+
+#
+# Apply the kallsyms patch required for newer kernels kernels.
+if [ "$KERNEL_VERSION" = "2.6.29.4" ]; then
+   echo "Applying kallsyms kernel patch for 2.6.29.4 ."
+   patch -p0 < $RTOS_SOURCES/patches/kallsyms-2.6.29.4.patch
+   if [ $? -ne 0 ]; then
+      echo "========= FAILED to patch the kernel for kallsyms =========="
+      exit 
+   fi
+   echo "Applying adjtimex kernel patch for 2.6.29.4 ."
+   patch -p0 < $RTOS_SOURCES/patches/adjtimex-2.6.29.4.patch
+   if [ $? -ne 0 ]; then
+      echo "========= FAILED to patch the kernel for adjtimex =========="
+      exit 
+   fi
+fi
+
+#
+# Apply the user specified RTAI patch
+echo "Applying patch: $RTOS_SOURCES/$RTAI_DIR/$RTAI_PATCH_FOR_LINUX"
+patch -p1 < $RTOS_SOURCES/$RTAI_DIR/$RTAI_PATCH_FOR_LINUX
+if [ $? -ne 0 ]
+then
+     echo "========= FAILED to patch the kernel for RTAI =========="
+     exit 
+fi
+
+echo ==== Building patched LINUX
+#
+# if linux patch file given the apply it now
+if [ "X$LINUX_PATCH_FILE" != X ]
+then
+    echo "====     Applying patch to LINUX"
+    for apatch in $LINUX_PATCH_FILE; do
+	echo "======= Applying patch $apatch"
+        patch -p0 < $apatch
+    done
+fi
+if [ $? -ne 0 ]
+then
+     echo "========= FAILED to apply custom patch to the kernel =========="
+     exit 1
+fi
+
+echo "====     Make mrproper"
+make mrproper
+if [ $? -ne 0 ]
+then
+     echo "========= FAILED make mrproper =========="
+	exit 1
+fi
+
+cd $RTOS_SOURCES
+echo "====     Copy config file"
+echo "$LINUX_CONFIG_FILE configuration file will be used"
+cp $LINUX_CONFIG_FILE $LINUX_HOME/.config
+if [ $? -ne 0 ]
+then
+     echo "========= FAILED copying configuration =========="
+	exit 1
+fi
+
+cd $LINUX_HOME
+echo "====     Make oldconfig"
+make oldconfig 
+if [ $? -ne 0 ]
+then
+     echo "========= FAILED make oldconfig =========="
+	exit 1
+fi
+
+echo "====     Make  bzImage modules"
+make bzImage modules
+if [ $? -ne 0 ]
+then
+     echo "========= FAILED make bzImage modules =========="
+	exit 1
+fi
+
+
+#####################################################################
+#   build RTOS
+#####################################################################
+
+echo ==== Building RTOS
+cd $RTOS_SOURCES/$RTAI_DIR
+
+if [ "$RTAI_VERSION" = "3.3" ]; then 
+   echo "applying RTAI 3.3 patches"
+   patch -p1 < ../patches/rtai-3_3_calibrate.patch 
+   if [ $? -ne 0 ]; then
+     echo "========= FAILED to patch RTAI =========="
+     exit 1
+   fi
+elif [ "$RTAI_VERSION" = "3.7.1" ]; then 
+   echo "applying RTAI 3.7.1 patches"
+   patch -p1 < ../patches/rtai_lxrt.h-3.7.1.patch
+   if [ $? -ne 0 ]; then
+     echo "========= FAILED to patch RTAI =========="
+     exit 1
+   fi
+fi
+
+
+if [ -h $RTAI_HOME ]
+then
+    echo " $RTAI_HOME is a symlink. It will be replaced by a directory." 
+    echo " It will become a symlink again after installRTOS is run." 
+    rm $RTAI_HOME
+fi
+if [ -d $RTAI_HOME ]
+then
+    echo " WARNING: RTOS($RTAI_HOME)   already exists." 
+    echo " It will be moved in $RTAI_HOME.$$" 
+    mv $RTAI_HOME   $RTAI_HOME.$$
+   if [ $? -ne 0 ]
+   then
+        echo "========= FAILED to move $RTAI_HOME to  $RTAI_HOME.$$=========="
+	exit 1
+   fi
+fi
+
+echo "====     Copying RTAI config file"
+cd $RTOS_SOURCES
+echo "$RTAI_CONFIG_FILE configuration file will be used for RTAI"
+cp $RTAI_CONFIG_FILE $RTAI_DIR/.rtai_config.org
+if [ $? -ne 0 ]
+then
+     echo "========= FAILED copying RTAI configuration =========="
+     exit 1
+fi
+
+#
+# put installation info in the configuration file
+#
+cd $RTOS_SOURCES/$RTAI_DIR
+grep -v "^CONFIG_RTAI_[A-Z]*DIR" .rtai_config.org > .rtai_config
+echo "" >> .rtai_config
+echo "#" >> .rtai_config
+echo "# Installation info added by buildRTOS" >> .rtai_config
+echo "#" >> .rtai_config
+echo "CONFIG_RTAI_INSTALLDIR=\"$RTAI_HOME\"" >> .rtai_config
+echo "CONFIG_RTAI_LINUXDIR=\"$LINUX_HOME\"" >> .rtai_config
+
+
+echo "====     Make (RTAI) oldconfig"
+make oldconfig
+if [ $? -ne 0 ]
+then
+     echo "========= FAILED (RTAI) make oldconfig =========="
+     exit 1
+fi
+
+
+#./configure  --prefix=/usr/realtime-$RTAI_VERSION --with-linux-dir=$LINUX_HOME
+#if [ $? -ne 0 ]
+#then
+#     echo "========= FAILED ./config =========="
+#	exit 1
+#fi
+
+#  DESTDIR=$RTAI_HOME has to be set in order to prevent RTAI makefile to create device nodes
+# it will not work for relative paths, but RTAI_HOME can not be relative or better it must be absolute!!
+make all install DESTDIR=/
+if [ $? -ne 0 ]
+then
+     echo "========= FAILED (RTAI) make all install=========="
+	exit 1
+fi
+
+#ln -s $RTAI_HOME/usr/realtime-$RTAI_VERSION/* $RTAI_HOME
+
+date
+#
+# ___oOo___

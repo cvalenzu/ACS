@@ -1,0 +1,26 @@
+1 - Welcome to acsexmplClientFridgeNC!
+2 - Making sure there is a fridge available...
+1 - ----------T--:--:--.--- [GlobalLogger - ] Logging proxy successfully created.
+1 - ----------T--:--:--.--- [GlobalLogger - maci::MACIHelper::resolveManager] ManagerReference generated using localhost address: 'corbaloc::---:---/Manager'
+1 - ----------T--:--:--.--- [GlobalLogger - ] Helper::resolveNameService wrong constructor - attempting recovery for the 'fridge' channel!
+1 - ----------T--:--:--.--- [GlobalLogger - maci::MACIHelper::getManagerHostname] Manager hostname generated using localhost address: 'xxx'
+1 - ----------T--:--:--.--- [GlobalLogger - ] ORBHelper::runORB the ORB is now running!
+1 - created a consumer
+1 - ----------T--:--:--.--- [GlobalLogger - maci::SimpleClient::initThread] Thread name: 'runOrbThread'
+1 - ----------T--:--:--.--- [GlobalLogger - ] The C++ temperature difference is ---
+2 - ----------T--:--:--.--- Python Client initialized by user@host Main - Creating FridgeConsumer
+2 - ----------T--:--:--.--- fridge-Consumer addSubscription - temperatureDataBlockEvent
+2 - ----------T--:--:--.--- Python Client initialized by user@host Main - Waiting for events . . .
+1 - ----------T--:--:--.--- [GlobalLogger - ] The C++ temperature difference is ---
+2 - ----------T--:--:--.--- FridgeNCClient fridgeDataHandler - The Python temperature difference is ---
+1 - ----------T--:--:--.--- [GlobalLogger - ] The C++ temperature difference is ---
+2 - ----------T--:--:--.--- FridgeNCClient fridgeDataHandler - The Python temperature difference is ---
+1 - ----------T--:--:--.--- [GlobalLogger - ] The C++ temperature difference is ---
+2 - ----------T--:--:--.--- FridgeNCClient fridgeDataHandler - The Python temperature difference is ---
+1 - ----------T--:--:--.--- [GlobalLogger - ] The C++ temperature difference is ---
+2 - ----------T--:--:--.--- FridgeNCClient fridgeDataHandler - The Python temperature difference is ---
+2 - ----------T--:--:--.--- FridgeNCClient fridgeDataHandler - The Python temperature difference is ---
+2 - ----------T--:--:--.--- Python Client initialized by user@host Main - Events all done . . . exiting
+2 - ----------T--:--:--.--- Python Client initialized by user@host disconnect - Disconnect called for client
+2 - ----------T--:--:--.--- Python Client initialized by user@host disconnect - Disconnect called for client
+1 - ----------T--:--:--.--- [GlobalLogger - ] Releasing...

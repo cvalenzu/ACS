@@ -1,0 +1,10 @@
+--- kernel/kallsyms.c.orig	2008-07-25 08:49:59.000000000 -0400
++++ kernel/kallsyms.c	2008-07-25 08:50:39.000000000 -0400
+@@ -164,6 +164,7 @@
+ 	}
+ 	return module_kallsyms_lookup_name(name);
+ }
++EXPORT_SYMBOL(kallsyms_lookup_name);
+ 
+ static unsigned long get_symbol_pos(unsigned long addr,
+ 				    unsigned long *symbolsize,

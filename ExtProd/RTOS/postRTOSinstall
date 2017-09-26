@@ -1,0 +1,238 @@
+#! /bin/sh
+
+#*******************************************************************************
+# postRTOSinstall
+#
+# "@(#) $Id: postRTOSinstall,v 1.7 2010/08/12 16:53:57 vsuorant Exp $"
+#
+# This script should be run after installRTOS and it should:
+#      - fix the path in files from $RTAI_HOME/$LINUX_HOME to /usr/.....
+#      - fix link(s)
+#
+
+######################################
+# Directories names and assumptions  #
+######################################
+
+# Assumes a standard ACS installation in /alma
+# and a standard ACS environment configuration
+# Uses gchiozzi CVS account and not almamgr
+# Extracts from CVS the NO-LGPL heald
+
+#
+# These will contain the command line parsing results
+# (CL_XXX, CL = command line)
+# or will keep the given default
+#
+CL_DRY_RUN=
+
+#
+# Old ACS installation to be cleaned up.
+# The parameter is the value for ALMASW_INSTDIR,
+# for example: 
+#     /alma/ACS-6.0
+#
+CL_CLEANUP_OLD=
+
+#
+#
+# Fix for COMP-1962. These variables will allow replacing the RTAI_HOME and
+# LINUX_HOME hardcoded values in the config files to what ever the user
+# requires. For example: /alma/ACS-current/rtai
+#                        /alma/ACS-current/rtlinux
+CL_RTAI_HOME=
+CL_LINUX_HOME=
+###
+### ----------- Command Line Parsing ---------------------
+
+
+#
+# These options can be recognized (longopts comma-separated. colon means argument is required)
+#
+LONGOPTS=help,cleanup:,prefix:,rtai_linux_dir:
+SHORTOPTS=hn
+
+#
+# Usage info. Be nice and keep this up-to-date!
+#
+function printUsage {
+   echo "Cleanup rtos installation from version independent path"
+   echo ""
+   echo "Usage: `basename $0` [OPTIONS]"
+   echo "Options: "
+   echo "   -h | -help                 prints this help and exits"
+   echo "   -n                         dry run. Do not execute commands"
+   echo "   --cleanup  ALMASW_INSTDIR   old version to cleanup. The directory must exist"
+   echo "          In case one has already installed a new version and not cleaned up"
+   echo "          it is sufficient to creaty a temporary symbolic links"
+   echo "   --prefix  CUSTOM_RTAI_HOME custom definition to be inserted in the config files"
+   echo "   --rtai_linux_dir  CUSTOM_LINUX_HOME custom definition to be inserted in the config files"
+   echo "Environment Variables:"
+   echo "   LINUX_HOME  - ACS definition for the place where rtlinux kernel patches are. A link"
+   echo "   RTAI_HOME   - ACS definition for the place where rtai is. A Link"
+}
+#
+# Run getopt (posixly_correct needed). We run twice:
+# First run is simply to check the commandline for correctness
+# Second run is the real deal which replaces the command line args with getopt's output
+export POSIXLY_CORRECT=1
+
+getopt -n `basename $0` -u -a -l $LONGOPTS $SHORTOPTS "$@" || {
+   printUsage
+	exit $EC_BADARGS;
+}
+
+set -- `getopt -u -a -l $LONGOPTS $SHORTOPTS "$@"`
+
+#
+# Iterate over getopt's output and set CL_XXX variables accordingly
+#
+while : 
+do
+	case "$1" in
+        -n)                  CL_DRY_RUN=true ;;
+	--help)              CL_HELP=true ;; 
+	-h)                  CL_HELP=true ;; 
+        --cleanup)           CL_CLEANUP_OLD=$2 ; shift ;;
+        --prefix)            CL_RTAI_HOME=$2; shift;;
+        --rtai_linux_dir)    CL_LINUX_HOME=$2 shift;;
+ 	--) break ;;
+	esac
+	shift
+done
+shift
+
+#
+# must be unset! otherwise our custom export() function
+# that is defined below doesn't get used by the shell
+#
+export POSIXLY_CORRECT=
+unset POSIXLY_CORRECT
+
+
+if [ "$CL_HELP" ] 
+then
+   printUsage
+   exit $EC_OK
+fi
+
+#
+# Set indirect variables, based on command line parameters
+#
+
+# Full name for the binary dostribution file
+BIN_FILE=$CL_BIN_DIR/ACS_BIN.tar.gz
+
+#
+# (Note: Rest of command line now in $@ )
+#
+### ---------- End of Command Line Parsing -------------
+
+
+
+if [ "$CL_CLEANUP_OLD" ]
+then
+   LINUX_HOME=$CL_CLEANUP_OLD/rtlinux
+   RTAI_HOME=$CL_CLEANUP_OLD/rtai
+fi
+
+################################
+# Initial minimal sanity check #
+################################
+
+if [ "X$LINUX_HOME" = X ]
+then
+    echo "LINUX_HOME is not defined !!!!"
+    echo "Please define it and re-run the script !"
+    exit
+fi
+
+if [ "X$RTAI_HOME" = X ]
+then
+    echo "RTAI_HOME is not defined !!!!"
+    echo "Please define it and re-run the script !"
+ exit
+fi
+
+if [ ! -h $RTAI_HOME ]
+then
+    echo "$RTAI_HOME is not a link !!! This means that RTAI was not installed (just build) or installRTOS failed."
+    exit
+fi
+
+if [ ! -h $LINUX_HOME ]
+then
+    echo "$LINUX_HOME is not a link !!! This means that RTAI patched Linux was not installed (just build) or installRTOS failed."
+    exit
+fi
+
+################################################
+# If a dry run is requested
+# all commands become simply echo outputs.
+#
+if [ "$CL_DRY_RUN" ] ; then
+   CMD_ECHO=echo
+
+   $CMD_ECHO ""
+fi
+
+
+# ############################################################################
+# #
+# # Here we replace /alma/ACS-X.Y/rtai and 
+# #    /alma/ACS-X.Y/rtlinux with absoulute paths
+# #
+# ##########################################################################
+# 
+# # - first we remove slash(/) at the end if exists
+# # - and than we replace slashes(/) with \/ which can be used in sed
+# _RTAI_HOME=`echo $RTAI_HOME | sed 's/\/$//' | sed 's/\//\\\\\//g'`
+# _LINUX_HOME=`echo $LINUX_HOME | sed 's/\/$//' | sed 's/\//\\\\\//g'`
+# 
+# # - first we remove slash(/) at the end if exists
+# # - get the link
+# # -  replace slashes (/) with (\/) for sed
+# if [ -z $CL_RTAI_HOME ]; then
+#     _LN_RTAI_HOME=`ls -al \`echo $RTAI_HOME | sed "s/\/$//"\` | awk  '{print $11;}' | sed 's/\//\\\\\//g'`
+# else
+#     _LN_RTAI_HOME=`echo $CL_RTAI_HOME | sed 's/\/$//' | sed 's/\//\\\\\//g'`
+# fi
+# if [ -z $CL_LINUX_HOME ]; then
+#     _LN_LINUX_HOME=`ls -al \`echo $LINUX_HOME | sed "s/\/$//"\` | awk  '{print $11;}' | sed 's/\//\\\\\//g'`
+# else
+#     _LN_LINUX_HOME=`echo $CL_LINUX_HOME | sed 's/\/$//' | sed 's/\//\\\\\//g'`
+# fi
+# # here we do the replacment 
+# LIST=`egrep -rIl  --exclude=*.org "$RTAI_HOME|$LINUX_HOME" $RTAI_HOME`
+# 
+# if [ "X$LIST" = X ]
+# then
+#   echo "It looks like there is nothing to fix !! - neither $RTAI_HOME nor $LINUX_HOME found in $RTAI_HOME"
+#   exit 2
+# fi
+# 
+# for f in $LIST; 
+# do 
+#    $CMD_ECHO cp -f $f $f.org
+#    if [ $CMD_ECHO ] 
+#    then
+#       $CMD_ECHO sed "s/$_RTAI_HOME/$_LN_RTAI_HOME/g" $f.org \| sed "s/$_LINUX_HOME/$_LN_LINUX_HOME/g" \> $f
+#    else
+#       sed "s/$_RTAI_HOME/$_LN_RTAI_HOME/g" $f.org | sed "s/$_LINUX_HOME/$_LN_LINUX_HOME/g" > $f
+#    fi
+#    echo "Copied original file $f int $f.org and did the replacment"
+# done
+# 
+# #
+# # Here we fix link(s)
+# #
+# 
+# CURDIR=$PWD
+# $CMD_ECHO rm $RTAI_HOME/bin/rstsmi
+# cd $RTAI_HOME/bin
+# $CMD_ECHO ln -fs ./setsmi rstsmi
+# cd  $CURDIR
+# 
+# echo "Done!"
+# 
+# # __oOo__
