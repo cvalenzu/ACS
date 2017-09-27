@@ -25,7 +25,9 @@
 #include <faultStateConstants.h>
 
 #include <ace/Guard_T.h>
+#include <memory>
 
+using std::auto_ptr;
 using namespace acsalarm;
 
 AlarmSourceImpl::AlarmSourceImpl():

@@ -93,7 +93,7 @@ void
 ACSStructuredPushSupplier::update_num_lost_logs(const CosNotification::StructuredEvent& event)
 {
 	const char * xmlLog;
-    Logging::XmlLogRecordSeq *xmlSeq;
+    const Logging::XmlLogRecordSeq *xmlSeq;
 	if(event.remainder_of_body >>= xmlLog)
     {
         ++m_numLostLogs;

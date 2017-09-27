@@ -46,7 +46,7 @@ ConsumerCompImpl::myHandlerFunction(acsnc::EventDescription joe, void *handlerPa
 	    ConsumerCompImpl *myself = (ConsumerCompImpl *)handlerParam;
 	    if(myself->m_count<5)
 		{
-		ACS_STATIC_SHORT_LOG((LM_ALERT, "myHandlerFunction()...value is:%d", joe.count));
+		ACS_STATIC_SHORT_LOG((LM_ALERT, "myHandlerFunction()...value is:%llu", (unsigned long long int)joe.count));
 		myself->m_count++;
 		}
 }
