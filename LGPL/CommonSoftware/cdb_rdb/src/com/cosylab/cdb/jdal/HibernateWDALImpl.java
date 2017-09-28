@@ -3104,14 +3104,24 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 
 				//New Implementation!
 				dao.destroy();
-				byte[] id = curl.getBytes();
+				byte[] id;
+				if (dao instanceof WDAO) {
+					id = ("WDAO" + curl).getBytes();
+				} else {
+					id = curl.getBytes();
+				}
 				try {
 					poa.deactivate_object(id);
 				} catch (Throwable th) {
 					th.printStackTrace();
 				}
-				objMap.remove(curl);
-				map.remove(curl);
+				if (dao instanceof WDAO) {
+					wdaoObjMap.remove(curl);
+					wdaoMap.remove(curl);
+				} else {
+					objMap.remove(curl);
+					map.remove(curl);
+				}
 
 				Object node = curl.length() == 0 ? rootNode : DOMJavaClassIntrospector.getNode(curl, rootNode);
 				if (node == null || DOMJavaClassIntrospector.isPrimitive(node.getClass())) {
@@ -3119,7 +3129,11 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 				}
 
 				try {
-					get_DAO_Servant(curl);
+					if (dao instanceof WDAO) {
+						get_WDAO_Servant(curl);
+					} else {
+						get_DAO_Servant(curl);
+					}
 				} catch(Throwable th) {
 					th.printStackTrace();
 				}

@@ -30,5 +30,6 @@ PROLOGUE cdbrdbTATPrologue
 6 cdbjDALClearCache2  "cdbjDALClearCache MACI"
 6 cdbjDALClearCache3  "cdbjDALClearCache alma"
 7 dumpDemoCDB3        "cdbRead / -raw"
+8 WDAOServant         "acsutilTATTestRunner WDAOServantTest" "@SLEEP 10" "cdbjDALClearCache" "@SLEEP 20" "acsutilTATTestRunner WDAOServantTest"
 
 EPILOGUE cdbrdbTATEpilogue
