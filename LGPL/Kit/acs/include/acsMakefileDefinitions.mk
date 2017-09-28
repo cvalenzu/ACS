@@ -57,6 +57,7 @@ $(if $(subst $(abspath $(dir $1)),,$(abspath .)),T,)
 
 cutOffCWD = \
 $(if $(call isNotCurrentDir,$1),$1,$(notdir $1))
+
 ################################################################################
 # FUNCTION createJar
 #
@@ -198,7 +199,6 @@ endef
 
 # $(call acsMakeIDLDependencies,idl-file,ext)
 define acsMakeIDLDependencies
-
 
 .PHONY: do_idl_$1
 do_idl_$1: $(do_idl_$1_prereq)
@@ -1519,17 +1519,18 @@ endif
 	$(AT)$(ECHO) "USR_INC := $(USR_INC)"   >> Kbuild
 	$(AT)$(ECHO) "EXTRA_CFLAGS := $(EXTRA_CFLAGS)" >> Kbuild
 	$(AT)$(ECHO) "KBUILD_EXTRA_SYMBOLS=\"$(RTAI_HOME)/modules/Module.symvers\"" >> Kbuild
+# ICT-9314: remove kbuild.lock immediately if make of kernel modules fails
 ifdef MAKE_VERBOSE
 ifeq ($(CPU),x86_64)
-	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=2 modules
+	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=2 modules || $(MAKE) remove_kbuild_lock_$1
 else
-	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) ARCH=i386 RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=2 modules
+	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) ARCH=i386 RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=2 modules || $(MAKE) remove_kbuild_lock_$1
 endif
 else
 ifeq ($(CPU),x86_64)
-	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=0 modules
+	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=0 modules || $(MAKE) remove_kbuild_lock_$1
 else
-	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) ARCH=i386 RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=0 modules
+	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) ARCH=i386 RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=0 modules || $(MAKE) remove_kbuild_lock_$1
 endif
 endif
 	$(AT)$(RM) Kbuild.lock
@@ -1635,10 +1636,11 @@ kernel_module_$1_components = $(if $(and $(filter 1,$(words $2)),$(filter $1,$(w
 	$(AT)$(ECHO) "EXTRA_CFLAGS := $(EXTRA_CFLAGS)" >> Kbuild
 	$(AT)$(ECHO) "KBUILD_EXTRA_SYMBOLS=\"$(LINUX_HOME)/modules/Module.symvers\"" >> Kbuild
 # ICT-2680: remove "ARCH=i386" from list of compilation flags for plain linux kernel modules
+# ICT-9314: remove kbuild.lock immediately if make of kernel modules fails
 ifdef MAKE_VERBOSE
-	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCKERNEL) M=$(PWD) V=2 modules
+	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCKERNEL) M=$(PWD) V=2 modules || $(MAKE) remove_kbuild_lock_$1
 else
-	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCKERNEL) M=$(PWD) V=0 modules
+	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCKERNEL) M=$(PWD) V=0 modules || $(MAKE) remove_kbuild_lock_$1
 endif
 	$(AT)$(RM) Kbuild.lock
 	$(AT)mv $1.ko ../kernel/$(kernel_install_subfold)
@@ -1692,6 +1694,12 @@ $(PRJTOP)/kernel/$(kernel_install_subfold)/$1.ko: ../kernel/$(kernel_install_sub
 
 .PHONY: clean_dist_kernel_module_$1
 clean_dist_kernel_module_$1:
+
+#
+# this target is used in case of make error for kernel modules (ICT-9314)
+#
+remove_kbuild_lock_$1:
+	$(AT)$(RM) Kbuild.lock
 
 endef
 
