@@ -28,10 +28,10 @@ class baci_EXPORT AlarmSystemMonitorBoolean : public AlarmSystemMonitor<ROboolea
  
   private:
 
-    static const bool ENABLE = true;
-    static const bool DISABLE = false;
-    static const int32_t ALARM_NOT_RAISED = 0;
-    static const int32_t ALARM_RAISED = 1;
+    static const bool ENABLE;
+    static const bool DISABLE;
+    static const int32_t ALARM_NOT_RAISED;
+    static const int32_t ALARM_RAISED;
 
     /**
      * ALMA C++ coding standards state assignment operators should be disabled.
