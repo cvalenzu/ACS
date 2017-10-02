@@ -59,28 +59,34 @@ void SimpleConsumer<T>::push_structured_event(
             handlerTimeoutMap_m[(const char*) notification.header.fixed_header.event_type.type_name];
 
     //extract the correct data first of all
-    T *customIDLStruct_p = 0, customIDLStruct;
-    customIDLStruct_p = &customIDLStruct;
-    notification.filterable_data[0].value >>= customIDLStruct_p;
+    //T *customIDLStruct_p = 0, customIDLStruct;
+    const T *customIDLStruct;
+    //const T* customIDLStruct_p = const_cast<const T*>(customIDLStruct);
 
-    if (customIDLStruct_p == NULL)
-    {
-        CORBA::Any tmpEvent;
-        tmpEvent <<= customIDLStruct_p;
-        acsncErrType::WrongEventReceivedExImpl er(__FILE__, __LINE__,
-                "nc::SimpleConsumer<T>::push_structured_event");
-        er.setExpectedEvent(AnyAide::getId(tmpEvent).c_str());
-        er.setReceivedEvent(
-                AnyAide::getId(notification.filterable_data[0].value).c_str());
+    notification.filterable_data[0].value >>= customIDLStruct;
 
-        er.log();
+    //if (customIDLStruct_p == NULL)
+    //{
+        // const CORBA::Any tmpEvent;
+        // tmpEvent <<= customIDLStruct_p;
+        // acsncErrType::WrongEventReceivedExImpl er(__FILE__, __LINE__,
+        //        "nc::SimpleConsumer<T>::push_structured_event");
+        // er.setExpectedEvent(AnyAide::getId(tmpEvent).c_str());
+        //er.setReceivedEvent(
+        //        AnyAide::getId(notification.filterable_data[0].value).c_str());
+
+        //er.log();
 
 //	throw CosEventComm::Disconnected(); // it has no effect !
-        return;
-    }
+  //      return;
+//    }
 
-    acsnc::EventDescription *ed_p = 0, ed;
-    ed_p = &ed;
+    //const acsnc::EventDescription *ed_p = 0, ed;
+    //ed_p = &ed;
+    
+    acsnc::EventDescription ed;
+    const acsnc::EventDescription *ed_p = const_cast<const acsnc::EventDescription*>(&ed);
+
     notification.remainder_of_body >>= ed_p;
 
     integrationLog(
@@ -89,7 +95,7 @@ void SimpleConsumer<T>::push_structured_event(
                     + (const char*) notification.header.fixed_header.event_type.type_name);
 
     event_info<T> event(
-            *customIDLStruct_p,
+            *customIDLStruct,
             maxProcessTime,
             (const char*) notification.header.fixed_header.event_type.type_name);
     buffer.push(event);

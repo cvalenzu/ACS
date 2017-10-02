@@ -28,6 +28,7 @@ using std::stringstream;
 using std::map;
 using std::vector;
 using std::invalid_argument;
+using std::auto_ptr;
 using acsalarm::Properties;
 
 /*

@@ -344,7 +344,7 @@ AnyAide::anyToString(const CORBA::Any& value, unsigned short precision)
 
     else if (AnyAide::isDoubleSeq(value)==true)
 	{
-	ACS::doubleSeq* seqVar = AnyAide::getValue<ACS::doubleSeq *>(value);
+	const ACS::doubleSeq* seqVar = AnyAide::getValue<const ACS::doubleSeq *>(value);
 	for (unsigned int i = 0; i < seqVar->length(); i++)
 	    {
 	    ostr << (*seqVar)[i] << " ";
@@ -353,7 +353,7 @@ AnyAide::anyToString(const CORBA::Any& value, unsigned short precision)
     
     else if (AnyAide::isLongSeq(value)==true)
 	{
-	ACS::longSeq* seqVar = AnyAide::getValue<ACS::longSeq *>(value);
+	const ACS::longSeq* seqVar = AnyAide::getValue<const ACS::longSeq *>(value);
 	for (unsigned int i = 0; i < seqVar->length(); i++)
 	    {
 	    ostr << (*seqVar)[i] << " ";
@@ -362,7 +362,7 @@ AnyAide::anyToString(const CORBA::Any& value, unsigned short precision)
     
     else if (AnyAide::isStringSeq(value)==true)
 	{
-	ACS::stringSeq* seqVar = AnyAide::getValue<ACS::stringSeq *>(value);
+	const ACS::stringSeq* seqVar = AnyAide::getValue<const ACS::stringSeq *>(value);
 	for (unsigned int i = 0; i < seqVar->length(); i++)
 	    {
 	    ostr << (*seqVar)[i] << " ";
@@ -371,7 +371,7 @@ AnyAide::anyToString(const CORBA::Any& value, unsigned short precision)
     
     else if (AnyAide::isFloatSeq(value)==true)
 	{
-	ACS::floatSeq* seqVar = AnyAide::getValue<ACS::floatSeq *>(value);
+	const ACS::floatSeq* seqVar = AnyAide::getValue<const ACS::floatSeq *>(value);
 	for (unsigned int i = 0; i < seqVar->length(); i++)
 	    {
 	    ostr <<  (*seqVar)[i] << " ";

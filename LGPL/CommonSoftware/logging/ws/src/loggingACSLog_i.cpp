@@ -146,7 +146,7 @@ ACSLog_i::write_recordlist (const DsLogAdmin::RecordList &reclist)
         } // for   
     }else{
 
-        ACSLoggingLog::LogBinaryRecord *record;
+        const ACSLoggingLog::LogBinaryRecord *record;
  
         for (CORBA::ULong i = 0; i < reclist.length (); i++)
         {

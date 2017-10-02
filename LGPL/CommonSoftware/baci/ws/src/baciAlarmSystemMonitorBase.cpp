@@ -11,6 +11,7 @@
 #endif
 
 #include "baciAlarmSystemMonitorBase.h"
+#include <memory>
 
 
 /*********************************** IMPLEMENTATION of AlarmSystemMonitorBase */
@@ -107,7 +108,7 @@ void baci::AlarmSystemMonitorBase::sendAlarm(int code, bool active) {
  */
 #ifndef MAKE_VXWORKS
 	// Create the fault state
-	auto_ptr<acsalarm::FaultState> fs  = ACSAlarmSystemInterfaceFactory::createFaultState(faultFamily_m, faultMember_m, code);
+	std::auto_ptr<acsalarm::FaultState> fs  = ACSAlarmSystemInterfaceFactory::createFaultState(faultFamily_m, faultMember_m, code);
 	if (active) {
 		fs->setDescriptor(faultState::ACTIVE_STRING);
 	} else {
@@ -115,7 +116,7 @@ void baci::AlarmSystemMonitorBase::sendAlarm(int code, bool active) {
 	}
 	// create a Timestamp and use it to configure the FaultState
 	acsalarm::Timestamp * tstampPtr = new acsalarm::Timestamp();
-	auto_ptr<acsalarm::Timestamp> tstampAutoPtr(tstampPtr);
+	std::auto_ptr<acsalarm::Timestamp> tstampAutoPtr(tstampPtr);
 	fs->setUserTimestamp(tstampAutoPtr);
 
 	// create a Properties object and configure it, then assign to the FaultState
@@ -128,7 +129,7 @@ void baci::AlarmSystemMonitorBase::sendAlarm(int code, bool active) {
 		propsPtr->setProperty(prop->first,  prop->second);
 	}//for
 
-	auto_ptr<acsalarm::Properties> propsAutoPtr(propsPtr);
+	std::auto_ptr<acsalarm::Properties> propsAutoPtr(propsPtr);
 	fs->setUserProperties(propsAutoPtr);
 	lastAlarmFaultCode_m = code;
 	alarmSource_map->push(*fs);
