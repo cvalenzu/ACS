@@ -142,7 +142,7 @@ TCL_SCRIPTS_L   =
 #
 # Python stuff (public and local)
 # ----------------------------
-PY_SCRIPTS         =
+PY_SCRIPTS         = ResourcesDaemon
 PY_SCRIPTS_L       =
 
 PY_MODULES         =
