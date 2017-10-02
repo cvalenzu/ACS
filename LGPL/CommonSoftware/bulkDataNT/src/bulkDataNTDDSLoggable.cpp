@@ -24,6 +24,9 @@
 */
 
 #include "bulkDataNTDDSLoggable.h"
+#include <maciHelper.h>
+#include <maciContainerImpl.h>
+#include <maciSimpleClient.h>
 
 LoggingProxy *BulkDataNTDDSLoggable::logger_mp=0;
 
@@ -44,7 +47,36 @@ void BulkDataNTDDSLoggable::initalizeLogging()
 	{
 		//TBD here we have to set centralized loggger as well, but we need some support from logging
 		if (logger_mp==0) //if we do not have a logger we create one for all DDS threads
-			logger_mp = new LoggingProxy(0, 0, 31);
+		{ //ICT-6837
+			if (maci::ContainerImpl::getContainer() != NULL && maci::ContainerImpl::getLoggerProxy() != NULL)
+				logger_mp = maci::ContainerImpl::getLoggerProxy();
+			else if (maci::SimpleClient::getInstance() != NULL && maci::SimpleClient::getLoggerProxy() != NULL)
+				logger_mp = maci::SimpleClient::getLoggerProxy();
+			else { //Only local logger.
+				logger_mp = new LoggingProxy(0, 0, 31);
+				//Try to initialize the remote logger, if we have naming service and AcsLogService running, but we're detached from a maciSimpleClient and Container.
+				int argc = 3;
+				char* argv[] = { "", "-ORBDottedDecimalAddresses", "1"};
+				CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+				CosNaming::NamingContext_var naming_context = maci::MACIHelper::resolveNameService(orb.in());
+				if (!CORBA::is_nil(naming_context.ptr()))
+				{
+					std::string channelAndDomainName;
+					CosNaming::Name name;
+					name.length (1);
+					name[0].id = "Log";
+					CORBA::Object_var log_obj = naming_context->resolve(name);
+					if(log_obj.ptr() != CORBA::Object::_nil())
+					{
+						Logging::AcsLogService_var logSvc = Logging::AcsLogService::_narrow(log_obj.in());
+						if (logSvc.ptr() != Logging::AcsLogService::_nil())
+						{
+							logger_mp->setCentralizedLogger(logSvc.in());
+						}
+					}
+				}
+			}
+		}
 		LoggingProxy::init(logger_mp);
 		loggerInitCount_m++; // we initialized Proxy another time
 	}

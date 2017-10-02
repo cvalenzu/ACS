@@ -56,6 +56,7 @@ void BulkDataNTWriterListener::on_offered_deadline_missed (
 {
 	DDSOffeeredDeadlineMissedCompletion iqerr(__FILE__, __LINE__, __FUNCTION__);
 	initalizeLogging(); //force initialization of logging sys TBD changed
+	LoggingProxy::ThreadName((std::string("Sender") + std::string(":") + topicName_m).c_str());
 	callback_mp->onError(iqerr);
 }
 
@@ -65,6 +66,7 @@ void BulkDataNTWriterListener::on_offered_incompatible_qos (
 {
 	DDSOfferedIncompatibleQoSCompletion iqerr(__FILE__, __LINE__, __FUNCTION__);
 	initalizeLogging(); //force initialization of logging sys TBD changed
+	LoggingProxy::ThreadName((std::string("Sender") + std::string(":") + topicName_m).c_str());
 	callback_mp->onError(iqerr);
 }
 
@@ -75,18 +77,23 @@ void BulkDataNTWriterListener::on_liveliness_lost (
 {
 	DDSLivelinesLostCompletion llcomp(__FILE__, __LINE__, __FUNCTION__);
 	initalizeLogging(); //force initialization of logging sys TBD changed
+	LoggingProxy::ThreadName((std::string("Sender") + std::string(":") + topicName_m).c_str());
 	callback_mp->onError(llcomp);
 }
 
 
 void BulkDataNTWriterListener::on_publication_matched (DDS::DataWriter* writer,	const DDS::PublicationMatchedStatus & status)
 {
+	initalizeLogging(); //force initialization of logging sys TBD changed
+	LoggingProxy::ThreadName((std::string("Sender") + std::string(":") + topicName_m).c_str());
 	ACS_TRACE(__FUNCTION__);
 }//on_publication_matched
 
 void BulkDataNTWriterListener::on_reliable_writer_cache_changed(DDSDataWriter* writer,
 		const DDS_ReliableWriterCacheChangedStatus& status)
 {
+	initalizeLogging(); //force initialization of logging sys TBD changed
+	LoggingProxy::ThreadName((std::string("Sender") + std::string(":") + topicName_m).c_str());
 	sum_unacknowledged_sample += status.unacknowledged_sample_count;
 	if( status.unacknowledged_sample_count > max_unacknowledged_sample)
 		max_unacknowledged_sample = status.unacknowledged_sample_count;
@@ -101,6 +108,8 @@ void BulkDataNTWriterListener::on_reliable_writer_cache_changed(DDSDataWriter* w
 void BulkDataNTWriterListener::on_reliable_reader_activity_changed(DDSDataWriter* writer,
 		const DDS::ReliableReaderActivityChangedStatus& status)
 {
+	initalizeLogging(); //force initialization of logging sys TBD changed
+	LoggingProxy::ThreadName((std::string("Sender") + std::string(":") + topicName_m).c_str());
 	if (status.active_count_change>0)
 	    {
 	      for(int i=0; i<status.active_count_change; i++)
@@ -131,6 +140,7 @@ void BulkDataNTWriterListener::on_destination_unreachable(DDSDataWriter* writer,
 
 	DDSDestinationUnreachableCompletion  du(__FILE__, __LINE__, __FUNCTION__);
 	initalizeLogging(); //force initialization of logging sys TBD changed
+	LoggingProxy::ThreadName((std::string("Sender") + std::string(":") + topicName_m).c_str());
 	callback_mp->onError(du);
 }
 
