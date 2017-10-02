@@ -81,6 +81,7 @@ BulkDataNTReaderListener::~BulkDataNTReaderListener ()
 void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
 {
   initalizeLogging(); //force initialization of logging sys TBD changed
+  LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
   if (DDSConfiguration::debugLevel>3)
   {
 	  // the message can cause performance penalty for small data sizes
@@ -355,6 +356,7 @@ void BulkDataNTReaderListener::on_requested_deadline_missed(DDS::DataReader*, co
 {
   ACS_DDS_Errors::DDSRequestedDeadlineMissedCompletion dmerr(__FILE__, __LINE__, __FUNCTION__);
   initalizeLogging(); //force initialization of logging sys TBD changed
+  LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
   callback_mp->onError(dmerr);
 }//on_requested_deadline_missed
 
@@ -362,11 +364,14 @@ void BulkDataNTReaderListener::on_requested_incompatible_qos(DDS::DataReader*, c
 {
   ACS_DDS_Errors::DDSRequestedIncompatibleQoSCompletion iqerr(__FILE__, __LINE__, __FUNCTION__);
   initalizeLogging(); //force initialization of logging sys TBD changed
+  LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
   callback_mp->onError(iqerr);
 }//on_requested_incompatible_qos
 
 void BulkDataNTReaderListener::on_liveliness_changed(DDS::DataReader*, const DDS::LivelinessChangedStatus& lcs)
 {
+  initalizeLogging(); //force initialization of logging sys TBD changed
+  LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
   if (lcs.alive_count_change>0)
     {
       for(int i=0; i<lcs.alive_count_change; i++)
@@ -402,11 +407,15 @@ void BulkDataNTReaderListener::on_liveliness_changed(DDS::DataReader*, const DDS
 
 void BulkDataNTReaderListener::on_subscription_matched(DDS::DataReader*, const DDS::SubscriptionMatchedStatus&)
 {
+  initalizeLogging(); //force initialization of logging sys TBD changed
+  LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
   ACS_TRACE(__FUNCTION__);
 }//on_subscription_matched
 
 void BulkDataNTReaderListener::on_sample_rejected( DDS::DataReader*, const DDS::SampleRejectedStatus& srs)
 {
+	initalizeLogging(); //force initialization of logging sys TBD changed
+	LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
 	RepeatGuard rg(5000000/*=0.5s*/,0);
 	if ( DDSConfiguration::debugLevel > 0 || rg.checkAndIncrement() )
 	{
@@ -429,6 +438,7 @@ void BulkDataNTReaderListener::on_sample_lost(DDS::DataReader*, const DDS::Sampl
   sle.setTotalSampleLost(s.total_count);
   sle.setReason(s.last_reason);
   initalizeLogging(); //force initialization of logging sys TBD changed
+  LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
   BDNT_LISTENER_USER_ERR( callback_mp->onDataLost(frameCounter_m, totalFrames_m, sle) )
 }//on_sample_lost
 
