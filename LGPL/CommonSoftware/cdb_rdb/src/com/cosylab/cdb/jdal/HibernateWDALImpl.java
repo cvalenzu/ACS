@@ -3597,7 +3597,8 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 		m_logger.info("clear_cache(curl): Main8");
 
 		for (String c : curls)
-			clearCache(c);
+            if (c.matches("^"+curl+"/") || c.matches("^"+curl+"$"))
+                clearCache(c);
 		m_logger.info("clear_cache(curl): Main9");
 	}
 
