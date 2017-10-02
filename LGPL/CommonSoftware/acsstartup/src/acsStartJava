@@ -71,7 +71,6 @@ CL_JARS=
 CL_NAC=
 CL_NCL=
 CL_DEBUGPORT=
-CL_ALLOWFLIGHTRECORDER=
 CL_NODIRECTORY=
 CL_VMTOOLS=
 CL_SPLASHFILE=
@@ -81,7 +80,7 @@ CL_JAVAOPTIONS=
 #
 # These options can be recognized (longopts comma-separated. colon means argument is required)
 #
-LONGOPTS=help,clientVM,maxHeapSize:,jvmFlags:,javaOptions:,threadStackSize:,noexport,managerReference:,baseport:,jarpath:,endorsed,addToClasspath:,noClassLoader,noAutoClasspath,debugport:,allowFlightRecorder,noDirectory,vmtools,splash:
+LONGOPTS=help,clientVM,maxHeapSize:,jvmFlags:,javaOptions:,threadStackSize:,noexport,managerReference:,baseport:,jarpath:,endorsed,addToClasspath:,noClassLoader,noAutoClasspath,debugport:,noDirectory,vmtools,splash:
 SHORTOPTS=hm:b:D:j:o:
 
 #
@@ -107,7 +106,6 @@ function printUsage {
 	echo "   -noClassLoader                                   do not use the special ACS class loader to find the jar files,"
 	echo "                                                       all files must be found in the CLASSPATH."
 	echo "   -debugport PORT                                  the port on which a remote debugger may access the JVM"
-	echo "   -allowFlightRecorder                             allows an attached Java Missions Control GUI to start the flight recorder for profiling tests"
 	echo "   -noDirectory                                     do not create an acs instance directory"
 	echo "   -vmtools                                         start JVM Tools together with the application"
 	echo "   -splash FILE                                     uses file FILE for splash screen (if needed)"
@@ -191,7 +189,6 @@ do
 	--noAutoClasspath)     CL_NAC=true ;;
 	--noClassLoader)       CL_NCL=true ;;
 	--debugport)           CL_DEBUGPORT=$2 ; shift ;;
-	--allowFlightRecorder) CL_ALLOWFLIGHTRECORDER=true ;;
 	--noDirectory)         CL_NODIRECTORY=true ;;
 	--vmtools)             CL_VMTOOLS=true ;;
 	--splash)              CL_SPLASHFILE=$2; shift ;;
@@ -543,20 +540,6 @@ if [ "$CL_DEBUGPORT" ]; then
   ACS_LOG_INFO "acsStartJava" "The JVM will accept a remote debugger on port $CL_DEBUGPORT"
 fi
 ### ---------- End of "debugport" handling -------------
-
-
-
-###
-### -------------  "Mission Control - Flight Recorder" handling  ---------------
-###                TODO: See http://docs.oracle.com/javase/7/docs/technotes/tools/solaris/java.html
-###                      about -XX:FlightRecorderOptions parameters. 
-###
-if [ "$CL_ALLOWFLIGHTRECORDER" ]; then
-  JAVA_OPTIONS="$JAVA_OPTIONS -XX:+UnlockCommercialFeatures -XX:+FlightRecorder"
-
-  ACS_LOG_INFO "acsStartJava" "The JVM will allow an attached JMC to start the Flight Recorder."
-fi
-### ---------- End of "Mission Control - Flight Recorder" handling -------------
 
 
 
