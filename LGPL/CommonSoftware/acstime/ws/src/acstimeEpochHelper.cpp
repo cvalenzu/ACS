@@ -918,19 +918,19 @@ EpochHelper::fromString(acstime::TimeSystem ts, const char* epoch)
     day_mOfYear = dayOfWeek_m = 0;
 
     istr >> year_m;
-    if ( (istr==0) || istr.get() != '-')
+    if ( (!istr) || istr.get() != '-')
         {
         throw (ArgErrorExImpl(__FILE__, __LINE__, "EpochHelper::fromString"));
 	}
 
     istr >> month_m;
-    if ( (istr==0) || istr.get() != '-')
+    if ( (!istr) || istr.get() != '-')
         {
         throw (ArgErrorExImpl(__FILE__, __LINE__, "EpochHelper::fromString"));
 	}
 
     istr >> day_m;
-    if ( (istr==0))
+    if ( (!istr))
         {
         throw (ArgErrorExImpl(__FILE__, __LINE__, "EpochHelper::fromString"));
 	}
@@ -943,19 +943,19 @@ EpochHelper::fromString(acstime::TimeSystem ts, const char* epoch)
 	}
 
     istr >> hour_m;
-    if ( (istr==0) || istr.get() != ':')
+    if ( (!istr) || istr.get() != ':')
         {
         throw (ArgErrorExImpl(__FILE__, __LINE__, "EpochHelper::fromString"));
 	}
 
     istr >> minute_m;
-    if ( (istr==0) || istr.get() != ':')
+    if ( (!istr) || istr.get() != ':')
         {
         throw (ArgErrorExImpl(__FILE__, __LINE__, "EpochHelper::fromString"));
 	}
 
     istr >> second_m;
-    if ( (istr==0))
+    if ( (!istr))
         {
         throw (ArgErrorExImpl(__FILE__, __LINE__, "EpochHelper::fromString"));
 	}
@@ -970,7 +970,7 @@ EpochHelper::fromString(acstime::TimeSystem ts, const char* epoch)
 	for (i = 0; i < 6; i++)
 	    {
 	    char c = istr.get();
-	    if ( (istr==0) || ! isdigit(c))
+	    if ( (!istr) || ! isdigit(c))
 		{
 	        break;
 		}
@@ -987,7 +987,7 @@ EpochHelper::fromString(acstime::TimeSystem ts, const char* epoch)
     if (istr.get() == '.')
         {
         istr >> microSecond_m;
-	if (istr==0)
+	if (!istr)
 	    {
             throw (ArgErrorExImpl(__FILE__, __LINE__, "EpochHelper::fromString"));
             }
