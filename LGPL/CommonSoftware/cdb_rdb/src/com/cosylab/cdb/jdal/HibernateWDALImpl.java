@@ -1151,13 +1151,13 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 							xml = getComponentXML(xmlCDB_, componentName, xml);
 						}
 						
-					    Component component = new Component();
-					    // TODO this can be optimized!!!
-					    component.setComponentType((ComponentType)session.get(ComponentType.class, typeId));
-					    component.setComponentName(realComponentName);
-					    component.setConfiguration(config);
-//					    component.setContainerId(componentContainerId);
-					    component.setContainer(tmpComponentContainer); // TODO verify this and clean up
+						Component component = new Component();
+						// TODO this can be optimized!!!
+						component.setComponentType((ComponentType)session.get(ComponentType.class, typeId));
+						component.setComponentName(realComponentName);
+						component.setConfiguration(config);
+//						component.setContainerId(componentContainerId);
+						component.setContainer(tmpComponentContainer); // TODO verify this and clean up
 						component.setImplLang(ImplLangEnum.valueOfForEnum(readString(componentDAO, componentName+"/ImplLang", "cpp")));	// cpp is default, since field is required
 						component.setRealTime(false);
 						component.setCode(componentDAO.get_string(componentName+"/Code"));
@@ -1170,7 +1170,9 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 						component.setMinLogLevel((byte)readLong(componentDAO, componentName+"/ComponentLogger/minLogLevel", -1));
 						component.setMinLogLevelLocal((byte)readLong(componentDAO, componentName+"/ComponentLogger/minLogLevelLocal", -1));
 						component.setXMLDoc(xml);
-                    	component.setURN(schema == null ? null : schema.getURN());
+						component.setURN(schema == null ? null : schema.getURN());
+						component.setActionThreadStackSize((Integer)readLong(componentDAO, componentName+"/actionThreadStackSize", -1));
+						component.setMonitoringThreadStackSize((Integer)readLong(componentDAO, componentName+"/monitoringThreadStackSize", -1));
 						session.persist(component);
 						session.flush();
 					
