@@ -46,22 +46,14 @@ ACRO_READER=$?
 # if option -c is specified we check out all necessary files
 if [ "$1" == "-c" ]
 then
-    echo "Checking out RTIDDS (host tar $HOST_TAR for target $TARGET_TAR)"
+    echo "Checking if RTIDDS is available (host tar $HOST_TAR for target $TARGET_TAR)"
     cd ..
-    svn up NO-LGPL --depth files
-    if [ $? != 0 ]
+    if [ ! -d ../NO-LGPL/RTIDDS ]
     then
-        echo "ERROR: Could not svn co: ACS/ExtProd/NO-LGPL"
+        echo "ERROR: ACS/ExtProd/NO-LGPL/RTIDDS is not available silly"
         exit 4
     fi
     cd NO-LGPL
-    svn up RTIDDS
-
-    if [ $? != 0 ]
-    then
-        echo "ERROR: Could not svn co: ACS/ExtProd/NO-LGPL/RTIDDS"
-        exit 4
-    fi
     DDS_DIR=$PWD/RTIDDS
 fi
 
