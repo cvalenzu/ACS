@@ -48,7 +48,7 @@ if [ "$1" == "-c" ]
 then
     echo "Checking if RTIDDS is available (host tar $HOST_TAR for target $TARGET_TAR)"
     cd ..
-    if [ ! -d ../NO-LGPL/RTIDDS ]
+    if [ ! -d NO-LGPL/RTIDDS ]
     then
         echo "ERROR: ACS/ExtProd/NO-LGPL/RTIDDS is not available silly"
         exit 4
