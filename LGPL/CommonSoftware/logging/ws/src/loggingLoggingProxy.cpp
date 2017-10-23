@@ -667,7 +667,7 @@ LoggingProxy::log(ACE_Log_Record &log_record)
 	{
 	 if (oldLog == NULL){
 	    CORBA::Any record;
-	    record <<= xml.c_str();
+	    record <<= CORBA::string_dup(xml.c_str());
 	    if (!sendRecord(record))
 	    {
 	       m_cache.push_back(xml);
@@ -676,7 +676,7 @@ LoggingProxy::log(ACE_Log_Record &log_record)
 	 else{
 	    Logging::XmlLogRecordSeq reclist;
 	    reclist.length(1);
-	    reclist[0].xml = xml.c_str();
+	    reclist[0].xml = CORBA::string_dup(xml.c_str());
 	    if (!sendRecord(reclist))
 	    {
 	       m_cache.push_back(xml);
