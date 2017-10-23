@@ -52,3 +52,4 @@ SOURCE loggingTATEnvironment
                 "testLoggingSubscriber" "@SLEEP 10" \
                 "acsNotifyService -k -n Logging" "@SLEEP 5" \
                 "acsNotifyService -s -n Logging" "@SLEEP 15"
+19 testExecuteWithLogger "testExecuteWithLogger"

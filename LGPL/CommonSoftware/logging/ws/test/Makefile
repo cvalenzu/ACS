@@ -58,7 +58,8 @@
 EXECUTABLES     =
 EXECUTABLES_L   = 	testLogger testLoggerStats testNoLogging testMacros \
 			loggingXMLParserTest testGenericLogger testLoggable testLoggingProxy \
-            testAnyLog testAUD_ARR testLog4cpp testIsInitThread testMultiThreads testLoggingSubscriber testGenLogs testLoggerStatistics
+			testAnyLog testAUD_ARR testLog4cpp testIsInitThread testMultiThreads testLoggingSubscriber \
+			testGenLogs testLoggerStatistics testExecuteWithLogger
 
 testLoggerStatistics_OBJECTS = testLoggerStatistics
 testLoggerStatistics_LDFLAGS =
@@ -108,6 +109,10 @@ testLoggingSubscriber_LIBS=logging acsThread TAO_CosNotification_Serv
 
 testGenLogs_OBJECTS=testGenLogs ../src/loggingHelper
 testGenLogs_LIBS=logging
+
+testExecuteWithLogger_OBJECTS=testExecuteWithLogger
+testExecuteWithLogger_LIBS=boost_system boost_thread boost_date_time logging maciClient
+testExecuteWithLogger_CFLAGS=-std=gnu++0x
 
 #
 # <brief description of xxxxx program>
