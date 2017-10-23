@@ -353,7 +353,7 @@ ACSStructuredPushConsumer::push_structured_event (const CosNotification::Structu
         // for logging
         const char * xmlLog;
         notification.remainder_of_body >>= xmlLog;
-	Logging::XmlLogRecordSeq *reclist;
+	const Logging::XmlLogRecordSeq *reclist;
 	notification.remainder_of_body >>= reclist;
 
         if (xmlLog)
@@ -396,7 +396,7 @@ ACSStructuredPushConsumer::push_structured_event (const CosNotification::Structu
 	}
     }else{
         // for logging
-        ACSLoggingLog::LogBinaryRecord *log;
+        const ACSLoggingLog::LogBinaryRecord *log;
         notification.remainder_of_body >>= log;
         if (log)
         {

@@ -59,12 +59,12 @@ void blocking_queue<T>::unblock() {
 }
 
 template<class T>
-event_info<T>::event_info(T &event, double &maxProcessTime, std::string & type_name) :
+event_info<T>::event_info(const T &event, double &maxProcessTime, std::string & type_name) :
         event(event), maxProcessTime(maxProcessTime), type_name(type_name) {
 }
 
 template<class T>
-event_info<T>::event_info(T &event, double &maxProcessTime, const char *type_name) :
+event_info<T>::event_info(const T &event, double &maxProcessTime, const char *type_name) :
         event(event), maxProcessTime(maxProcessTime), type_name(type_name) {
 }
 

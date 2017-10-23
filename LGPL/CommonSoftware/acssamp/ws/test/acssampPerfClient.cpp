@@ -98,8 +98,9 @@ class SamplerConsumer : public nc::Consumer
     CORBA::ULongLong diff;
 
 
-    acssamp::SampObj::SampDataBlockSeq *m_SampledData_p, m_SampledData;
-    m_SampledData_p=&m_SampledData;
+    acssamp::SampObj::SampDataBlockSeq *m_SampledData;
+    const acssamp::SampObj::SampDataBlockSeq *m_SampledData_p;
+    m_SampledData_p=const_cast<acssamp::SampObj::SampDataBlockSeq*>(m_SampledData);
 
     notification.filterable_data[0].value >>= m_SampledData_p;
 
