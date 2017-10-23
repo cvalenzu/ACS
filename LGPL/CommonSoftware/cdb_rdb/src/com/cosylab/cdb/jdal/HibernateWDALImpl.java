@@ -3482,6 +3482,7 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 			throw new NO_RESOURCES("load in progress");
 		}
 		curl = curl.replaceAll("/+","/");
+		String c = curl;
 		//Reload curl data from DB
 		if(curl.matches("/")) {
 			System.out.println("clear_cache_all()");
@@ -3496,8 +3497,8 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 				th.printStackTrace();
 			}
 			m_logger.info("clear_cache(curl): Main2");
-			String c = curl.replaceFirst("^/", "");
-			c = curl.replaceFirst("/$", "");
+			c = c.replaceFirst("^/", "");
+			c = c.replaceFirst("/$", "");
 			if (plugin != null) {
 				try {
 					Map<String, Object> rootMap = (Map<String, Object>) rootNode;
@@ -3517,7 +3518,7 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 			} else if (c.startsWith(COMPONENT_TREE_NAME)){
 				loadComponentsTree(c, true);
 			} else {
-				System.out.println("Unsupported curl: "+ curl);
+				System.out.println("Unsupported curl: "+ curl + ":" + c);
 			}
 			m_logger.info("clear_cache(curl): Main4");
 			if (plugin != null) {
@@ -3576,14 +3577,15 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 		synchronized (listenedCurls) {
 			Iterator iter = listenedCurls.keySet().iterator();
 			while (iter.hasNext()) {
-				String c = (String) iter.next();
-				curls.add(c);
+				String cl = (String) iter.next();
+				curls.add(cl);
 			}
 		}
 		m_logger.info("clear_cache(curl): Main8");
 
-		for (String c : curls)
-			clearCache(c);
+		for (String cl : curls)
+            if (cl.matches("^"+c+"/.*") || cl.matches("^"+c+"$"))
+                clearCache(cl);
 		m_logger.info("clear_cache(curl): Main9");
 	}
 
