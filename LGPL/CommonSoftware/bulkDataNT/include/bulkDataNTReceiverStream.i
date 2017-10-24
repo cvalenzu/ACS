@@ -188,7 +188,7 @@ void BulkDataNTReceiverStream<TReceiverCallback>::createMultipleFlowsFromConfig(
 			this->createFlow(strFlowNumber, cfg);
 		}//for
 
-	}catch(const ACSErr::ACSbaseExImpl &ex)
+	}catch(ACSErr::ACSbaseExImpl &ex)
 	{
 		ex.log();
 	}
