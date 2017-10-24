@@ -497,7 +497,7 @@ DurationHelper::fromString(const char *duration)
         }
 
     istr >> day_m;    // first number can be either day or hour
-    if (istr==0)
+    if (!istr)
         {
         throw (ArgErrorExImpl(__FILE__, __LINE__, "DurationHelper::fromString"));
 	}
@@ -510,20 +510,20 @@ DurationHelper::fromString(const char *duration)
     else
         {    // here first number is day
         istr >> hour_m;
-        if ((istr==0) || istr.get() != ':')
+        if ((!istr) || istr.get() != ':')
             {
             throw (ArgErrorExImpl(__FILE__, __LINE__, "DurationHelper::fromString"));
 	    }
         }
 
     istr >> minute_m;
-    if ( (istr==0) || istr.get() != ':')
+    if ( (!istr) || istr.get() != ':')
         {
         throw (ArgErrorExImpl(__FILE__, __LINE__, "DurationHelper::fromString"));
 	}
 
     istr >> second_m;
-    if (istr==0)
+    if (!istr)
         {
         throw (ArgErrorExImpl(__FILE__, __LINE__, "DurationHelper::fromString"));
 	}
@@ -538,7 +538,7 @@ DurationHelper::fromString(const char *duration)
 	for (i = 0; i < 6; i++)
 	    {
 	    char c = istr.get();
-	    if ((istr==0) || (isdigit(c)==0))
+	    if ((!istr) || (isdigit(c)==0))
 		{
 	        break;
 		}
@@ -554,7 +554,7 @@ DurationHelper::fromString(const char *duration)
     if (istr.get() == '.')
         {
         istr >> microSecond_m;
-	if (istr==0)
+	if (!istr)
             {
             throw (ArgErrorExImpl(__FILE__, __LINE__, "DurationHelper::fromString"));
             }
