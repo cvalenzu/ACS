@@ -31,6 +31,11 @@
 
 namespace baci {
 
+const bool AlarmSystemMonitorBooleanSeq::ENABLE = true;
+const bool AlarmSystemMonitorBooleanSeq::DISABLE = false;
+const int32_t AlarmSystemMonitorBooleanSeq::ALARM_NOT_RAISED = 0;
+const int32_t AlarmSystemMonitorBooleanSeq::ALARM_RAISED = 1;
+
 AlarmSystemMonitorBooleanSeq::AlarmSystemMonitorBooleanSeq(RObooleanSeq* property,
 		EventDispatcher * eventDispatcher)
 	: AlarmSystemMonitor<RObooleanSeq>(property, eventDispatcher)

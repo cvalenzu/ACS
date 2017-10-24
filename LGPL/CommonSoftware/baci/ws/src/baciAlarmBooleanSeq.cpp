@@ -29,6 +29,9 @@
 
 namespace baci {
 
+const int32_t AlarmEventStrategyBooleanSeq::ALARM_NOT_RAISED = 0;
+const int32_t AlarmEventStrategyBooleanSeq::ALARM_RAISED = 1;
+
 AlarmEventStrategyBooleanSeq::AlarmEventStrategyBooleanSeq(RObooleanSeq * property,
 		EventDispatcher * eventDispatcher)
  : AlarmEventStrategy<ACS::booleanSeq, RObooleanSeq, ACS::Alarmboolean>(property, eventDispatcher)
