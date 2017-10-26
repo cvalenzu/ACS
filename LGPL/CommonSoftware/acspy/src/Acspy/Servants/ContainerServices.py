@@ -272,7 +272,7 @@ class ContainerServices(object):
 
         if (comp_name is not None) and (comp_type is None):
             #Get a list of all components
-            components = self.availableComponents()
+            components = self.availableComponents(comp_name)
 
             #search each Component
             for component in components:

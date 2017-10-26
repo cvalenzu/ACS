@@ -105,7 +105,7 @@ INCLUDES        = 	logging.h loggingExport.h loggingBaseExport.h loggingXMLEleme
             loggingACSCategory.h loggingACSLoggingEvent.h loggingLogThrottle.h \
             loggingACSRemoteAppender.h loggingLog4cpp.h loggingLog4cppMACROS.h \
 			loggingLog4cppACEMACROS.h loggingACSHierarchyMaintainer.h loggingThrottleAlarmInterface.h \
-			loggingStopWatch.h
+			loggingStopWatch.h loggingExecuteWithLogger.h loggingExecuteWithLogger.i
 INCLUDES_L      = loggingService.h \
 		  loggingACSStructuredPushSupplier.h \
 		  loggingACSStructuredPushSupplierXml.h \
