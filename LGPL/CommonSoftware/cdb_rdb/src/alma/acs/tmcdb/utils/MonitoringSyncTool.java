@@ -758,6 +758,8 @@ public class MonitoringSyncTool {
             retVal.addAll(getXmlBaciProperties(types.get("FEMC"), types));
         } else if (type.getName().equals("WCA")) {
             retVal.addAll(getXmlBaciProperties(types.get("FEMC"), types));
+        } else if (type.getName().equals("FETIM")) {
+            retVal.addAll(getXmlBaciProperties(types.get("FEMC"), types));
         }
         return retVal;
     }
