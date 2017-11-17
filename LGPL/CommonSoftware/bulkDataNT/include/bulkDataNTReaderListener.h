@@ -45,7 +45,7 @@ class BulkDataNTReaderListener
 {
 public:
   //Constructor
-  BulkDataNTReaderListener (const char*name, BulkDataNTCallback* cb);
+  BulkDataNTReaderListener (const char*name, BulkDataNTCallback* cb, bool skipReceivingDataAfterFailure);
 
   //destructor
   virtual ~BulkDataNTReaderListener (void);
@@ -99,6 +99,7 @@ private:
 
   BulkDataNTCallback* callback_mp; /// pointer to user defined callback
   bool enableCB_m;  /// should be called user's callback or not ?
+  bool skipdata_m; //Set true to use an unreliable receiver
 
   ACE_Time_Value cbReceiveStartTime_m;  /// time just be4 cbReceive is going to be executed
   ACE_Time_Value cbReceiveElapsedTime_m;  /// elapsed time of cbReceive

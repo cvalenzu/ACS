@@ -40,14 +40,15 @@ using namespace std;
 
 const char *BulkDataNTReaderListener::state2String[] = {"StartState", "DataRcvState", "StopState", "IgnoreDataState" };
 
-BulkDataNTReaderListener::BulkDataNTReaderListener(const char* name, BulkDataNTCallback* cb)
+BulkDataNTReaderListener::BulkDataNTReaderListener(const char* name, BulkDataNTCallback* cb, bool skipReceivingDataAfterFailure)
 : BulkDataNTDDSLoggable("BulkDataNT:"+string(name)),
   currentState_m(StartState),
   topicName_m(name),
   dataLength_m(0),
   frameCounter_m(0),
   totalFrames_m(0),
-  callback_mp (cb), enableCB_m(true)
+  callback_mp (cb), enableCB_m(true),
+  skipdata_m(skipReceivingDataAfterFailure)
 {
   ACS_TRACE(__FUNCTION__);
   nextFrame_m=0;
@@ -176,7 +177,8 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
                               lde.setStreamFlowName(topicName_m.c_str());
                               BDNT_LISTENER_USER_ERR( callback_mp->onDataLost(frameCounter_m, totalFrames_m, lde))
                               increasConseqErrorCount();
-                              return; // ??
+                              if (!skipdata_m)
+                            	  return; // ??
                             }
                           nextFrame_m = message.restDataLength-1;
                         }
