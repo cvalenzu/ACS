@@ -87,7 +87,10 @@ public class AcsStartRemote {
 	}
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		AcsStartRemote start = new AcsStartRemote();
+		List<AcsService> services = start.getServicesDeployment();
+		for (AcsService s : services)
+			System.out.println("" + s.getServiceType() + s.getComputer().getNetworkName());
 
 	}
 
