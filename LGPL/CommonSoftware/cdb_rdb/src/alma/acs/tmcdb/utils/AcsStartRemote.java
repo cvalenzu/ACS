@@ -28,11 +28,13 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 
 import com.cosylab.cdb.jdal.HibernateWDALImpl;
+import com.cosylab.cdb.jdal.hibernate.HibernateDBUtil;
 import com.cosylab.cdb.jdal.hibernate.HibernateUtil;
+import com.cosylab.cdb.jdal.hibernate.plugin.HibernateWDALPlugin;
+import com.cosylab.cdb.jdal.hibernate.plugin.PluginFactory;
 
 import alma.acs.tmcdb.AcsService;
 import alma.acs.tmcdb.Computer;
@@ -50,6 +52,8 @@ public class AcsStartRemote {
 	private Configuration config;
 	
 	public AcsStartRemote() {
+		HibernateWDALPlugin plugin = PluginFactory.getPlugin(Logger.getAnonymousLogger());
+		HibernateDBUtil util = new HibernateDBUtil(Logger.getAnonymousLogger(), plugin);
 		hibU = HibernateUtil.getInstance(Logger.getAnonymousLogger());
 		Session session = hibU.getSessionFactory().openSession();
 		try {
