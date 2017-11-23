@@ -24,9 +24,11 @@
  */
 package alma.acs.tmcdb.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
@@ -36,9 +38,16 @@ import com.cosylab.cdb.jdal.hibernate.HibernateUtil;
 import com.cosylab.cdb.jdal.hibernate.plugin.HibernateWDALPlugin;
 import com.cosylab.cdb.jdal.hibernate.plugin.PluginFactory;
 
+import alma.ACSErrTypeCommon.BadParameterEx;
+import alma.ACSErrTypeCommon.NoResourcesEx;
 import alma.acs.tmcdb.AcsService;
 import alma.acs.tmcdb.Computer;
 import alma.acs.tmcdb.Configuration;
+import alma.acs.util.ACSPorts;
+import alma.acsdaemon.ServiceDefinitionBuilder;
+import alma.acsdaemon.ServicesDaemon;
+import alma.acsdaemon.ServicesDaemonHelper;
+import alma.acsdaemon.ServicesDaemonOperations;
 
 public class AcsStartRemote {
 
@@ -50,10 +59,13 @@ public class AcsStartRemote {
 	
 	private HibernateUtil hibU;
 	private Configuration config;
+	private final String[] args;
 	
-	public AcsStartRemote() {
+	public AcsStartRemote(String[] args) {
+		this.args = args;
 		HibernateWDALPlugin plugin = PluginFactory.getPlugin(Logger.getAnonymousLogger());
 		HibernateDBUtil util = new HibernateDBUtil(Logger.getAnonymousLogger(), plugin);
+		util.setUp(false, false);
 		hibU = HibernateUtil.getInstance(Logger.getAnonymousLogger());
 		Session session = hibU.getSessionFactory().openSession();
 		try {
@@ -79,7 +91,11 @@ public class AcsStartRemote {
 		List<AcsService> services = null;
 		try {
 			session.beginTransaction();
-			services = getListForConfiguration(session, AcsService.class);
+			session.refresh(config);
+			Hibernate.initialize(config.getAcsServices());
+			services = new ArrayList<AcsService>(config.getAcsServices());
+			for (AcsService s : services)
+				s.getComputer().getNetworkName();
 		} finally {
 			if (session != null)
 				session.close();
@@ -90,11 +106,32 @@ public class AcsStartRemote {
 	public void startServiceAt(AcsService service, Computer computer) {
 	}
 	
+	private ServicesDaemonOperations getServiceDaemonRef(Computer comp) {
+		String loc = "corbaloc::" + comp.getNetworkName() + ":" + ACSPorts.getServicesDaemonPort() + "/ACSServicesDaemon";
+		org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
+		org.omg.CORBA.Object object = orb.string_to_object(loc);
+		ServicesDaemon daemon = ServicesDaemonHelper.narrow(object);
+		return daemon;
+		
+	}
+	
 	public static void main(String[] args) {
-		AcsStartRemote start = new AcsStartRemote();
+		AcsStartRemote start = new AcsStartRemote(args);
 		List<AcsService> services = start.getServicesDeployment();
 		for (AcsService s : services)
-			System.out.println("" + s.getServiceType() + s.getComputer().getNetworkName());
+			System.out.println("" + s.getServiceType() + " " + s.getServiceInstanceName() + " " + s.getComputer().getNetworkName());
+		HibernateUtil.getInstance(Logger.getAnonymousLogger()).getSessionFactory().close();
+		ServicesDaemonOperations daemon = start.getServiceDaemonRef(services.get(0).getComputer());
+		try {
+			ServiceDefinitionBuilder builder = daemon.create_service_definition_builder((short) 0);
+			System.out.println(builder.get_services_definition());
+		} catch (BadParameterEx e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoResourcesEx e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
