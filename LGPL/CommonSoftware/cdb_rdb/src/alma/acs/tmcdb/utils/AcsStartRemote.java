@@ -258,9 +258,12 @@ public class AcsStartRemote {
 			session.beginTransaction();
 			session.refresh(config);
 			Hibernate.initialize(config.getContainers());
-			containers = new ArrayList<Container>(config.getContainers());
-			for (Container c: containers) {
-				c.getComputer().getNetworkName();
+			containers = new ArrayList<Container>();
+			for (Container c: config.getContainers()) {
+				if (c.getComputer() != null) {
+					c.getComputer().getNetworkName();
+					containers.add(c);
+				}
 				for (ContainerStartupOption cs: c.getContainerStartupOptions()) {
 					cs.getOptionType();
 				}
