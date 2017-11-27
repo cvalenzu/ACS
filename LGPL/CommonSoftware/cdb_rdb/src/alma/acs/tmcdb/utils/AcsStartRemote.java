@@ -185,8 +185,8 @@ public class AcsStartRemote {
 
 		@Override
 		public void run() {
+			orb.run();
 		}
-		
 		
 	}
 	
@@ -224,8 +224,14 @@ public class AcsStartRemote {
 		orb = org.omg.CORBA.ORB.init(args, null);
 		poa = org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 		poa.the_POAManager().activate();
+		ORBThread thread = new ORBThread();
+		thread.setDaemon(true);
+		thread.start();
 	}
 	
+	public void cleanup() {
+		orb.shutdown(false);
+	}
 	
 	@SuppressWarnings("unchecked")
 	private <T> List<T> getListForConfiguration(Session session, Class<T> type)
@@ -372,7 +378,7 @@ public class AcsStartRemote {
 		AcsStartRemote start = new AcsStartRemote(args);
 		start.startServices();
 		start.startContainers();
-
+		start.cleanup();
 	}
 
 }
