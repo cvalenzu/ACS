@@ -61,7 +61,6 @@ import alma.acsdaemon.ServicesDaemonOperations;
 import alma.acsdaemonErrType.FailedToStartContainerEx;
 import alma.acsdaemonErrType.ServiceAlreadyRunningEx;
 
-import com.cosylab.acs.maci.ServiceDaemon;
 import com.cosylab.cdb.jdal.HibernateWDALImpl;
 import com.cosylab.cdb.jdal.hibernate.HibernateDBUtil;
 import com.cosylab.cdb.jdal.hibernate.HibernateUtil;
@@ -103,29 +102,29 @@ public class AcsStartRemote {
 					return 0;
 				else 
 					return -1;
-			case LOGPROXY:
-				if (o2.getServiceType() == AcsServiceServiceType.NAMING || 
-						o2.getServiceType() == AcsServiceServiceType.IFR ||
-						o2.getServiceType() == AcsServiceServiceType.NAMING)
-					return 1;
-				else if (o2.getServiceType() == AcsServiceServiceType.LOGPROXY)
-					return 0;
-				else 
-					return -1;
 			case LOGGING:
 				if (o2.getServiceType() == AcsServiceServiceType.NAMING || 
 						o2.getServiceType() == AcsServiceServiceType.IFR ||
-						o2.getServiceType() == AcsServiceServiceType.NAMING ||
-						o2.getServiceType() == AcsServiceServiceType.LOGPROXY )
+						o2.getServiceType() == AcsServiceServiceType.NOTIFICATION )
 					return 1;
 				else if (o2.getServiceType() == AcsServiceServiceType.LOGGING)
+					return 0;
+				else 
+					return -1;
+			case LOGPROXY:
+				if (o2.getServiceType() == AcsServiceServiceType.NAMING || 
+						o2.getServiceType() == AcsServiceServiceType.IFR ||
+						o2.getServiceType() == AcsServiceServiceType.NOTIFICATION ||
+						o2.getServiceType() == AcsServiceServiceType.LOGGING)
+					return 1;
+				else if (o2.getServiceType() == AcsServiceServiceType.LOGPROXY)
 					return 0;
 				else 
 					return -1;
 			case CDB:
 				if (o2.getServiceType() == AcsServiceServiceType.NAMING || 
 						o2.getServiceType() == AcsServiceServiceType.IFR ||
-						o2.getServiceType() == AcsServiceServiceType.NAMING ||
+						o2.getServiceType() == AcsServiceServiceType.NOTIFICATION ||
 						o2.getServiceType() == AcsServiceServiceType.LOGPROXY ||
 						o2.getServiceType() == AcsServiceServiceType.LOGGING)
 					return 1;
@@ -136,7 +135,7 @@ public class AcsStartRemote {
 			case MANAGER:
 				if (o2.getServiceType() == AcsServiceServiceType.NAMING || 
 						o2.getServiceType() == AcsServiceServiceType.IFR ||
-						o2.getServiceType() == AcsServiceServiceType.NAMING ||
+						o2.getServiceType() == AcsServiceServiceType.NOTIFICATION ||
 						o2.getServiceType() == AcsServiceServiceType.LOGPROXY ||
 						o2.getServiceType() == AcsServiceServiceType.LOGGING ||
 						o2.getServiceType() == AcsServiceServiceType.CDB)
@@ -148,7 +147,7 @@ public class AcsStartRemote {
 			case ALARM:
 				if (o2.getServiceType() == AcsServiceServiceType.NAMING || 
 						o2.getServiceType() == AcsServiceServiceType.IFR ||
-						o2.getServiceType() == AcsServiceServiceType.NAMING ||
+						o2.getServiceType() == AcsServiceServiceType.NOTIFICATION ||
 						o2.getServiceType() == AcsServiceServiceType.LOGPROXY ||
 						o2.getServiceType() == AcsServiceServiceType.LOGGING ||
 						o2.getServiceType() == AcsServiceServiceType.CDB ||
@@ -231,14 +230,7 @@ public class AcsStartRemote {
 	
 	public void cleanup() {
 		orb.shutdown(false);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private <T> List<T> getListForConfiguration(Session session, Class<T> type)
-	{
-		List<T> result = null;
-		result = session.createCriteria(type.getClass()).add(Restrictions.eq("configuration", config)).list();
-        return result;
+		hibU.getSessionFactory().close();
 	}
 	
 	public List<AcsService> getServicesDeployment() {
