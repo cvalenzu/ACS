@@ -35,6 +35,10 @@ import java.util.logging.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.omg.CORBA.ORBPackage.InvalidName;
+import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
+import org.omg.PortableServer.POAPackage.ServantNotActive;
+import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 import alma.ACSErr.Completion;
 import alma.ACSErrTypeCommon.BadParameterEx;
@@ -49,6 +53,7 @@ import alma.acsdaemon.ContainerDaemon;
 import alma.acsdaemon.ContainerDaemonHelper;
 import alma.acsdaemon.ContainerDaemonOperations;
 import alma.acsdaemon.DaemonCallback;
+import alma.acsdaemon.DaemonCallbackHelper;
 import alma.acsdaemon.DaemonCallbackPOA;
 import alma.acsdaemon.ServicesDaemon;
 import alma.acsdaemon.ServicesDaemonHelper;
@@ -56,6 +61,7 @@ import alma.acsdaemon.ServicesDaemonOperations;
 import alma.acsdaemonErrType.FailedToStartContainerEx;
 import alma.acsdaemonErrType.ServiceAlreadyRunningEx;
 
+import com.cosylab.acs.maci.ServiceDaemon;
 import com.cosylab.cdb.jdal.HibernateWDALImpl;
 import com.cosylab.cdb.jdal.hibernate.HibernateDBUtil;
 import com.cosylab.cdb.jdal.hibernate.HibernateUtil;
@@ -175,6 +181,15 @@ public class AcsStartRemote {
 		
 	}
 	
+	private class ORBThread extends Thread {
+
+		@Override
+		public void run() {
+		}
+		
+		
+	}
+	
 	private HibernateUtil hibU;
 	private Configuration config;
 	private final String[] args;
@@ -182,8 +197,10 @@ public class AcsStartRemote {
 	private final HashMap<String, ContainerDaemonOperations> containerDaemonCache;
 	private final ReentrantLock lock;
 	private final Condition notCompleted;
+	private final org.omg.CORBA.ORB orb;
+	private final org.omg.PortableServer.POA poa;
 	
-	public AcsStartRemote(String[] args) {
+	public AcsStartRemote(String[] args) throws InvalidName, AdapterInactive {
 		this.args = args;
 		HibernateWDALPlugin plugin = PluginFactory.getPlugin(Logger.getAnonymousLogger());
 		HibernateDBUtil util = new HibernateDBUtil(Logger.getAnonymousLogger(), plugin);
@@ -203,7 +220,12 @@ public class AcsStartRemote {
 		containerDaemonCache = new HashMap<>();
 		lock = new ReentrantLock();
 		notCompleted = lock.newCondition();
+		
+		orb = org.omg.CORBA.ORB.init(args, null);
+		poa = org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+		poa.the_POAManager().activate();
 	}
+	
 	
 	@SuppressWarnings("unchecked")
 	private <T> List<T> getListForConfiguration(Session session, Class<T> type)
@@ -267,15 +289,20 @@ public class AcsStartRemote {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			} catch (ServantNotActive e) {
+				e.printStackTrace();
+			} catch (WrongPolicy e) {
+				e.printStackTrace();
 			} finally {
 				lock.unlock();
 			}
 		}
 	}
 	
-	public void startService(AcsService service) throws BadParameterEx, ServiceAlreadyRunningEx {
+	public void startService(AcsService service) throws BadParameterEx, ServiceAlreadyRunningEx, ServantNotActive, WrongPolicy {
 		ServicesDaemonOperations daemon = getServiceDaemonRef(service.getComputer());
-		DaemonCallback callback = new MyCallback()._this();
+		
+		DaemonCallback callback = DaemonCallbackHelper.narrow(poa.servant_to_reference(new MyCallback()));
 		switch (service.getServiceType()) {
 		case NAMING:
 			daemon.start_naming_service(callback, acsInstance);
@@ -322,7 +349,6 @@ public class AcsStartRemote {
 	private ServicesDaemonOperations getServiceDaemonRef(Computer comp) {
 		if (!serviceDaemonCache.containsKey(comp.getNetworkName())) {
 			String loc = "corbaloc::" + comp.getNetworkName() + ":" + ACSPorts.getServicesDaemonPort() + "/ACSServicesDaemon";
-			org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
 			org.omg.CORBA.Object object = orb.string_to_object(loc);
 			ServicesDaemon daemon = ServicesDaemonHelper.narrow(object);
 			serviceDaemonCache.put(comp.getNetworkName(), daemon);
@@ -342,7 +368,7 @@ public class AcsStartRemote {
 		return containerDaemonCache.get(comp.getNetworkName());
 	}
 	
-	public static void main(String[] args) throws BadParameterEx, FailedToStartContainerEx {
+	public static void main(String[] args) throws BadParameterEx, FailedToStartContainerEx, InvalidName, AdapterInactive {
 		AcsStartRemote start = new AcsStartRemote(args);
 		start.startServices();
 		start.startContainers();
