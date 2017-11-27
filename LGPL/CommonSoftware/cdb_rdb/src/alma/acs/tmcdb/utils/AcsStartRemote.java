@@ -103,22 +103,22 @@ public class AcsStartRemote {
 					return 0;
 				else 
 					return -1;
-			case LOGGING:
+			case LOGPROXY:
 				if (o2.getServiceType() == AcsServiceServiceType.NAMING || 
 						o2.getServiceType() == AcsServiceServiceType.IFR ||
 						o2.getServiceType() == AcsServiceServiceType.NAMING)
 					return 1;
-				else if (o2.getServiceType() == AcsServiceServiceType.LOGGING)
+				else if (o2.getServiceType() == AcsServiceServiceType.LOGPROXY)
 					return 0;
 				else 
 					return -1;
-			case LOGPROXY:
+			case LOGGING:
 				if (o2.getServiceType() == AcsServiceServiceType.NAMING || 
 						o2.getServiceType() == AcsServiceServiceType.IFR ||
 						o2.getServiceType() == AcsServiceServiceType.NAMING ||
-						o2.getServiceType() == AcsServiceServiceType.LOGGING)
+						o2.getServiceType() == AcsServiceServiceType.LOGPROXY )
 					return 1;
-				else if (o2.getServiceType() == AcsServiceServiceType.LOGPROXY)
+				else if (o2.getServiceType() == AcsServiceServiceType.LOGGING)
 					return 0;
 				else 
 					return -1;
@@ -126,8 +126,8 @@ public class AcsStartRemote {
 				if (o2.getServiceType() == AcsServiceServiceType.NAMING || 
 						o2.getServiceType() == AcsServiceServiceType.IFR ||
 						o2.getServiceType() == AcsServiceServiceType.NAMING ||
-						o2.getServiceType() == AcsServiceServiceType.LOGGING ||
-						o2.getServiceType() == AcsServiceServiceType.LOGPROXY)
+						o2.getServiceType() == AcsServiceServiceType.LOGPROXY ||
+						o2.getServiceType() == AcsServiceServiceType.LOGGING)
 					return 1;
 				else if (o2.getServiceType() == AcsServiceServiceType.CDB)
 					return 0;
@@ -137,8 +137,8 @@ public class AcsStartRemote {
 				if (o2.getServiceType() == AcsServiceServiceType.NAMING || 
 						o2.getServiceType() == AcsServiceServiceType.IFR ||
 						o2.getServiceType() == AcsServiceServiceType.NAMING ||
-						o2.getServiceType() == AcsServiceServiceType.LOGGING ||
 						o2.getServiceType() == AcsServiceServiceType.LOGPROXY ||
+						o2.getServiceType() == AcsServiceServiceType.LOGGING ||
 						o2.getServiceType() == AcsServiceServiceType.CDB)
 					return 1;
 				else if (o2.getServiceType() == AcsServiceServiceType.MANAGER)
@@ -149,8 +149,8 @@ public class AcsStartRemote {
 				if (o2.getServiceType() == AcsServiceServiceType.NAMING || 
 						o2.getServiceType() == AcsServiceServiceType.IFR ||
 						o2.getServiceType() == AcsServiceServiceType.NAMING ||
-						o2.getServiceType() == AcsServiceServiceType.LOGGING ||
 						o2.getServiceType() == AcsServiceServiceType.LOGPROXY ||
+						o2.getServiceType() == AcsServiceServiceType.LOGGING ||
 						o2.getServiceType() == AcsServiceServiceType.CDB ||
 						o2.getServiceType() == AcsServiceServiceType.MANAGER )
 					return 1;
