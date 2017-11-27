@@ -371,9 +371,12 @@ public class AcsStartRemote {
 	
 	public static void main(String[] args) throws BadParameterEx, FailedToStartContainerEx, InvalidName, AdapterInactive {
 		AcsStartRemote start = new AcsStartRemote(args);
-		start.startServices();
-		start.startContainers();
-		start.cleanup();
+		try {
+			start.startServices();
+			start.startContainers();
+		} finally {
+			start.cleanup();
+		}
 	}
 
 }
