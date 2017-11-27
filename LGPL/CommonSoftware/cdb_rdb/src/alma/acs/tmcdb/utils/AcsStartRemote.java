@@ -343,6 +343,8 @@ public class AcsStartRemote {
 			if (c.getTypeModifiers() != null)
 				typeModifiers = c.getTypeModifiers().split(",");
 			ContainerDaemonOperations daemon = getContainerDaemonRef(c.getComputer());
+			System.out.println("Staring container: " + c.getPath() + "/" + c.getContainerName() + " " + c.getImplLang().toString() +
+					" " + startupOptions);
 			daemon.start_container(c.getImplLang().toString(), c.getPath() + "/" + c.getContainerName(), acsInstance, typeModifiers, startupOptions);
 		}
 	}
