@@ -217,8 +217,11 @@ public class AcsStartRemote {
 				System.out.println("Starting container: " + c.getPath() + "/" + c.getContainerName() + " " + c.getImplLang().toString() +
 						" " + startupOptions);
 				try {
-					daemon.start_container(c.getImplLang().toString(), c.getPath() + "/" + c.getContainerName(), acsInstance, typeModifiers, startupOptions);
-					System.out.println("Successfully started container: " + c.getPath() + "/" + c.getContainerName());
+					if (daemon != null) {
+						daemon.start_container(c.getImplLang().toString(), c.getPath() + "/" + c.getContainerName(), acsInstance, typeModifiers, startupOptions);
+						System.out.println("Successfully started container: " + c.getPath() + "/" + c.getContainerName());
+					} else
+						System.err.println("Failed to start container: " + c.getPath() + "/" + c.getContainerName());
 				} catch (BadParameterEx | FailedToStartContainerEx e) {
 					System.err.println("Failed to start container: " + c.getPath() + "/" + c.getContainerName());
 					throw new RuntimeException(e);
