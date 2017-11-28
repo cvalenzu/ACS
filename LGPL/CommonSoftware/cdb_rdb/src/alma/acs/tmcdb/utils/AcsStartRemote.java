@@ -375,7 +375,7 @@ public class AcsStartRemote {
 	
 	public void startContainers() {
 		List<Container> containers = getContainersDeployment();
-		ExecutorService threadPool = Executors.newFixedThreadPool(100);
+		ExecutorService threadPool = Executors.newFixedThreadPool(300);
 		for (Container c: containers) {
 			threadPool.execute(new ContainerStarter(c));
 		}
