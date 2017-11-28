@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -189,6 +192,41 @@ public class AcsStartRemote {
 		
 	}
 	
+	private class ContainerStarter extends Thread {
+		
+		private final Container c;
+		
+		public ContainerStarter(Container c) {
+			this.c = c;
+		}
+		
+		@Override
+		public void run() {
+			synchronized (c.getComputer().getNetworkName()) {
+				//FIXME Add better handling of more than 1 startup option per container
+				String startupOptions = "";
+				if (c.getContainerStartupOptions() != null && c.getContainerStartupOptions().size() > 0)
+					startupOptions = c.getContainerStartupOptions().iterator().next().getOptionValue();
+				String[] typeModifiers = new String[0];
+				if (c.getTypeModifiers() != null)
+					typeModifiers = c.getTypeModifiers().split(",");
+				ContainerDaemonOperations daemon = getContainerDaemonRef(c.getComputer());
+				if (daemon == null) {
+					System.out.println("Ignoring ");
+				}
+				System.out.println("Starting container: " + c.getPath() + "/" + c.getContainerName() + " " + c.getImplLang().toString() +
+						" " + startupOptions);
+				try {
+					daemon.start_container(c.getImplLang().toString(), c.getPath() + "/" + c.getContainerName(), acsInstance, typeModifiers, startupOptions);
+					System.out.println("Successfully started container: " + c.getPath() + "/" + c.getContainerName());
+				} catch (BadParameterEx | FailedToStartContainerEx e) {
+					System.err.println("Failed to start container: " + c.getPath() + "/" + c.getContainerName());
+					throw new RuntimeException(e);
+				}
+			}
+		}
+	}
+	
 	private HibernateUtil hibU;
 	private Configuration config;
 	private final String[] args;
@@ -332,20 +370,19 @@ public class AcsStartRemote {
 		}
 	}
 	
-	public void startContainers() throws BadParameterEx, FailedToStartContainerEx {
+	public void startContainers() {
 		List<Container> containers = getContainersDeployment();
+		ExecutorService threadPool = Executors.newFixedThreadPool(100);
 		for (Container c: containers) {
-			//FIXME Add better handling of more than 1 startup option per container
-			String startupOptions = "";
-			if (c.getContainerStartupOptions() != null && c.getContainerStartupOptions().size() > 0)
-				startupOptions = c.getContainerStartupOptions().iterator().next().getOptionValue();
-			String[] typeModifiers = new String[0];
-			if (c.getTypeModifiers() != null)
-				typeModifiers = c.getTypeModifiers().split(",");
-			ContainerDaemonOperations daemon = getContainerDaemonRef(c.getComputer());
-			System.out.println("Staring container: " + c.getPath() + "/" + c.getContainerName() + " " + c.getImplLang().toString() +
-					" " + startupOptions);
-			daemon.start_container(c.getImplLang().toString(), c.getPath() + "/" + c.getContainerName(), acsInstance, typeModifiers, startupOptions);
+			threadPool.execute(new ContainerStarter(c));
+		}
+		try {
+			threadPool.shutdown();
+			threadPool.awaitTermination(120, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			threadPool.shutdownNow();
 		}
 	}
 	
@@ -365,8 +402,14 @@ public class AcsStartRemote {
 			String loc = "corbaloc::" + comp.getNetworkName() + ":" + ACSPorts.getContainerDaemonPort() + "/ACSContainerDaemon";
 			org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
 			org.omg.CORBA.Object object = orb.string_to_object(loc);
-			ContainerDaemon daemon = ContainerDaemonHelper.narrow(object);
-			containerDaemonCache.put(comp.getNetworkName(), daemon);
+			try {
+				System.out.println("Getting reference of " + loc);
+				ContainerDaemon daemon = ContainerDaemonHelper.narrow(object);
+				containerDaemonCache.put(comp.getNetworkName(), daemon);
+			} catch (org.omg.CORBA.SystemException ex ){
+				containerDaemonCache.put(comp.getNetworkName(), null);
+				System.out.println("Failed getting reference (" + ex.getMessage() + ") of " + loc);
+			}
 		}
 		return containerDaemonCache.get(comp.getNetworkName());
 	}
