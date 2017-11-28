@@ -135,13 +135,13 @@ public:
 	 * The method is called when a new sender is connected to a flow
 	 * @param totalSeners new number os senders after connect
 	 */
-	virtual void onSenderConnect(unsigned short totalSeners){};
+	virtual void onSenderConnect(unsigned short totalSenders){};
 
 	/**
 	 * The method is called when a sender is disconnected for a flow
 	 * @param totalSeners new number of senders, after disconnect
 	 */
-	virtual void onSenderDisconnect(unsigned short totalSeners){};
+	virtual void onSenderDisconnect(unsigned short totalSenders){};
 
 	/**
 	 * The method is called when a frame (DDS sample) did not arrive.
