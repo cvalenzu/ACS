@@ -41,6 +41,7 @@ namespace AcsBulkdata
 class BulkDataNTCallback
 {
 public:
+	BulkDataNTCallback();
 	virtual ~BulkDataNTCallback(){};
 
 	// flow and stream names are set in ReceiverFlow ctor, should we keep them public ?
@@ -77,6 +78,10 @@ public:
 	 * @return timeout in sec
 	 */
 	double getCBReceiveAvgProcessTimeout() { return cbReceiveAvgProcessTimeout_m; }
+
+	void setUseProcessingQueue(bool useQueue) { this->processingQueue_m = useQueue; }
+
+	bool getUseProcessingQueue() { return processingQueue_m; }
 
 	/*
     virtual void setSleepTime(ACE_Time_Value locWaitPeriod);
@@ -159,6 +164,7 @@ protected:
 
 	double cbReceiveProcessTimeout_m;
 	double cbReceiveAvgProcessTimeout_m;
+	bool processingQueue_m;
 	/*
     bool fwdData2UserCB_m;
 

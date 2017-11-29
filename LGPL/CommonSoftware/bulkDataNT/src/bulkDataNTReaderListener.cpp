@@ -49,7 +49,6 @@ BulkDataNTReaderListener::BulkDataNTReaderListener(const char* name, BulkDataNTC
   totalFrames_m(0),
   callback_mp (cb), enableCB_m(true),
   processQueue(NULL),
-  processingQueue(true),
   tm(getNamedLogger("BDNTThrMgrLogger"))
 {
   ACS_TRACE(__FUNCTION__);
@@ -60,6 +59,7 @@ BulkDataNTReaderListener::BulkDataNTReaderListener(const char* name, BulkDataNTC
   cbReceiveTimeoutSec_m = callback_mp->getCBReceiveProcessTimeout();
   cbReceiveAvgTimeoutSec_m = callback_mp->getCBReceiveAvgProcessTimeout();
   cbReceiveTotalSec_m = 0.0;  cbReceiveNumCalls_m =0;
+  processingQueue = cb->getUseProcessingQueue();
   processQueue = tm.create<ProcessQueue>(name);
   processQueue->setCallback(cb);
   processQueue->setTopicName(name);
