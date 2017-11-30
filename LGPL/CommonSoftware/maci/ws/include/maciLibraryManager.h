@@ -195,6 +195,7 @@ private:
     int nRefCount;
     /// full path to the library 
     ACE_CString path;
+    ACE_CString name;
   };
 
   /// Data about all loadrd libraries
