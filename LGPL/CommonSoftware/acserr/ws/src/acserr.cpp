@@ -239,6 +239,7 @@ void ErrorTraceHelper::log (ACSErr::ErrorTrace * c,
     unsigned int j;
     ACE_CString oldProcessName, oldThreadName, oldHost;
     Logging::BaseLog::Priority prio;
+    bool hostNull = false;
 
     LoggingProxy::StackLevel (level);
     LoggingProxy::StackId (stackId);
@@ -250,12 +251,15 @@ void ErrorTraceHelper::log (ACSErr::ErrorTrace * c,
 //  ACE_Log_Msg::instance()->local_host(c->host.in());
 
   // here we save old process, host  and thread names
+  if (LoggingProxy::host() == NULL)
+    hostNull = true;
   oldHost = LoggingProxy::host();
   oldProcessName = LoggingProxy::ProcessName();
   oldThreadName = LoggingProxy::ThreadName();
 
   LoggingProxy::ProcessName (c->process.in());
   LoggingProxy::ThreadName (c->thread.in());
+  LoggingProxy::host (c->host.in());
 
   //create the message
   std::ostringstream ostr;
@@ -292,7 +296,10 @@ void ErrorTraceHelper::log (ACSErr::ErrorTrace * c,
   // reset process and thread name
   LoggingProxy::ProcessName (oldProcessName.c_str());
   LoggingProxy::ThreadName (oldThreadName.c_str());
-  LoggingProxy::host (oldHost.c_str());
+  if (hostNull)
+    LoggingProxy::host (NULL);
+  else
+    LoggingProxy::host (oldHost.c_str());
 }//log
 
 void ErrorTraceHelper::log(ACE_Log_Priority priorty)
