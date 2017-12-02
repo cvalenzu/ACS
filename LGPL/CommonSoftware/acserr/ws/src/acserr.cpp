@@ -259,7 +259,8 @@ void ErrorTraceHelper::log (ACSErr::ErrorTrace * c,
 
   LoggingProxy::ProcessName (c->process.in());
   LoggingProxy::ThreadName (c->thread.in());
-  LoggingProxy::host (c->host.in());
+  if (strlen(c->host.in())>0)
+    LoggingProxy::host (c->host.in());
 
   //create the message
   std::ostringstream ostr;
