@@ -268,7 +268,7 @@ ACS_LOG_INFO "acsStart" "Using ALMA Base Software tag $TAG"
 acsStartORBSRVC $SRVCS_RECOVER_OPT $IFR_OPT 2>&1 | tee -a $ACSSTARTLOG &
 ORBSRVC_PID=$!
 
-if ! acsutilBlock -t $MAX_TIMEOUT -f $ACSSTARTLOG -b "acsStartORBSRVC script has now completed" -c "ERROR" -p $ORBSRVC_PID
+if ! acsutilBlock -t $MAX_TIMEOUT -f $ACSSTARTLOG -b "acsStartORBSRVC script has now completed" -d "2:ERROR" -p $ORBSRVC_PID
 then
     # GCH 2006.10.25
     # Even if there is an error, we need to wait for the completion
