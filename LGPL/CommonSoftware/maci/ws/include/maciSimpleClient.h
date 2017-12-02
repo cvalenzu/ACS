@@ -133,10 +133,10 @@ public:
    * The init method logs in to the requested manager.
    * Default is the local manager (if no arguments are given).
    * To specify a remote manager give the parameter
-   * -m corbaloc::<host name>:<port number>/<manager>
+   * -managerReference corbaloc::<host name>:<port number>/<manager>
    *
    * example:
-   * -m corbaloc::te1.hq.eso.org:xxxx/Manager
+   * -managerReference corbaloc::te1.hq.eso.org:xxxx/Manager
    *
    * @return 0 on failure
    */

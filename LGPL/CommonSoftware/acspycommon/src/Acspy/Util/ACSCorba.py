@@ -92,7 +92,7 @@ def getManagerCorbaloc(new_corbaloc=None):
         #If this function has never been called before...
         #Check command-line args for the corbaloc
         for i in range(0, len(argv) - 1):
-            if argv[i] == '-managerReference' or argv[i] == '-m':
+            if argv[i] == '-managerReference':
                 #Found it!  OK to set now.
                 MGR_CORBALOC = argv[i + 1]
                 break
