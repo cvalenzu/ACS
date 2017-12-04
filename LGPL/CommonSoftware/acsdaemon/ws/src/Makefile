@@ -130,7 +130,7 @@ lllll_OBJECTS   =
 #
 # Scripts (public and local)
 # ----------------------------
-SCRIPTS         = acsdaemonImpStopAll
+SCRIPTS         = acsdaemonImpStopAll acsStartRemoteTmcdb
 SCRIPTS_L       =
 
 #
@@ -142,7 +142,7 @@ TCL_SCRIPTS_L   =
 #
 # Python stuff (public and local)
 # ----------------------------
-PY_SCRIPTS         = ResourcesDaemon acsStartRemoteTmcdb
+PY_SCRIPTS         = ResourcesDaemon
 PY_SCRIPTS_L       =
 
 PY_MODULES         =
