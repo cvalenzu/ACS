@@ -184,7 +184,7 @@ import com.cosylab.util.FileHelper;
 @SuppressWarnings("unchecked")
 public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 
-	static final String TMCDB_CONFIGURATION_NAME_KEY = "TMCDB_CONFIGURATION_NAME";
+	public static final String TMCDB_CONFIGURATION_NAME_KEY = "TMCDB_CONFIGURATION_NAME";
 
 	static final String TMCDB_COMPONENT_TREE_NAME_KEY = "TMCDB_COMPONENT_TREE_NAME";
 	static final String COMPONENT_TREE_NAME = System.getProperty(TMCDB_COMPONENT_TREE_NAME_KEY, "alma");

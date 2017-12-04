@@ -130,6 +130,8 @@ public class HibernateUtil {
             Configuration config = new Configuration();
             config.configure(getConfigurationFileName());
             config.addProperties(extraProperties);
+            if (sessionFactory != null)
+            	sessionFactory.close();
             sessionFactory = config.buildSessionFactory();
             configuration = config;
         } catch (Throwable ex) {
