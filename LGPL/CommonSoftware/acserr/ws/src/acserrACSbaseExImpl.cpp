@@ -80,4 +80,7 @@ ACSbaseExImpl& ACSbaseExImpl::operator=(const ACSbaseExImpl &t)
     return *this;
 }//operator=
 
+template<>
+ACSErr::ErrorTrace& ETHolder<CORBA::UserException>::inheritErrorTrace(const CORBA::UserException& ex) { return emptyErrorTrace; }
+
 /*___oOo___*/

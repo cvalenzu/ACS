@@ -110,7 +110,7 @@ class ETHolder
 {
   public:
     ETHolder(const CORBA::UserException &ex) :
-	m_errorTrace (((T&)ex).errorTrace) {}
+	m_errorTrace (inheritErrorTrace((T&)ex)) {}
        
 
     ETHolder(const CompletionImpl &c) : 
@@ -128,12 +128,17 @@ class ETHolder
 
     ACSErr::ErrorTrace& getErrorTrace() const { return m_errorTrace; } 
 
+    ACSErr::ErrorTrace& inheritErrorTrace(const T& ex) { return ((T&)ex).errorTrace; }
+
   private:
     ETHolder(const ETHolder<T>&) {}
 
     ACSErr::ErrorTrace &m_errorTrace;
     ACSErr::ErrorTrace emptyErrorTrace;
 };
+
+template<>
+ACSErr::ErrorTrace& ETHolder<CORBA::UserException>::inheritErrorTrace(const CORBA::UserException& ex);
 
 #endif /*!_H*/
 
