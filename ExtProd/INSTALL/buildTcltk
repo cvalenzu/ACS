@@ -392,6 +392,12 @@ cd $cwd
 echo "done"
 
 #
+# Configure env variables
+#
+export LDFLAGS="$LDFLAGS -Wl,--add-needed"
+
+
+#
 # get current content of the target directory
 #
 cwd=`pwd`
