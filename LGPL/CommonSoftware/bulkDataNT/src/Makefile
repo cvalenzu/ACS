@@ -130,7 +130,7 @@ bulkDataNTEx_LD_FLAGS =
 bulkDataNTEx_LIBS = acsnc 
 
 bulkDataNTReceiver_OBJECTS   = bulkDataNTReceiverFlow bulkDataNTDDSSubscriber \
-							   bulkDataNTReaderListener bulkDataNTCallback
+							   bulkDataNTReaderListener bulkDataNTCallback bulkDataNTProcessQueue
 bulkDataNTReceiver_LIBS = bulkDataNT RepeatGuard bulkDataStubs
 
 
