@@ -130,7 +130,7 @@ lllll_OBJECTS   =
 #
 # Scripts (public and local)
 # ----------------------------
-SCRIPTS         = acsdaemonImpStopAll
+SCRIPTS         = acsdaemonImpStopAll acsStartRemoteTmcdb
 SCRIPTS_L       =
 
 #
@@ -187,9 +187,10 @@ ACSERRDEF =
 #
 # Jarfiles and their directories
 #
-JARFILES= 
+JARFILES := acsdaemonUtils
 jjj_DIRS=
 jjj_EXTRAS= 
+acsdaemonUtils_DIRS := alma
 #
 # java sources in Jarfile on/off
 DEBUG=on
