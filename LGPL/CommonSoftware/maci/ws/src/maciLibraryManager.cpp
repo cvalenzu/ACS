@@ -514,6 +514,14 @@ LibraryManager::load(const char * name, int argc, char *argv[])
 
   ACS_LOG(0, "maci::LibraryManager::load", (LM_INFO, "Request to load '%s'.", name));
 
+  int i;
+  for (i = m_libraries.First(); i!=0; i = m_libraries.Next(i))
+    if (ACE_OS::strcmp(m_libraries[i].name.c_str(), name)==0)
+      {
+        ++m_libraries[i].nRefCount;
+        return i;
+      }
+
   char * path = locateLibrary(name);
 
   if(!path)
@@ -524,15 +532,6 @@ LibraryManager::load(const char * name, int argc, char *argv[])
 
   ACS_LOG(0, "maci::LibraryManager::load", (LM_INFO, "Full path '%s'", path));
 
-  int i;
-  for (i = m_libraries.First(); i!=0; i = m_libraries.Next(i))
-    if (ACE_OS::strcmp(m_libraries[i].path.c_str(), path)==0)
-      {
-	++m_libraries[i].nRefCount;
-	delete[] path;
-	return i;
-      }
-    
   ACS_DEBUG_PARAM("maci::LibraryManager::load", "Loading '%s'.", path);
 
 #ifdef ACS_HAS_WIN32
@@ -611,6 +610,7 @@ LibraryManager::load(const char * name, int argc, char *argv[])
   m_libraries[i].hLib = handle;
   m_libraries[i].nRefCount = 1;
   m_libraries[i].path = path;
+  m_libraries[i].name = name;
 
   ACS_LOG(0, "maci::LibraryManager::load", (LM_INFO, "Loaded '%s'.", path));
 
@@ -699,14 +699,14 @@ void LibraryManager::unload(const char* name)
 
     int i;
     for (i = m_libraries.First(); i!=0; i = m_libraries.Next(i))
-	{
-	ACE_OS::printf("%s\n", m_libraries[i].path.c_str());   
-	if (ACE_OS::strstr(m_libraries[i].path.c_str(), fullname.c_str())!=0)
-	    {
-	    unload(i);
-	    return;
-	    }//if
-	}//for
+    {
+      ACE_OS::printf("%s\n", m_libraries[i].path.c_str());   
+      if (ACE_OS::strcmp(m_libraries[i].name.c_str(), name)==0)
+      {
+        unload(i);
+        return;
+      }//if
+    }//for
     ACS_LOG(LM_RUNTIME_CONTEXT, "maci::LibraryManager::unload", (LM_ERROR, "Cannot find the library '%s'", fullname.c_str()));
 }
 
