@@ -21,7 +21,7 @@
 #
 # Scripts (public and local)
 # ----------------------------
-SCRIPTS         = hibernateCdbJDal MonitoringSyncTool acsStartRemoteTmcdb
+SCRIPTS         = hibernateCdbJDal MonitoringSyncTool
 SCRIPTS_L       =
 
 

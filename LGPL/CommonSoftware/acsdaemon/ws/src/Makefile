@@ -142,7 +142,7 @@ TCL_SCRIPTS_L   =
 #
 # Python stuff (public and local)
 # ----------------------------
-PY_SCRIPTS         = ResourcesDaemon
+PY_SCRIPTS         = ResourcesDaemon acsStartRemoteTmcdb
 PY_SCRIPTS_L       =
 
 PY_MODULES         =
@@ -187,9 +187,10 @@ ACSERRDEF =
 #
 # Jarfiles and their directories
 #
-JARFILES= 
+JARFILES := acsdaemonUtils
 jjj_DIRS=
 jjj_EXTRAS= 
+acsdaemonUtils_DIRS := alma
 #
 # java sources in Jarfile on/off
 DEBUG=on
