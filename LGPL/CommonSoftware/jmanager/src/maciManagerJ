@@ -147,7 +147,7 @@ export JVM_GC_LOG_NAME=jmanager
 # COMP-4114 opened the discussion about having idle connection timeout options in the manager
 # The conclusion was that we are going to use the server-side solution provided by JacORB,
 # disconnecting the clients from the Manager ORB
-export JAVA_OPTIONS="$JAVA_OPTIONS -Djacorb.connection.server.timeout=15000"
+export JAVA_OPTIONS="$JAVA_OPTIONS -Djacorb.connection.server.timeout=150000"
 
 
 # For historical reasons we enable remote debugging if stdout debug logs are enabled.
