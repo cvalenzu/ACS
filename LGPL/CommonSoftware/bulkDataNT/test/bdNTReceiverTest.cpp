@@ -28,8 +28,18 @@
 #include <string>
 #include <ace/Get_Opt.h>
 #include <ace/Tokenizer_T.h>
+#include <maciSimpleClient.h>
 
+using namespace maci;
 using namespace std;
+
+//Thread to receive events and avoid stuck
+void* tr_sc(void *param){
+    maci::SimpleClient *myclient = static_cast<maci::SimpleClient*>(param);
+    cout << "Thread to run client" << endl;
+    myclient->run();
+    return NULL;
+}
 
 class  TestCB:  public BulkDataNTCallback
 {
@@ -86,6 +96,16 @@ unsigned long TestCB::cbDealy = 0;
 
 int main(int argc, char *argv[])
 {
+	SimpleClient client;
+	if( client.init(argc, argv) == 0 ) {
+		cerr << "Cannot initialize client, not continuing" << endl;
+		return 1;
+	}
+	client.login();
+	pthread_t t1;
+	if (pthread_create(&t1, NULL, tr_sc, (void *) &client) != 0){
+		cout << "client->run(), getting events" << std::endl;
+	}
 
 	char c;
 	unsigned int sleepPeriod=0;
@@ -165,5 +185,8 @@ int main(int argc, char *argv[])
 		std::cout << "press a key to exit.." << std::endl;
 		getchar();
 	}
+	client.getORB()->shutdown(true);
+	pthread_join(t1, NULL);
+	client.logout();
 
 }
