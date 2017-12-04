@@ -38,15 +38,15 @@ testParams -py   -name py2
 echo ""
 
 echo "*Testing manager param*"
-testParams -cpp  -name cpp2 -m corbaloc::some_host:666/Manager
-testParams -java -name java2 -m corbaloc::some_host:666/Manager
-testParams -py   -name py2 -m corbaloc::some_host:666/Manager
+testParams -cpp  -name cpp2 -managerReference corbaloc::some_host:666/Manager
+testParams -java -name java2 -managerReference corbaloc::some_host:666/Manager
+testParams -py   -name py2 -managerReference corbaloc::some_host:666/Manager
 echo ""
 
 echo "*Testing CDB param*"
-testParams -cpp  -name cpp2 -m corbaloc::some_host:666/Manager   -d corbaloc::some_host:123/DAL
-testParams -java -name java2 -m corbaloc::some_host:666/Manager  -d corbaloc::some_host:123/DAL
-testParams -py   -name py2 -m corbaloc::some_host:666/Manager    -d corbaloc::some_host:123/DAL
+testParams -cpp  -name cpp2 -managerReference corbaloc::some_host:666/Manager   -d corbaloc::some_host:123/DAL
+testParams -java -name java2 -managerReference corbaloc::some_host:666/Manager  -d corbaloc::some_host:123/DAL
+testParams -py   -name py2 -managerReference corbaloc::some_host:666/Manager    -d corbaloc::some_host:123/DAL
 echo ""
 
 echo "*Testing replacement exe param*"
@@ -99,8 +99,8 @@ testParams -py   -name py3   yet more stuff
 echo ""
 
 echo "*Hard tests*"
-testParams -cpp -name cpp4 -port 5555 -remoteHost 127.0.0.1 -m corbaloc::someManagerHost:3200/Manager -d corbaloc::someDALHost:3211/DAL -e myMaciContainer -b 9 -debug
-testParams -cpp -name java4 -port 5556 -remoteHost 127.0.0.1 -m corbaloc::someManagerHost:3200/Manager -d corbaloc::someDALHost:3211/DAL -e myJavaContainer -b 9 -custom_java my.own.container
+testParams -cpp -name cpp4 -port 5555 -remoteHost 127.0.0.1 -managerReference corbaloc::someManagerHost:3200/Manager -d corbaloc::someDALHost:3211/DAL -e myMaciContainer -b 9 -debug
+testParams -cpp -name java4 -port 5556 -remoteHost 127.0.0.1 -managerReference corbaloc::someManagerHost:3200/Manager -d corbaloc::someDALHost:3211/DAL -e myJavaContainer -b 9 -custom_java my.own.container
 
-testParams -cpp -name cpp4 -port 5555 -remoteHost 127.0.0.1 -m corbaloc::someManagerHost:3200/Manager -d corbaloc::someDALHost:3211/DAL -e myMaciContainer -b 9 extra args
-testParams -cpp -name java4 -port 5556 -remoteHost 127.0.0.1 -m corbaloc::someManagerHost:3200/Manager -d corbaloc::someDALHost:3211/DAL -e myJavaContainer -b 9 -custom_java my.own.container extra args
+testParams -cpp -name cpp4 -port 5555 -remoteHost 127.0.0.1 -managerReference corbaloc::someManagerHost:3200/Manager -d corbaloc::someDALHost:3211/DAL -e myMaciContainer -b 9 extra args
+testParams -cpp -name java4 -port 5556 -remoteHost 127.0.0.1 -managerReference corbaloc::someManagerHost:3200/Manager -d corbaloc::someDALHost:3211/DAL -e myJavaContainer -b 9 -custom_java my.own.container extra args

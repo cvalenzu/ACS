@@ -72,23 +72,23 @@ MACIHelper::getManagerHostname(int argc, ACE_TCHAR **argv)
 {
   ACS_TRACE("maci::MACIHelper::getManagerHostname");
 
-  // Command line option -m or -managerReference
+  // Command line option -managerReference
   for (int pos = 1; pos < argc-1; pos++)
-    if (ACE_OS::strcmp(argv[pos], "-m")==0 ||
-	ACE_OS::strcmp(argv[pos], "-managerReference")==0)
+    if (ACE_OS::strcmp(argv[pos], "-managerReference")==0)
       {
 	// increase pos to point to the Manager's reference
 	pos++;
-	
-	ACE_CString result = extractHostnameFromCorbaloc(argv[pos]);
-	if (result.length()>0)
-	  {
-	    ACS_LOG(0, "maci::MACIHelper::getManagerHostname",
-		    (LM_INFO, "Manager hostname obtained via command line: '%s'", result.c_str()));
-	    return result;
-	  }
 
-      }
+	if (pos < argc) {
+		ACE_CString result = extractHostnameFromCorbaloc(argv[pos]);
+		if (result.length()>0)
+			{
+				ACS_LOG(0, "maci::MACIHelper::getManagerHostname",
+				   (LM_INFO, "Manager hostname obtained via command line: '%s'", result.c_str()));
+				return result;
+			}
+		}
+	}
 
   // Environment variable MANAGER_REFERENCE
   ACE_TCHAR * envRef = ACE_OS::getenv (MANAGER_REFERENCE);

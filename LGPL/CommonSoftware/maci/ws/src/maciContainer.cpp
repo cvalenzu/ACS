@@ -33,7 +33,7 @@
  *  <br><hr>
  *  @endhtmlonly
 
- *  @param "-m corbaloc::yyy:xxxx/Manager" Use this optional parameter to run this container with a 
+ *  @param "-managerReference corbaloc::yyy:xxxx/Manager" Use this optional parameter to run this container with a 
  *  manager running on a port other than 3000 or for a manager on a different PC.
  *  @htmlonly
  *  <br><hr>

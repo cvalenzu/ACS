@@ -68,7 +68,7 @@ class TestGetManagerCorbaLoc(unittest.TestCase):
 
     def test_args(self):
         saveargv = ACSCorba.argv
-        ACSCorba.argv = [ '-m', 'corbaloc::127.0.0.3:3000/Manager' ]
+        ACSCorba.argv = [ '-managerReference', 'corbaloc::127.0.0.3:3000/Manager' ]
         self.assertEqual('corbaloc::127.0.0.3:3000/Manager',
                          ACSCorba.getManagerCorbaloc())
         ACSCorba.argv = saveargv
