@@ -99,7 +99,7 @@ INCLUDES        = bulkDataNTCallback.h bulkDataNTDDS.h bulkDataNTDDSPublisher.h 
 				bulkDataNTFlow.h bulkDataNTWriterListener.h bulkDataNTDDSLoggable.h bulkDataNTSenderFlowCallback.h \
 				bulkDataNTConfiguration.h bulkDataNTConfigurationParser.h \
 				bulkDataNTArrayThread.h bulkDataNTPosixHelper.h bulkDataNTThreadSyncGuard.h \
-				bulkDataNTGenEx.h
+				bulkDataNTGenEx.h bulkDataNTProcessQueue.h
 
 
 #
