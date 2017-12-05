@@ -38,8 +38,9 @@ void Queue::release() {
 
 void Queue::clear() {
 	ACE_GUARD(ACE_Thread_Mutex, itemsGuard, itemsMutex);
-	std::queue<Item> tmp;
-	std::swap(items, tmp);
+	while(!empty()) {
+		pop();
+	}
 }
 
 ProcessQueue::ProcessQueue(const ACE_CString name): ACS::Thread(name, ThreadBase::defaultResponseTime, ThreadBase::defaultSleepTime, false, THR_NEW_LWP | THR_JOINABLE), callback_mp(NULL), processing(true) {
@@ -62,7 +63,7 @@ void ProcessQueue::setTopicName(std::string topicName) {
 
 void ProcessQueue::cbStart(unsigned char* userParam_p, unsigned int size) {
 	Item qi;
-	qi.state = BDState::START;
+	qi.state = START;
 	if (size > 0)
 		memcpy(qi.data, userParam_p, size);//*sizeof(unsigned char));
 	qi.size = size;
@@ -71,7 +72,7 @@ void ProcessQueue::cbStart(unsigned char* userParam_p, unsigned int size) {
 
 void ProcessQueue::cbReceive(unsigned char* frame_p, unsigned int size) {
 	Item qi;
-	qi.state = BDState::RECEIVE;
+	qi.state = RECEIVE;
 	if (size > 0)
 		memcpy(qi.data, frame_p, size);//*sizeof(unsigned char));
 	qi.size = size;
@@ -80,26 +81,26 @@ void ProcessQueue::cbReceive(unsigned char* frame_p, unsigned int size) {
 
 void ProcessQueue::cbStop() {
 	Item qi;
-	qi.state = BDState::STOP;
+	qi.state = STOP;
 	queue.push(qi);
 }
 
 void ProcessQueue::cbReset() {
 	Item qi;
-	qi.state = BDState::RESET;
+	qi.state = RESET;
 	queue.push(qi);
 }
 
 void ProcessQueue::onError(ACSErr::CompletionImpl &error) {
 	Item qi;
-	qi.state = BDState::ERROR;
+	qi.state = ERROR;
 	qi.error = error;
 	queue.push(qi);
 }
 
 void ProcessQueue::onDataLost(unsigned long frameCount, unsigned long totalFrames, ACSErr::CompletionImpl &error) {
 	Item qi;
-	qi.state = BDState::DATA_LOST;
+	qi.state = DATA_LOST;
 	qi.frameCount = frameCount;
 	qi.totalFrames = totalFrames;
 	qi.error = error;
@@ -108,14 +109,14 @@ void ProcessQueue::onDataLost(unsigned long frameCount, unsigned long totalFrame
 
 void ProcessQueue::onSenderConnect(unsigned short totalSenders) {
 	Item qi;
-	qi.state = BDState::SENDER_CONNECT;
+	qi.state = SENDER_CONNECT;
 	qi.senders = totalSenders;
 	queue.push(qi);
 }
 
 void ProcessQueue::onSenderDisconnect(unsigned short totalSenders) {
 	Item qi;
-	qi.state = BDState::SENDER_DISCONNECT;
+	qi.state = SENDER_DISCONNECT;
 	qi.senders = totalSenders;
 	queue.push(qi);
 }
@@ -124,31 +125,31 @@ void ProcessQueue::run() {
 	while (processing) {
 		Item qi = queue.pop(); //Waits until new element is available
 		switch (qi.state) {
-			case BDState::START:
+			case START:
 				BDNT_LISTENER_USER_ERR(callback_mp->cbStart(qi.data, qi.size));
 				break;
-			case BDState::RECEIVE:
+			case RECEIVE:
 				BDNT_LISTENER_USER_ERR(callback_mp->cbReceive(qi.data, qi.size));
 				break;
-			case BDState::STOP:
+			case STOP:
 				BDNT_LISTENER_USER_ERR(callback_mp->cbStop());
 				break;
-			case BDState::RESET:
+			case RESET:
 				BDNT_LISTENER_USER_ERR(callback_mp->cbReset());
 				break;
-			case BDState::ERROR:
+			case ERROR:
 				callback_mp->onError(qi.error);
 				break;
-			case BDState::DATA_LOST:
+			case DATA_LOST:
 				BDNT_LISTENER_USER_ERR(callback_mp->onDataLost(qi.frameCount, qi.totalFrames, qi.error));
 				break;
-			case BDState::SENDER_CONNECT:
+			case SENDER_CONNECT:
 				BDNT_LISTENER_USER_ERR(callback_mp->onSenderConnect(qi.senders));
 				break;
-			case BDState::SENDER_DISCONNECT:
+			case SENDER_DISCONNECT:
 				BDNT_LISTENER_USER_ERR(callback_mp->onSenderDisconnect(qi.senders));
 				break;
-			case BDState::FINISH:
+			case FINISH:
 				processing = false;
 				break;
 			default:
@@ -159,7 +160,7 @@ void ProcessQueue::run() {
 
 void ProcessQueue::cleanUp() {
 	Item qi;
-	qi.state = BDState::FINISH;
+	qi.state = FINISH;
 	queue.push(qi);
 }
 
