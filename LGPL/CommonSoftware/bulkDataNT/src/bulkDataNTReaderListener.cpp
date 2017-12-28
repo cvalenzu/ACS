@@ -86,7 +86,6 @@ BulkDataNTReaderListener::~BulkDataNTReaderListener ()
   processQueue->cleanUp();
   tm.join(processQueue->getThreadID());
   tm.destroy(processQueue);
-  delete processQueue;
 }//~BulkDataNTReaderListener
 
 void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
