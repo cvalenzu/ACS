@@ -25,6 +25,19 @@
 
 #include "bulkDataNTCallback.h"
 
+AcsBulkdata::BulkDataNTCallback::BulkDataNTCallback() {
+	char *bulkDataNtQueue = getenv("BULKDATA_NT_DISABLE_QUEUE");
+	if (bulkDataNtQueue && *bulkDataNtQueue)
+	{
+		processingQueue_m = false;
+		ACS_SHORT_LOG((LM_INFO, "BulkDataNT queue disabled from env. var. BULKDATA_NT_DISABLE_QUEUE."));
+	}
+	else
+	{
+		processingQueue_m = true;
+	}
+}
+
 void AcsBulkdata::BulkDataNTCallback::onError(ACSErr::CompletionImpl &error)
 {
 	error.log();
