@@ -41,6 +41,7 @@ namespace AcsBulkdata
 class BulkDataNTCallback
 {
 public:
+	BulkDataNTCallback();
 	virtual ~BulkDataNTCallback(){};
 
 	// flow and stream names are set in ReceiverFlow ctor, should we keep them public ?
@@ -77,6 +78,10 @@ public:
 	 * @return timeout in sec
 	 */
 	double getCBReceiveAvgProcessTimeout() { return cbReceiveAvgProcessTimeout_m; }
+
+	void setUseProcessingQueue(bool useQueue) { this->processingQueue_m = useQueue; }
+
+	bool getUseProcessingQueue() { return processingQueue_m; }
 
 	/*
     virtual void setSleepTime(ACE_Time_Value locWaitPeriod);
@@ -135,13 +140,13 @@ public:
 	 * The method is called when a new sender is connected to a flow
 	 * @param totalSeners new number os senders after connect
 	 */
-	virtual void onSenderConnect(unsigned short totalSeners){};
+	virtual void onSenderConnect(unsigned short totalSenders){};
 
 	/**
 	 * The method is called when a sender is disconnected for a flow
 	 * @param totalSeners new number of senders, after disconnect
 	 */
-	virtual void onSenderDisconnect(unsigned short totalSeners){};
+	virtual void onSenderDisconnect(unsigned short totalSenders){};
 
 	/**
 	 * The method is called when a frame (DDS sample) did not arrive.
@@ -159,6 +164,7 @@ protected:
 
 	double cbReceiveProcessTimeout_m;
 	double cbReceiveAvgProcessTimeout_m;
+	bool processingQueue_m;
 	/*
     bool fwdData2UserCB_m;
 
