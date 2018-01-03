@@ -77,10 +77,11 @@ namespace baci {
  * @param param Name of the property. String.
  * @param type Type of the value to be archived???
  * @param value Value to be archived. Most simple CORBA types should work fine for this
+ * @param time TimeInterval with the time when the BACI property was monitored.
  * as sendEvent is templated. I.e., value could be "joe", 33ULL, 3.14, etc
  */ 
-#define ACS_ARCHIVE(device, param, type, value) \
-ArchiveSupplierSingleton::Instance().sendEvent(0, getTimeStamp(), device, param, value);
+#define ACS_ARCHIVE(device, param, type, value, time) \
+ArchiveSupplierSingleton::Instance().sendEvent(0, time, device, param, value);
 
 /**
  * ACS_ARCHIVE_PRIORITY is a macro used to log something to the archive
@@ -90,13 +91,14 @@ ArchiveSupplierSingleton::Instance().sendEvent(0, getTimeStamp(), device, param,
  * @param param Name of the property. String.
  * @param type Type of the value to be archived???
  * @param value BACIValue object to be archived.
+ * @param time TimeInterval with the time when the BACI property was monitored.
  * @param prio Priority at which the value is logged.
  */ 
-#define ACS_ARCHIVE_PRIORITY(device, param, type, value, prio) \
+#define ACS_ARCHIVE_PRIORITY(device, param, type, value, time, prio) \
 { \
 CORBA::Any any; \
 value.getAny(any); \
-ArchiveSupplierSingleton::Instance().send_event(prio, getTimeStamp(), device, param, any, "");  \
+ArchiveSupplierSingleton::Instance().send_event(prio, time, device, param, any, "");  \
 }
 
 

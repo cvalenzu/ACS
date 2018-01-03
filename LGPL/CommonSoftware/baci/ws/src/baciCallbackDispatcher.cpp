@@ -67,6 +67,7 @@ bool baci::BACIComponent::dispatchCallback(int callbackID,
 				   archiver->getName(),
 				   value.getArchiveType(),
 				   value,
+				   completion.timeStamp,
 				   archiver->getPriority());
 			return true;
 		  }
