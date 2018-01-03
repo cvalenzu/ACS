@@ -822,16 +822,12 @@ int ProcessTestClient(int argc, const ACE_TCHAR *argv[]
 
     const char* hostname = ACSPorts::getIP();
 
-    ACE_TCHAR *args1[] = { "executable", "someparam", "-m" };
+    ACE_TCHAR *args1[] = { "executable", "someparam", "-managerReference" };
     ASSERT_EQUALS_STR (MACIHelper::getManagerHostname(3, args1).c_str(),
                        hostname);
 
-    ACE_TCHAR *args2[] = { "executable", "someparam", "-m", "corbaloc::the.host.rom:3000/ManagerReference" };
+    ACE_TCHAR *args2[] = { "executable", "someparam", "-managerReference", "corbaloc::the.host.rom:3000/ManagerReference" };
     ASSERT_EQUALS_STR (MACIHelper::getManagerHostname(4, args2).c_str(),
-                       "the.host.rom");
-
-    ACE_TCHAR *args3[] = { "executable", "someparam", "-managerReference", "corbaloc::the.host.rom:3000/ManagerReference" };
-    ASSERT_EQUALS_STR (MACIHelper::getManagerHostname(4, args3).c_str(),
                        "the.host.rom");
 
     ACE_OS::putenv ("MANAGER_REFERENCE=corbaloc::the.host.rom:3000/ManagerReference");

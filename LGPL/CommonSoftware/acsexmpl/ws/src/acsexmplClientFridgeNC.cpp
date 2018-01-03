@@ -34,7 +34,7 @@
  *  @htmlonly
     <br><hr>
     @endhtmlonly
- *  @param "-m corbaloc::yyy:xxxx/Manager" Use this optional parameter to specify where
+ *  @param "-managerReference corbaloc::yyy:xxxx/Manager" Use this optional parameter to specify where
  *  manager is.
  *  @htmlonly
     <br><hr>

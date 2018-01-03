@@ -6,7 +6,7 @@ export ACS_INSTANCE=`cat $ACS_TMP/acs_instance`
 if [ "$WIND_BASE" != "" ] 
 then
     vccResetLcu $LCU PPC604 > /dev/null
-    maciTest $LCU ContainerStart $1 -m corbaloc::$HOST:`getManagerPort`/Manager
+    maciTest $LCU ContainerStart $1 -managerReference corbaloc::$HOST:`getManagerPort`/Manager
 else  
     maciContainer $1 -ORBEndpoint iiop://$HOST:$2
 fi
