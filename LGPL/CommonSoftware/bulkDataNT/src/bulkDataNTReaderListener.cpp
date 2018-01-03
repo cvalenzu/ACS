@@ -84,6 +84,9 @@ BulkDataNTReaderListener::~BulkDataNTReaderListener ()
 				  drps.sent_nack_count, drps.sent_nack_bytes,
 				  drps.rejected_sample_count));
 */
+  processQueue->cleanUp();
+  tm.join(processQueue->getThreadID());
+  tm.destroy(processQueue);
 }//~BulkDataNTReaderListener
 
 void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
@@ -196,7 +199,8 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
                               else
                                 BDNT_LISTENER_USER_ERR( callback_mp->onDataLost(frameCounter_m, totalFrames_m, lde))
                               increasConseqErrorCount();
-                              return; // ??
+                              if (!skipdata_m)
+                            	  return; // ??
                             }
                           nextFrame_m = message.restDataLength-1;
                         }
