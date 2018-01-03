@@ -15,7 +15,7 @@ public class DataElementFormatter {
 		for (int i = 0; i < list.length; i++){
 			if(list[i].getClass().isArray())
 				result.append("\n"+lineStart+" ("+i+") "+unpackArray(list[i],lineStart+"  ",level+1,expand));
-			if(list[i] instanceof DataElement)
+			else if(list[i] instanceof DataElement)
 				result.append("\n"+lineStart+" ("+i+") "+((DataElement)list[i]).toString(lineStart+"  ",level+1,expand));
 			else
 				result.append("\n"+lineStart+" ("+i+") "+DataFormatter.unpackReturnValue(list[i],lineStart+"  ",level+1,expand));
