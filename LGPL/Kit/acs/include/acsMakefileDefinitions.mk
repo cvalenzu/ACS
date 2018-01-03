@@ -806,7 +806,8 @@ $(if $(or $3,$6), \
                         $(eval MESSAGE += please remove iostream), \
 	                $(if $(findstring Cygwin, $(platform)), \
 	                    $(eval $2_lList += -l$(lib) $(eval $2_dList += $(call deps,$(lib)))), \
-                            $(eval $2_lList += -l$(lib)) 
+                            $(if $(filter $(lib), $(LIBRARY_LIST) $(addsuffix Stubs,$(IDL_LIST) $(ACSERRDEF)) $(ACSERRDEF)), $(eval $2_lList += $(if $5,$(CURDIR)/../lib/lib$(lib).a,$(if $(MAKE_NOSTATIC),,$(CURDIR)/../lib/lib$(lib).a) $(CURDIR)/../lib/lib$(lib).so)),
+                            $(eval $2_lList += -l$(lib)))
                          ) \
                      ) \
                  ) \
@@ -982,7 +983,8 @@ $(if $(or $3,$6),
                         $(eval $2_exe_lList += -lstdc++), \
 	                $(if $(findstring Cygwin, $(platform)), \
 	                    $(eval $2_exe_lList += -l$(lib) $(eval $2_exe_dList += $(call deps,$(lib)))), \
-                            $(eval $2_exe_lList += -l$(lib)) \
+                            $(if $(filter $(lib), $(LIBRARY_LIST) $(addsuffix Stubs,$(IDL_LIST) $(ACSERRDEF)) $(ACSERRDEF)), $(eval $2_exe_lList += $(if $5,$(CURDIR)/../lib/lib$(lib).a,$(if $(MAKE_NOSTATIC),,$(CURDIR)/../lib/lib$(lib).a) $(CURDIR)/../lib/lib$(lib).so)),
+                            $(eval $2_exe_lList += -l$(lib))) \
                          ) \
                      ) \
                  ) \
