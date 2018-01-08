@@ -57,7 +57,7 @@ function printUsage
 }
 
 
-while getopts f:b:t:p:xksc:h OPT; do
+while getopts f:b:t:p:xksc:d:h OPT; do
 	case $OPT in
 	        f) CL_FILE=$OPTARG ;;
        		b) CL_STRING=$OPTARG ;;
@@ -187,7 +187,7 @@ do
   if [ "$CL_DCRAP" != "" ]
   then
       IFS=':'; arrCrap=($CL_DCRAP); unset IFS
-		if [ -z ${arrCrap[0]} -a ${arrCrap[0]} =~ '^[0-9]+$' -a -z ${arrCrap[1]} ]; then
+      if [[ -z ${arrCrap[0]} && ${arrCrap[0]} =~ '^[0-9]+$' && -z ${arrCrap[1]} ]]; then
           dsomething_bad=`cat $CL_FILE | awk "{print \$${arrCrap[0]}}" | grep "${arrCrap[1]}" 2> /dev/null`
       else
           dsomething_bad=""
