@@ -1,19 +1,22 @@
-# ACS CB Project
+#*******************************************************************************
+# E.S.O. - ACS project
+#
+#  ACS SVN Archive README  
+#
+#  This file describes the basic contents of the 
+#  ACS SVN Archive
+# 
+#*******************************************************************************
 
-The master branch is used to build a RPM.
-The "merges" branch merges the updates from ACS Community master branch and ALMA ACS's master branch, which then
-are merged/cherry-picked to this project master branch.
-
-## Git Structure
-
-README.md
+README    
    This file
 
 README-new-release
-   Instructions to *manually* prepare a new release of ACS
+   Instructions to prepare a new release of ACS
 
 Makefile
-   The main Makefile to build, install and test ACS
+   The main Makefile to extract ACS from the archive,
+   build, install and test it
 
 ACS_VERSION
    The current ACS version
@@ -32,3 +35,19 @@ ExtProd
 
 LGPL
    Core ACS packages available as LGPL licence
+
+NO-LGPL
+   ACS packages not availalbe as LGPL licence
+
+RPM
+   RPM packaging tools and scripts to generate an ACS
+   distribution based on RPM
+
+VmwareFactory
+   Configuration files used to configure the ACS VmWare Factory.
+   This machine is used for automatic builds and tests and for the
+   automatic generation of releases.
+
+Web   
+   ACS Web pages and web-start applications
+   
