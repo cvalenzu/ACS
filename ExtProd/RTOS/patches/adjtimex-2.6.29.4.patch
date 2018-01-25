@@ -1,0 +1,20 @@
+--- kernel/time/ntp.c.orig   2012-06-27 14:58:36.000000000 -0400
++++ kernel/time/ntp.c  2012-06-27 15:06:23.000000000 -0400
+@@ -17,6 +17,7 @@
+ #include <linux/math64.h>
+ #include <linux/clocksource.h>
+ #include <linux/workqueue.h>
++#include <linux/module.h>
+ #include <asm/timex.h>
+ 
+ /*
+@@ -437,6 +438,8 @@
+    return result;
+ }
+ 
++EXPORT_SYMBOL(do_adjtimex);
++
+ static int __init ntp_tick_adj_setup(char *str)
+ {
+    ntp_tick_adj = simple_strtol(str, NULL, 0);
+

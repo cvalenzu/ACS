@@ -8,7 +8,7 @@
 # --------  ----------  ----------------------------------------------
 # psivera   2002-08-21  created
 # psivera   2002-09-25  added mv of directories after unzip
-# sturolla  2002-09-25  ported to Bourne Shell and added external subroutin to determine OS 
+# sturolla  2002-09-25  ported to Bourne Shell and added external subroutin to determine OS
 #
 
 #************************************************************************
@@ -35,7 +35,7 @@
 #------------------------------------------------------------------------
 #
 
-#set -x 
+#set -x
 
 # Load functions
 . standardUtilities
@@ -65,7 +65,7 @@ echo installing the omniORB distribution
 
 #
 # omniORB ORB - omniORB-4.1.4.tar.gz
-# 
+#
 # Notes: omni/README.FIRST, omni/README.unix
 #
 # Edit config/config.mk and set the platform:
@@ -150,7 +150,7 @@ make install
 # the code generated will be put in python2.3 or 2.4 directory.
 # using a wildcard here is a trick (a bit dirty) to get both
 # possibilities.
-# It would give troubles only in the case for some reason both 
+# It would give troubles only in the case for some reason both
 # 2.3 and 2.4 (or other) version directories have bee built.
 # But I am pretty confident this will never happen.
 #
@@ -163,7 +163,7 @@ omniidl -I. -I$OMNI_ROOT/idl -I$OMNI_ROOT/idl/COS -bpython $OMNI_ROOT/idl/COS/Co
                                                            $OMNI_ROOT/idl/COS/CosEvent*.idl \
                                                            $OMNI_ROOT/idl/COS/CosProper*.idl
 
-# omniORB does not come with TAO's AVStreams library so we must 
+# omniORB does not come with TAO's AVStreams library so we must
 # compile the stubs ourselves.
 omniidl -I. -I$OMNI_ROOT/idl -I$OMNI_ROOT/idl/COS -bpython $ACE_ROOT/TAO/orbsvcs/orbsvcs/AVStreams.idl
 

@@ -184,7 +184,7 @@ import com.cosylab.util.FileHelper;
 @SuppressWarnings("unchecked")
 public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 
-	static final String TMCDB_CONFIGURATION_NAME_KEY = "TMCDB_CONFIGURATION_NAME";
+	public static final String TMCDB_CONFIGURATION_NAME_KEY = "TMCDB_CONFIGURATION_NAME";
 
 	static final String TMCDB_COMPONENT_TREE_NAME_KEY = "TMCDB_COMPONENT_TREE_NAME";
 	static final String COMPONENT_TREE_NAME = System.getProperty(TMCDB_COMPONENT_TREE_NAME_KEY, "alma");
@@ -1151,13 +1151,13 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 							xml = getComponentXML(xmlCDB_, componentName, xml);
 						}
 						
-					    Component component = new Component();
-					    // TODO this can be optimized!!!
-					    component.setComponentType((ComponentType)session.get(ComponentType.class, typeId));
-					    component.setComponentName(realComponentName);
-					    component.setConfiguration(config);
-//					    component.setContainerId(componentContainerId);
-					    component.setContainer(tmpComponentContainer); // TODO verify this and clean up
+						Component component = new Component();
+						// TODO this can be optimized!!!
+						component.setComponentType((ComponentType)session.get(ComponentType.class, typeId));
+						component.setComponentName(realComponentName);
+						component.setConfiguration(config);
+//						component.setContainerId(componentContainerId);
+						component.setContainer(tmpComponentContainer); // TODO verify this and clean up
 						component.setImplLang(ImplLangEnum.valueOfForEnum(readString(componentDAO, componentName+"/ImplLang", "cpp")));	// cpp is default, since field is required
 						component.setRealTime(false);
 						component.setCode(componentDAO.get_string(componentName+"/Code"));
@@ -1170,7 +1170,9 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 						component.setMinLogLevel((byte)readLong(componentDAO, componentName+"/ComponentLogger/minLogLevel", -1));
 						component.setMinLogLevelLocal((byte)readLong(componentDAO, componentName+"/ComponentLogger/minLogLevelLocal", -1));
 						component.setXMLDoc(xml);
-                    	component.setURN(schema == null ? null : schema.getURN());
+						component.setURN(schema == null ? null : schema.getURN());
+						component.setActionThreadStackSize((Integer)readLong(componentDAO, componentName+"/actionThreadStackSize", -1));
+						component.setMonitoringThreadStackSize((Integer)readLong(componentDAO, componentName+"/monitoringThreadStackSize", -1));
 						session.persist(component);
 						session.flush();
 					
@@ -3104,14 +3106,24 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 
 				//New Implementation!
 				dao.destroy();
-				byte[] id = curl.getBytes();
+				byte[] id;
+				if (dao instanceof WDAO) {
+					id = ("WDAO" + curl).getBytes();
+				} else {
+					id = curl.getBytes();
+				}
 				try {
 					poa.deactivate_object(id);
 				} catch (Throwable th) {
 					th.printStackTrace();
 				}
-				objMap.remove(curl);
-				map.remove(curl);
+				if (dao instanceof WDAO) {
+					wdaoObjMap.remove(curl);
+					wdaoMap.remove(curl);
+				} else {
+					objMap.remove(curl);
+					map.remove(curl);
+				}
 
 				Object node = curl.length() == 0 ? rootNode : DOMJavaClassIntrospector.getNode(curl, rootNode);
 				if (node == null || DOMJavaClassIntrospector.isPrimitive(node.getClass())) {
@@ -3119,7 +3131,11 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 				}
 
 				try {
-					get_DAO_Servant(curl);
+					if (dao instanceof WDAO) {
+						get_WDAO_Servant(curl);
+					} else {
+						get_DAO_Servant(curl);
+					}
 				} catch(Throwable th) {
 					th.printStackTrace();
 				}
@@ -3482,6 +3498,7 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 			throw new NO_RESOURCES("load in progress");
 		}
 		curl = curl.replaceAll("/+","/");
+		String c = curl;
 		//Reload curl data from DB
 		if(curl.matches("/")) {
 			System.out.println("clear_cache_all()");
@@ -3496,8 +3513,8 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 				th.printStackTrace();
 			}
 			m_logger.info("clear_cache(curl): Main2");
-			String c = curl.replaceFirst("^/", "");
-			c = curl.replaceFirst("/$", "");
+			c = c.replaceFirst("^/", "");
+			c = c.replaceFirst("/$", "");
 			if (plugin != null) {
 				try {
 					Map<String, Object> rootMap = (Map<String, Object>) rootNode;
@@ -3517,7 +3534,7 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 			} else if (c.startsWith(COMPONENT_TREE_NAME)){
 				loadComponentsTree(c, true);
 			} else {
-				System.out.println("Unsupported curl: "+ curl);
+				System.out.println("Unsupported curl: "+ curl + ":" + c);
 			}
 			m_logger.info("clear_cache(curl): Main4");
 			if (plugin != null) {
@@ -3576,14 +3593,15 @@ public class HibernateWDALImpl extends WJDALPOA implements Recoverer {
 		synchronized (listenedCurls) {
 			Iterator iter = listenedCurls.keySet().iterator();
 			while (iter.hasNext()) {
-				String c = (String) iter.next();
-				curls.add(c);
+				String cl = (String) iter.next();
+				curls.add(cl);
 			}
 		}
 		m_logger.info("clear_cache(curl): Main8");
 
-		for (String c : curls)
-			clearCache(c);
+		for (String cl : curls)
+            if (cl.matches("^"+c+"/.*") || cl.matches("^"+c+"$"))
+                clearCache(cl);
 		m_logger.info("clear_cache(curl): Main9");
 	}
 

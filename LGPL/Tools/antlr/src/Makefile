@@ -3,17 +3,17 @@
 # Copyright (c) ESO - European Southern Observatory, 2011
 # (in the framework of the ALMA collaboration).
 # All rights reserved.
-# 
+#
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
@@ -42,10 +42,10 @@
 SHELL=/bin/bash
 PLATFORM := $(shell uname)
 
-# HSO 2010-10: We currently support antrl versions 2 and 3. 
-# Version 3.0.1 is needed for oAW v.5, but only for java, which is all we install. The currently latest version 3.2 does not work. 
-# Since the build from source requires maven, we currently just install the pre-built jar file. 
-# Note that the java packages are unique so that no version conflict can arise. 
+# HSO 2010-10: We currently support antrl versions 2 and 3.
+# Version 3.0.1 is needed for oAW v.5, but only for java, which is all we install. The currently latest version 3.2 does not work.
+# Since the build from source requires maven, we currently just install the pre-built jar file.
+# Note that the java packages are unique so that no version conflict can arise.
 # TODO: Check who all still uses version 2, and especially if C++ support is still needed.
 #       Try to build also ANTLR_VER_3 from source.
 ANTLR_VER_2 = 2.7.7
@@ -54,7 +54,7 @@ ANTLR_VER_3 = 3.0.1
 #
 # Scripts (public and local)
 # ----------------------------
-#SCRIPTS_L         = 
+#SCRIPTS_L         =
 
 
 INSTALL_FILES = ../lib/antlr-${ANTLR_VER_3}.jar
@@ -89,7 +89,7 @@ clean_dist : clean_all clean_dist_all
 #	@rm -rf antlr-${ANTLR_VER_3}
 	@echo " . . . 'clean_dist' done . . . "
 
-clean_install : 
+clean_install :
 	@echo " . . . removing the antlr installed files . . ."
 	@rm -rf ${INSTALL_ROOT}/bin/antlr-config
 	@rm -rf ${INSTALL_ROOT}/bin/antlr
@@ -115,7 +115,7 @@ unpack :
 	@echo " . . . unpacking antlr . . . "
 	@tar -xzf antlr-${ANTLR_VER_2}.tar.gz
 	@patch -p0 < gcc44.patch
-#	@gtar -xzf antlr-${ANTLR_VER_3}.tar.gz
+#	@tar -xzf antlr-${ANTLR_VER_3}.tar.gz
 
 .PHONY: configure
 configure : unpack

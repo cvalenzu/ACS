@@ -378,7 +378,7 @@ char * DAOImpl::get_string (
 	}
 	cdb::String str;
 	fld.GetString(str);
-	return const_cast<char*>(str.c_str());
+	return CORBA::string_dup(str.c_str());
   }
 
 char * DAOImpl::get_field_data (

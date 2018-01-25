@@ -231,21 +231,21 @@ echo "ACS tag    : $ACS_TAG_NOW"
 # 
 echo "==== Checking version in tar file: $ACS_TAR_FILE"
 echo "     Retrieving the version information may take some time!"
-ACS_VERSION_NEW=`gtar -xOzf $ACS_TAR_FILE alma/$ALMASW_RELEASE/ACSSW/ACS_VERSION`
+ACS_VERSION_NEW=`tar -xOzf $ACS_TAR_FILE alma/$ALMASW_RELEASE/ACSSW/ACS_VERSION`
 if [ $? != 0 ] 
 then
   echo "Invalid ACS distribution (no ACS_VERSION). Abort"
   exit 2
 fi
 
-ACS_PATCH_LEVEL_NEW=`gtar -xOzf $ACS_TAR_FILE alma/$ALMASW_RELEASE/ACSSW/ACS_PATCH_LEVEL`
+ACS_PATCH_LEVEL_NEW=`tar -xOzf $ACS_TAR_FILE alma/$ALMASW_RELEASE/ACSSW/ACS_PATCH_LEVEL`
 if [ $? != 0 ] 
 then
   echo "Invalid ACS distribution (no ACS_PATCH_LEVEL). Abort"
   exit 2
 fi
 
-ACS_TAG_NEW=`gtar -xOzf $ACS_TAR_FILE alma/$ALMASW_RELEASE/ACSSW/ACS_TAG 2>/dev/null`
+ACS_TAG_NEW=`tar -xOzf $ACS_TAR_FILE alma/$ALMASW_RELEASE/ACSSW/ACS_TAG 2>/dev/null`
 if [ $? != 0 ] 
 then
   echo "ACS_TAG file not found in archive. This is not a tagged distribution."
@@ -310,7 +310,7 @@ if [ "$CL_ACTION" = "update" ] ; then
    # As last, unpacks
    #
    echo "==== Unpack the $ACS_TAR_FILE distribution"
-   gtar zpxf $ACS_TAR_FILE alma/$ALMASW_RELEASE/ACSSW alma/$ALMASW_RELEASE/acsdata
+   tar zpxf $ACS_TAR_FILE alma/$ALMASW_RELEASE/ACSSW alma/$ALMASW_RELEASE/acsdata
    if [ $? != 0 ] 
    then
      echo "Error unpacking $ACS_TAR_FILE. Abort"

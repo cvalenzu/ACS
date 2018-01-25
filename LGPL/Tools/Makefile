@@ -1,17 +1,17 @@
 #*******************************************************************************
 # ALMA - Atacama Large Millimiter Array
-# (c) European Southern Observatory, 2007 
-# 
+# (c) European Southern Observatory, 2007
+#
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
@@ -54,7 +54,7 @@ ifeq ($(os),Linux)
   ifeq ($(majorRelNo),6)
     GMP =
   endif
-  #Added for Centos 7, maybe is better to 
+  #Added for Centos 7, maybe is better to
   #use another method or simply remove GMP
   ifeq ($(majorRelNo),7)
     GMP =
@@ -64,7 +64,7 @@ endif
 # getopt is only for SunOS according to its own Makefile
 # apache xercec-c and xerces-j2 in repos
 # extjars made part RPM part ACS RPM dependencies
-MODULES_TOOLS = tat xsddoc extidl vtd-xml oAW scxml_apache
+MODULES_TOOLS = emacs tat expat loki extjars antlr hibernate extpy cppunit getopt astyle xercesc xercesj castor xsddoc extidl vtd-xml oAW shunit2 log4cpp scxml_apache
 
 
 VXWORKS_RTOS = $(shell if [ $(WIND_BASE) ] ; then echo "YES"; else echo "NO"; fi)
@@ -83,7 +83,7 @@ SHELL=/bin/ksh
 ECHO=echo
 
 ifdef MAKE_VERBOSE
-    AT = 
+    AT =
     OUTPUT =
 else
     AT = @
@@ -137,7 +137,7 @@ build_clean:   	clean_log update_clean
 	@$(ECHO) "... done"
 
 #
-# This target builds and installs all gui modules on a clean 
+# This target builds and installs all gui modules on a clean
 # directory structure.
 # Per each module it executes:
 #    make clean all man install clean
@@ -150,7 +150,7 @@ build_clean_test:   	clean_log update_clean_test
 	@$(ECHO) "... done"
 
 #
-# This target re-builds and installs all gui modules on an  
+# This target re-builds and installs all gui modules on an
 # existing directory structure.
 # Per each module it executes:
 #    make clean all man install clean
@@ -322,15 +322,15 @@ update_clean_test: clean_test_log $(ACCDB_CONFIG)
 # with the current setup
 #
 show_modules:
-	@$(ECHO) "Modules in build list are:" 
+	@$(ECHO) "Modules in build list are:"
 	@$(ECHO) ${MODULES_TOOLS}
 
 #
 # Standard canned targets
 #
-clean:	
+clean:
 	$(canned)
-all:	
+all:
 	$(canned)
 install:
 	$(canned)

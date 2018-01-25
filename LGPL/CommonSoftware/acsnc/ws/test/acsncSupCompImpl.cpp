@@ -82,6 +82,7 @@ void SupCompImpl::execTest(const char* channelName,CORBA::Boolean autoreconnect,
         for(CORBA::Long i = 0; i < numEvents; ++i)
         {
             //int32_t numEvent = (sec * numEvents) + i;
+	    ACS_STATIC_SHORT_LOG((LM_ALERT, "descrip.count ...value is:%llu", (unsigned long long int)descrip.count));
             try {
                 m_testSup_p->publishData<acsnc::EventDescription>(descrip, 0);
                 //ACS_SHORT_LOG((LM_ALERT,"testReconn1 - Event %d sent", numEvent));

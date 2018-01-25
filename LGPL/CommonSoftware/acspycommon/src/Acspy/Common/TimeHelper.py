@@ -109,7 +109,7 @@ class TimeUtil(object):
             epoch = acstime.Epoch(epoch)
         
         acs_time = epoch.value - acstime.ACE_BEGIN  #100ns units
-        sec = acs_time / 10000000L
+        sec = float(acs_time) / 10000000L
         return sec
     #--------------------------------------------------------------------------
     def py2duration(self, seconds):
@@ -138,6 +138,6 @@ class TimeUtil(object):
         if isinstance(duration, long):
             duration = acstime.Duration(duration)
             
-        sec = duration.value / 10000000L
+        sec = float(duration.value) / 10000000L
         return sec
 

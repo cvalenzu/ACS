@@ -38,6 +38,7 @@
 
 #include <maciS.h>
 #include <acscommonC.h>
+#include <memory>
 
 #include "ace/Task.h"
 
@@ -99,7 +100,7 @@ namespace acsalarm
 		/**
 		 * The source to send alarms to the AS
 		 */
-		auto_ptr<acsalarm::AlarmSystemInterface> m_alarmSource_ap;
+		std::auto_ptr<acsalarm::AlarmSystemInterface> m_alarmSource_ap;
 
 		/**
 		 * The thread to update

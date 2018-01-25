@@ -41,8 +41,7 @@ EXECUTABLES_L   =
 #
 # <brief description of xxxxx program>
 taskRunner_OBJECTS   = taskRunner
-taskRunner_LIBS      = taskComponentStubs staticContainer characteristicTaskStubs taskErrType baciStubs xerces-c \
-		ACE TAO TAO_PortableServer maci loki logging baselogging acserr acserrStubs
+taskRunner_LIBS      = taskComponentStubs staticContainer characteristicTaskStubs taskErrType baciStubs xerces-c
 
 #
 # special compilation flags for single c sources

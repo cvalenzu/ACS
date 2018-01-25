@@ -2,7 +2,7 @@
 # The following directory are FULLY generated under Linux:
 #     acscourse
 #
-# Still the Exercices directory is not handle, not backed up and 
+# Still the Exercices directory is not handle, not backed up and
 # not archived in CVS.
 #
 
@@ -30,6 +30,5 @@ Exercises:
 all: acscourse Exercises
 	echo ... done.
 
-clean: 
+clean:
 	rm -rf acscourse Exercises/dttemp10 Exercises/dttemp12 Exercises/dttemp13
-

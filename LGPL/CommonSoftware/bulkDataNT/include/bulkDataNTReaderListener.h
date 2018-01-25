@@ -29,9 +29,11 @@
 
 #include "bulkDataNTSupport.h"
 #include <ndds/ndds_namespace_cpp.h>
+#include <acsThreadManager.h>
 
 #include "bulkDataNTCallback.h"
 #include "bulkDataNTDDSLoggable.h"
+#include "bulkDataNTProcessQueue.h"
 
 #include <string>
 #include <ACE.h>
@@ -45,7 +47,7 @@ class BulkDataNTReaderListener
 {
 public:
   //Constructor
-  BulkDataNTReaderListener (const char*name, BulkDataNTCallback* cb);
+  BulkDataNTReaderListener (const char*name, BulkDataNTCallback* cb, bool skipReceivingDataAfterFailure);
 
   //destructor
   virtual ~BulkDataNTReaderListener (void);
@@ -99,6 +101,7 @@ private:
 
   BulkDataNTCallback* callback_mp; /// pointer to user defined callback
   bool enableCB_m;  /// should be called user's callback or not ?
+  bool skipdata_m; //Set true to use an unreliable receiver
 
   ACE_Time_Value cbReceiveStartTime_m;  /// time just be4 cbReceive is going to be executed
   ACE_Time_Value cbReceiveElapsedTime_m;  /// elapsed time of cbReceive
@@ -116,6 +119,9 @@ private:
   DDS::SampleInfo si ;
   ACSBulkData::BulkDataNTFrame message;
   unsigned char tmpArray[ACSBulkData::FRAME_MAX_LEN];
+  ACS::ThreadManager tm;
+  ProcessQueue* processQueue;
+  bool processingQueue;
 };
 
 };//namespace AcsBulkdata

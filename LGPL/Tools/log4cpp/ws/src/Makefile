@@ -235,7 +235,7 @@ install :
 	@echo " . . . installation done"
 
 # Folder name of extracted tgz. Create only if not existing. No dependencies.
-# tar is identical to gtar.
+# tar is identical to tar.
 # Attention!
 # If failing after folder creation but before completion it is not repeated!
 # In this case rm folder manually!

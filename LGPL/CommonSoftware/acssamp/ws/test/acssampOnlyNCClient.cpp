@@ -79,8 +79,9 @@ public:
     cout << "Event: domain = \n" << (const char *)notification.header.fixed_header.event_type.domain_name << endl;
     
 
-    acssamp::SampObj::SampDataBlockSeq *m_SampledData_p, m_SampledData;
-    m_SampledData_p=&m_SampledData;
+    acssamp::SampObj::SampDataBlockSeq *m_SampledData;
+    const acssamp::SampObj::SampDataBlockSeq *m_SampledData_p;
+    m_SampledData_p = const_cast<acssamp::SampObj::SampDataBlockSeq*>(m_SampledData);
 
     notification.filterable_data[0].value >>= m_SampledData_p;
 

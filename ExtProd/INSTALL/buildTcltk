@@ -17,9 +17,9 @@
 #
 #   SYNOPSIS
 #   buildTcltk [-m] [-d]
-# 
+#
 #   DESCRIPTION
-#   Compiles and install the Tcl/Tk packages needed for ALMA Common Software 
+#   Compiles and install the Tcl/Tk packages needed for ALMA Common Software
 #
 #    - tcl/tk
 #    - [incr Tcl]
@@ -42,13 +42,13 @@
 #   variable $TCLTK_ROOT (usually $ALMASW_INSTDIR/tcltk).  If undefined,
 #   /usr/local is used instead.
 #
-#   Option -d[ebug] allows to run the shell in verbose mode, while option 
+#   Option -d[ebug] allows to run the shell in verbose mode, while option
 #   -m[sql] includes the generation of the msql C-lib, the msqltcl Tcl-extension
 #   and the generation of msql directories/files under $ACSDATA.
 #
 #   FILES
 #   input files: are taken from ../PRODUCTS/tcltk.
-#   
+#
 #   ENVIRONMENT
 #
 #   RETURN VALUES
@@ -61,7 +61,7 @@
 #
 #   SEE ALSO
 #
-#   BUGS     
+#   BUGS
 #   Does not stop in case of compilation errors.
 #------------------------------------------------------------------------
 #
@@ -76,7 +76,7 @@
 #    - PREFIX : dirpath where the lib/ bin/ man/ files must be installed
 #               (this directory and necessary subdirs will be created if
 #               they do not yet exist).
-#    - TCL_MEM_DEBUG: set to CFGLAGS=-DTCL_MEM_DEBUG if the Tcl memory 
+#    - TCL_MEM_DEBUG: set to CFGLAGS=-DTCL_MEM_DEBUG if the Tcl memory
 #               command is needed
 # EAL 20040719
 #
@@ -100,7 +100,7 @@ printUsageAndExit ()
 }
 
 ###############################################################################
-# Script logic starts here...    
+# Script logic starts here...
 ###############################################################################
 MY_NAME=`basename $0`
 
@@ -124,8 +124,8 @@ SHORTOPTS=h,d,m
 export POSIXLY_CORRECT=1
 
 getopt -n $MY_NAME -a -l $LONGOPTS $SHORTOPTS "$@" > /dev/null
-if [ $? -ne 0 ] 
-    then 
+if [ $? -ne 0 ]
+    then
     printUsageAndExit 1;
 fi
 
@@ -150,14 +150,14 @@ while :
 done
 shift
 
-if [ "$HELP" ] ; 
+if [ "$HELP" ] ;
 then
     printUsageAndExit 0
 fi
 
-# first, verify that the script was invoked without any command-line arguments 
+# first, verify that the script was invoked without any command-line arguments
 if [ $# -ne 0 ] ;
-then 
+then
     printUsageAndExit 1
 fi
 
@@ -235,7 +235,7 @@ then
           build_OSV=${distro}`cat /etc/redhat-release | awk '{ print $(NF-1) }'`
      elif [ "X${distro}" = "XFedoraCore" ] ; then
           build_OSV=${distro}`cat /etc/redhat-release | awk '{ print $4 }'`
-     fi   
+     fi
 elif [ ${build_OS} = ${CYGWIN_VER} ]; then
     build_OSV=`echo ${build_OSV} | awk ' { split($0, v, "("); print v[1] } '`
 fi
@@ -263,11 +263,11 @@ if [ "$MSQL" ]
 then
     echo "check ACSDATA . . ."
     if [ "X$ACSDATA" = "X" ]
-	then	
+	then
 	echo "$ACSDATA not defined, cannot continue."
 	exit 1
     fi
-    
+
     DIR_LIST="
          ENVIRONMENTS      \
          config            \
@@ -319,7 +319,7 @@ FILE_LIST="tclCheck-1.1.13.tar.gz \
 		 ${TCL_TARBALL}   \
 		 tkcon-2.*.tar.gz "
 if [ "$MSQL" ]
-    then 
+    then
     FILE_LIST="$FILE_LIST    \
 		msql2.tar.gz "
 fi
@@ -348,7 +348,7 @@ then
      if [ $RET -ne 0 ]
      then
         echo "Failed to create $TCLTK_ROOT, cannot continue..."
-        exit 1  
+        exit 1
      fi
 fi
 
@@ -371,7 +371,7 @@ echo " . . . ok"
 
 
 #
-# create a temporary directory used to expand the tar files and 
+# create a temporary directory used to expand the tar files and
 # to compile
 #
 SRC="$TCLTK/$build_OS-$build_OSV"
@@ -392,6 +392,12 @@ cd $cwd
 echo "done"
 
 #
+# Configure env variables
+#
+export LDFLAGS="$LDFLAGS -Wl,--add-needed"
+
+
+#
 # get current content of the target directory
 #
 cwd=`pwd`
@@ -406,7 +412,7 @@ cd $cwd
 # when target dir is not /usr/local, delete the current content
 #
 if [ "X$PREFIX" != "X/usr/local" ]
-then	
+then
     echo -n "remove ${PREFIX} . . . "
     rm -rf $PREFIX
     mkdir -p $PREFIX/bin $PREFIX/lib $PREFIX/include $PREFIX/man/man1 $PREFIX/man/man3 $PREFIX/man/mann $PREFIX/doc
@@ -440,7 +446,7 @@ fi
 #    - tcl/tk
 #    - tcllib
 #    - tklib
-#    - [incr Tcl] 
+#    - [incr Tcl]
 #    - iwidgets
 #    - tclX
 #    - BLT
@@ -461,8 +467,8 @@ echo -n "tcltk: untarring ${TCLTK}/${TCL_TARBALL} . . . "
 tar -xzf ${TCLTK}/${TCL_TARBALL}
 echo "done."
 
-# There used to be here the instructions to apply patches for CYGWIN, 
-# but they were version-dependent, and should therefore not be put here 
+# There used to be here the instructions to apply patches for CYGWIN,
+# but they were version-dependent, and should therefore not be put here
 # but rather within the buildTclTk script contained in tcltk-MMMYYYY.tar.gz
 ###if [ "${build_OS}" = "$CYGWIN_VER" ]; then
 ###    patch $SRC/tcl8.4.19/generic/tclEnv.c < ${INSTALL_ROOT}/PRODUCTS/tcl.putenv.patch
@@ -472,7 +478,7 @@ echo "done."
 # includes exactly the same release-string as the tarball itself.
 RELEASE=`echo ${TCL_TARBALL} | awk '{ print substr($0,7,7) }'`
 if [ ! -f buildTclTk-${RELEASE} ]
-then 
+then
     echo "buildTclTk-${RELEASE} script missing in ${TCLTK}/${TCL_TARBALL} - exiting"
     exit 1
 fi
@@ -482,11 +488,11 @@ then
     ./buildTclTk-${RELEASE} -m
 else
     ./buildTclTk-${RELEASE}
-fi 
+fi
 
 ###########################################
 # 3. tclCheck
-# 
+#
 # no man page, only $PREFIX/bin/tclCheck has been installed
 #
 echo $SEPARATOR
@@ -495,7 +501,7 @@ cd $SRC
 tar -xzf $TCLTK/tclCheck-1.1.13.tar.gz
 cd tclCheck-1.1.13
 
-# 1. to avoid problem with 'getopt': comment the line 
+# 1. to avoid problem with 'getopt': comment the line
 #    extern int getopt(int, char**, char*);
 # 2. replace  'install -s' by 'cp' in Makefile
 
@@ -512,7 +518,7 @@ make install BIN=$PREFIX/bin
 
 ###########################################
 # 4. tkcon
-# 
+#
 #
 echo $SEPARATOR
 echo "tkcon: untarring . . . "
@@ -527,7 +533,7 @@ mv $PREFIX/doc/docs $PREFIX/doc/tkcon
 ###############################################################
 # 5. msql / msqltcl configuration
 #
-#    needed to implement the VCC/ACC database. 
+#    needed to implement the VCC/ACC database.
 #    The msql static library is linked by seqSh/seqWish (as there is no
 #    shared lib available for dynamic loading)
 #    The ad hoc installation procedure created the database in ACSDATA and the
@@ -535,8 +541,8 @@ mv $PREFIX/doc/docs $PREFIX/doc/tkcon
 #
 if [ "$MSQL" ]
 then
-    # Fix to the msql.conf file to put the real path to the TCLTK_ROOT 
-    # and the ACSDATA directories (the msql deamon itself does not 
+    # Fix to the msql.conf file to put the real path to the TCLTK_ROOT
+    # and the ACSDATA directories (the msql deamon itself does not
     # understand environment variables)
     cd $TCLTK_ROOT
     sed -e 's,Inst_Dir = [^\n]*,'"Inst_Dir = $TCLTK_ROOT,g" \
@@ -559,7 +565,7 @@ cd ${INSTALL_ROOT}/INSTALL
 if [ "$MSQL" ]
 then
     ./checkTcltk --msql
-else 
+else
     ./checkTcltk
 fi
 

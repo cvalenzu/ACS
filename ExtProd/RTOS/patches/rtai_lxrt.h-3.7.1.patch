@@ -1,0 +1,17 @@
+diff -ru rtai-3.7.1/base/include/rtai_lxrt.h rtai-3.7.1.ALMA/base/include/rtai_lxrt.h
+--- rtai-3.7.1/base/include/rtai_lxrt.h	2009-05-05 06:48:01.000000000 -0600
++++ rtai-3.7.1.ALMA/base/include/rtai_lxrt.h	2009-07-14 03:40:52.000000000 -0600
+@@ -640,7 +640,12 @@
+                 return 0;
+         }
+ 	rtai_iopl();
+-	mlockall(MCL_CURRENT | MCL_FUTURE);
++        /*
++         * RTOS-FBT 2009-07, TJ:
++         * Rodrigo found out that commenting out the mlockall call makes
++         * creation of threads much easier.  (Easier as in "it makes it work".)
++        mlockall(MCL_CURRENT | MCL_FUTURE);
++         */
+ 
+ 	return (RT_TASK *)rtai_lxrt(BIDX, SIZARG, LXRT_TASK_INIT, &arg).v[LOW];
+ }

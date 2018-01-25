@@ -123,6 +123,38 @@ public class DataFormatter {
 		}
 	}
 
+	public static Class getPrimitiveType(Class cl) {
+		if (cl.isArray()) {
+			Class content = getPrimitiveType(cl.getComponentType());
+			return java.lang.reflect.Array.newInstance(content, 0).getClass();
+		} else if (cl.isPrimitive()) {
+			return primitiveToWrapper(cl);
+		} else {
+			return cl;
+		}
+	}
+
+	public static Class primitiveToWrapper(Class cl) {
+		if (cl.toString().equals("int")) {
+			return Integer.class;
+		} else if (cl.toString().equals("double")) {
+			return Double.class;
+		} else if (cl.toString().equals("long")) {
+			return Long.class;
+		} else if (cl.toString().equals("short")) {
+			return Short.class;
+		} else if (cl.toString().equals("byte")) {
+			return Byte.class;
+		} else if (cl.toString().equals("char")) {
+			return Character.class;
+		} else if (cl.toString().equals("float")) {
+			return Float.class;
+		} else if (cl.toString().equals("boolean")) {
+			return Boolean.class;
+		}
+		throw new IllegalArgumentException("Class is not primitive.");
+	}
+
 	public static String cropFromEnd(String string, int number_of_lines) {
 		int start = getLineStart(string, getLineCount(string) - number_of_lines);
 		if (start < 0)

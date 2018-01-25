@@ -129,7 +129,7 @@ fi
 
 # Untar the tarball
 echo " Untar ongoing."
-gtar zxpf $fileName
+tar zxpf $fileName
 if [ "$?" = "0" ] 
 then
    echo " "
@@ -137,7 +137,7 @@ then
    echo " "
 else 
    echo " "
-   echo "*** gtar Error."
+   echo "*** tar Error."
    echo " "
    exit 1
 fi

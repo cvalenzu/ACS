@@ -137,10 +137,12 @@ public:
 	 * @param cfg (optional) REceiver's flow configuration
 	 * @param cb callback - if no specified it is created from tempalte parameter
 	 * @param releaseCB - should be the callback relased when the flow is destroyed
+     * @param skipReceivingDataAfterFailure - by default false, if true the flow keep going receiving data after a failure, 
+     * usually useful for unreliable receivers
 	 * @return
 	 */
 	BulkDataNTReceiverFlow* createFlow(const char *flowName, const ReceiverFlowConfiguration &cfg=ReceiverFlowConfiguration(),
-			BulkDataNTCallback *cb=0, bool releaseCB=false);
+			BulkDataNTCallback *cb=0, bool releaseCB=false, bool skipReceivingDataAfterFailure = false);
 
 	/**
 	 * It returns pointer to Receiver Flow.

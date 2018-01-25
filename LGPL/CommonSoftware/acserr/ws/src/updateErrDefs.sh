@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 #*******************************************************************************
 # ALMA - Atacama Large Millimiter Array
 # (c) Associated Universities Inc., 2007

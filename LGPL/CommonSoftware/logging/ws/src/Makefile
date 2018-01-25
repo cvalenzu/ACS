@@ -71,15 +71,12 @@ loggingService_OBJECTS = loggingService loggingACSLogFactory_i \
                          loggingACSStructuredPushSupplierXml loggingACSLog_i \
                          loggingHelper  loggingAcsLogServiceImpl
 
-loggingService_LIBS = logging logging_idlStubs acsutil TAO_CosNotification_Serv baselogging TAO_CosNaming TAO_DsLogAdmin TAO_DsLogAdmin_Skel \
-			ACE TAO TAO_PortableServer TAO_CosNotification_Skel TAO_CosNotification TAO_AnyTypeCode loki TAO_DsLogAdmin_Serv \
-			TAO_IORTable
-loggingService_LDFLAGS= -Wl,--no-as-needed
+loggingService_LIBS = logging logging_idlStubs TAO_CosNotification_Serv
+#loggingService_LDFLAGS= -ggdb
 
 loggingClient_OBJECTS = loggingClient loggingHelper 
-loggingClient_LIBS = logging TAO_CosNotification_Serv logging_idlStubs acsutil baselogging TAO_CosNotification_Skel TAO_CosNotification TAO_PortableServer \
-			TAO_AnyTypeCode TAO ACE loki TAO_CosNaming
-loggingClient_LDFLAGS= -Wl,--no-as-needed
+loggingClient_LIBS = logging TAO_CosNotification_Serv
+#loggingClient_LDFLAGS= -ggdb
 
 # <brief description of xxxxx program>
 
@@ -108,7 +105,7 @@ INCLUDES        = 	logging.h loggingExport.h loggingBaseExport.h loggingXMLEleme
             loggingACSCategory.h loggingACSLoggingEvent.h loggingLogThrottle.h \
             loggingACSRemoteAppender.h loggingLog4cpp.h loggingLog4cppMACROS.h \
 			loggingLog4cppACEMACROS.h loggingACSHierarchyMaintainer.h loggingThrottleAlarmInterface.h \
-			loggingStopWatch.h
+			loggingStopWatch.h loggingExecuteWithLogger.h loggingExecuteWithLogger.i
 INCLUDES_L      = loggingService.h \
 		  loggingACSStructuredPushSupplier.h \
 		  loggingACSStructuredPushSupplierXml.h \
@@ -152,8 +149,8 @@ logging_OBJECTS 	=	logging loggingLoggable loggingXMLElement loggingXMLParser \
 						loggingACSRemoteAppender loggingACSHierarchyMaintainer \
 						loggingLog4cpp loggingStopWatch
 						
-logging_LIBS    =	logging_idlStubs acsutil acscommonStubs baselogging log4cpp pthread rt TAO_CosNaming
-logging_LDFLAGS =	-gdb
+logging_LIBS    =	logging_idlStubs acsutil acscommonStubs baselogging log4cpp pthread rt
+logging_LDFLAGS =	-ggdb
 logging_CFLAGS  = -DLOGGING_BUILD_DLL
 
 #log4cpplogging_OBJECTS 	:= 	loggingACSLoggingEvent loggingXmlLayout \

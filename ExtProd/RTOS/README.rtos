@@ -1,0 +1,414 @@
+$Id: README.rtos,v 1.11 2009/07/28 16:48:05 srankin Exp $
+
+RTOS Installation Procedure
+
+
+  Note: 
+
+   - ACS Version: 8.0
+   - ACS Tag: ACS-8_0_0-B
+   - Kernel Version:  2.6.29.4
+   - RTOS Version: 3.7.1
+   
+   - The following procedure has been used for a grub boot loader
+   - Kernel and RTOS configuration files are located in ACS/ExtProd/RTOS/config. Use the configurations appropriate to your hardware.
+   - No SMP patches are necessary for the kernel as of kernel 2.6.
+
+
+  Preconditions
+
+   0. You need to have ACS-X.Y installed. The ACS environment variables 
+      ALMASW_ROOTDIR and ALMASW_RELEASE are used, in the buildRTOS
+      scripts, to generate default values for the LINUX_HOME and
+      RTAI_HOME environment variables.
+   1. Building the kernel should be done as almamgr (or whatever account
+      is used to install ACS). Installing the kernel *must* be done
+      as root. To install the kernel modules that come with ACS
+      almamgr must be able to obtain root's privileges in an automated
+      way using ssh.
+   2. This installation procedure supposes that the scripts needed to
+      perform the installation be retrieved under ~almamgr (the home
+      directory of almamgr). Other locations will also work by
+      suitably modifying the procedure 
+   3. Verify that the .bash_profile is sourcing .bash_profile.acs from
+      /alma/ACS-X.Y/ACSSW/config/.acs or from ./.acs. See precondition 0 
+      for why.
+   4. Verify that CVSROOT is set as described in the WAMDisco User Access Points
+      instructions at 
+
+      http://almasw.hq.eso.org/almasw/bin/view/SE/WANdiscoUserInformation#Users_Access_points
+
+      Verify that you can login to the cvs server as almamgr.  If you do 
+      not know the password for almamgr you can use your usual account 
+      (after changing the CVSROOT environment variable).   This is needed 
+      because the buildRTOS script gets the patched kernel sources from CVS.
+   5. (Re)move /alma/ACS-X.Y/rtai and /alma/ACS-X.Y/rtlinux if
+      they exist. In principle this is not necessary as the buildRTOS
+      script moves these aside if necessary.
+   6. (Re)move /usr/src/rtai and /usr/src/linux if they exist. In
+      principle this is not necessary as the installRTOS script will
+      do this.
+   7. CLEANUP
+      In case (many) other kernel installations have been previously
+      done on the machine.
+      You might want to cleanup these installations before performing
+      a new one. 
+      If you have sufficient disk space, you can also cleanup after a
+      succesful installation (or keep the older kernel versions).
+      As root:
+
+      - clean the /boot directory removing all files containing as
+        suffix the keywords identifying the unneeded kernels, such as:
+
+            config-2.6.10.3-rtos-3.1
+            initrd-2.6.10.3-rtos-3.1.img
+            System.map-2.6.10.3-rtos-3.1
+            vmlinuz-2.6.10.3-rtos-3.1
+
+      - If you are using grub as your boot loader
+        - remove the lines referring to vmlinuz-2.4.25-rtos-3.1 in /boot/grub/grub.conf
+        - set the default kernel as appropriate
+
+      - Remove the kernel and rtai sources, libraries includes and
+        modules.
+        You will find directories easily recognizable because they
+        contain the kernel and rtos version numbers in the name in:
+         - /usr/realtime-x.y
+         - /usr/src/kernels/....
+         - /lib/modules/.....
+
+      In this way you can start the installation from a clean situation.
+
+    8. Always use a tag (generally of the type ACS-n_m_p) for retrieving the 
+       files and directories to be used for the RTOS installation.
+
+
+
+  Procedure
+
+
+    Building the kernel
+    
+   1. login as almamgr and check ensure the relevant environment variables are set up.
+      i.e., source /alma/ACS-X.Y/ACSSW/config/.acs/.bash_profile.acs
+   
+   2. Make sure that ACS/ExtProd/RTOS and ACS/ExtProd/RTOS/config are fully checked out.
+   
+   3. Find the appropriate kernel and rtos configuration files for your machine.  They 
+      are in ACS/ExtProd/RTOS/config and are named as the following: 
+        *  kernel-2.6.29.4-rtos-3.7.1-ARCH
+        *  realtime-3.7.1-ARCH
+      where ARCH is the type of computer you are running. (For example: PE2850, PE750, d610, vmware, etc)
+ 
+      These configurations are managed by ITS and the RTOS group, and they will be 
+      passed to buildRTOS to configure RTOS and the kernel properly.
+
+   4. (If necessary) 
+      chmod a+rx ~almamgr/ACS/ExtProd/RTOS/{buildRTOS,installRTOS}
+      
+      The build and installation scripts should be executable.
+
+   5. unset the LINUX_HOME and RTAI_HOME environment variables if necessary
+      This ensures that the default value of these environment
+      variables is used.
+      
+      unset LINUX_HOME
+      unset RTAI_HOME
+      
+   6. build rtos using the following command:
+      
+      buildRTOS -l ~almamgr/ACS/ExtProd/RTOS/config/kernel-2.6.29.4-rtos-3.7.1-ARCH -r ~almamgr/ACS/ExtProd/RTOS/config/realtime-3.7.1-ARCH -k 2.6.29.4 -t 3.7.1
+      
+      The '-l' option takes the kernel configuration file for your ARCH.
+      The '-r' option takes the rtos configuration file for your ARCH.
+      The '-k' option takes the kernel version number.
+      The '-t' option takes the rtos version number.
+      
+      You will need the full path for each configuration file.
+      
+      There is no default option any more, so choose your configurations wisely.
+
+   7. INSPECT the buildRTOS.log file, to make sure the build succeeded properly.
+
+   8. become root using for example "su root", or "ssh root@localhost"
+   
+   9. export LINUX_HOME=/alma/ACS-X.Y/rtlinux
+   
+  10. export RTAI_HOME=/alma/ACS-X.Y/rtai
+  
+  11. ~almamgr/ACS/ExtProd/RTOS/installRTOS grub
+      (lilo is not supported any more)
+  
+  12. INSPECT the installRTOS.log file, to make sure the installation succeeded properly.
+  
+  13. Configure your boot loader as appropriate if you want the new
+      kernel to be your default configuration by editing 
+      the default variable in /etc/grub.conf 
+
+  14. reboot
+  
+  15. If necessary, login as root and run 'depmod -a'
+  
+  16. uname -a
+       Check:
+         1. if you have a single processor machine you should see:
+
+         Linux HOSTNAME 2.6.29.4-rtos-3.7.1 #1 DATE LINUX_TYPE
+
+         2. If you have a dual processor machine you should see:
+
+         Linux HOSTNAME 2.6.29.4-rtos-3.7.1 #1 SMP DATE LINUX_TYPE
+
+            and the file /proc/cpuinfo should show info
+            about more than 1 processor
+            
+  17. Install a ssh public key. See this link.
+      <http://almasw.hq.eso.org/almasw/bin/view/SE/LinuxLKMOpsToolsDocs>
+
+  Update of ACS binaries for RTOS
+
+     After having rebuilt the kernel and RTOS it is often
+     a good idea to rebuild the ACS modules for the target 
+     platform.
+
+     To do this with ACS 5.0.2:
+     - login as almamgr
+     - take the sources of ACS for the proper tag.
+       The minimal set of sources can be extracted from CVS with the
+       following command: 
+       - cvs co -P -r ACS-5_0_2 ACS/Makefile 
+                                ACS/LGPL/acsBUILD 
+                                ACS/NO-LGPL/rtos
+     - update the installation:
+       make MODULES="NO-LGPL/rtos/lkm NO-LGPL/rtos/rtlog
+                     NO-LGPL/rtos/rtTest" update
+
+     Coming releases of ACS will have a simpler command to execute.
+
+  Verification
+
+     In the module ACS/NO-LGPL/rtos/rtTest there are a number of tests
+     that can be used to do some verification of the RTOS
+     installation. To run these tests you should, as almamgr or as
+     any non-privileged user:
+     1. cvs co -r<TAG> ACS/NO-LGPL/rtos/rtTest
+     2. cd ACS/NO-LGPL/rtos/rtTest/src; make all install
+        You need to have the ssh keys so that the user can become root,
+        using ssh, without requiring a password (see step 16 above).
+     3. cd ../test; make test
+
+
+  Postconditions
+
+     Remember to chown and chmod the LKMs which come with the binary
+     ACS distribution! To do this, get root permissions (su root or
+     ssh root@localhost) and do the following:
+     chown root.root /alma/ACS-X.Y/ACSSW/rtai/*.ko
+     chmod a+s /alma/ACS-X.Y/ACSSW/rtai/*.ko
+
+
+***********NOTE***************
+Most information below this point has not been updated since kernel 2.4.25.
+******************************
+
+
+  More information on buildRTOS and installRTOS
+
+
+================  buildRTOS ================
+
+purpose: export from cvs a Linux kernel and RTAI distribution source
+         code, configure, and compile them.
+
+user: almamgr
+
+params:    -l <path to a custom linux config file>
+           -r <path to a custom rtos config file>
+           -p <path to an additional and custom linux patch> (*)
+env variables: LINUX_HOME, RTAI_HOME  (deprecated)
+
+log: standard and error output of the script are re-directed to $PWD/buildRTOS.log
+
+backups: files or directories to be installed but already existing will
+be backed up by using as extension the pid of the shell from where the
+script was executed.
+
+procedure: kernel and rtai source code will be cvs-exported to the
+directories specified by LINUX_HOME and RTAI_HOME. If these variables
+are not set then the following path will be used (note that there is no
+user interaction here):
+
+LINUX_HOME=$ALMASW_ROOTDIR/$ALMASW_RELEASE/rtlinux
+RTAI_HOME=$ALMASW_ROOTDIR/$ALMASW_RELEASE/rtai
+
+If LINUX_HOME or RTAI_HOME already exist then they will be backed up in
+the same location but with the extension explained above.
+
+Linux will be exported from cvs into LINUX_HOME directory by means of
+the following command:
+
+cvs export -d${LINUX_HOME##*/} -r<TAG>  3rdParty/linux
+
+After the previous cvs command is finished then the script changes
+directory (cd) to LINUX_HOME. If the -p option was specified then the
+given path must point to a patch file that will be applied to the
+exported kernel source by means of the following command:
+
+patch -p0 < $LINUX_PATCH_FILE
+
+(where LINUX_PATCH_FILE was resolved at script startup from the
+parameter passed as option -p). Note that the cvs archived version of
+the kernel was already RTAI patched, therefore, buildRTOS does not need
+to go through that patching step.
+
+Then 'make mrproper' removes from the Linux source files and directories
+ actually not needed. After this step has been completed successfully
+everything is in place as for compiling the kernel. However, different
+machines requires different kernel parameters (like CPU type).
+Therefore, each time buildRTOS is executed a Linux configuration file
+could be provided (-l option), unless the default configuration contained in
+
+$LINUX_HOME/configs/kernel-2.4.25-ALMA-RTAI-i686.config
+
+meets the required configuration for the current installation. In that
+case the '-l' option does not need to be given. The actual file to be
+The default configuration or the one provided with the option -l is 
+copied during the configuration process in $LINUX_HOME/.config.
+
+Finally, the kernel configuration is applied and the code compiled by
+means of the following commands:
+
+make oldconfig
+make dep bzImage modules
+
+At this moment the Linux kernel has been successfully configured and
+compiled. The rest of the task involves its installation within the
+Linux system, that operation requires root access and is implemented by
+the installRTOS script.
+
+The next task of the buildRTOS script is to export from cvs a given
+RTAI distribution, configure it and compile it. The steps are very
+similar to those involved during the Linux build. Except that in this
+case there is no additional patch to be applied and the RTAI
+configuration is not user definable. Exporting from cvs, configuring and
+compilation happens by means of the following commands:
+
+cvs export -d${RTAI_HOME##*/} -r<TAG>  3rdParty/rtai
+./configure --prefix=$RTAI_HOME --with-linux-dir=$LINUX_HOME
+make all
+
+By now (assuming no errors) LINUX_HOME and RTAI_HOME contain a compiled
+kernel, the RTAI kernel modules and libraries and includes files
+required for compilation of user applications.
+
+At any step where an error is detected (shell command fails) then
+the script is aborted, and all the work that was already executed is not
+unwound. Therefore, in case of intermediate failure an inspection of
+the log file is the only way to understand exactly what was already done
+and whether it could interfere with an immediate re-execution of the
+script. That is to say, the script does not contain any intelligence as
+for trying to recover (go back to original situation) after an error is
+detected.
+
+Note: the default RTAI configuration is for ADEOS.
+
+
+
+===============  installRTOS ===========
+
+purpose: install a pre-compiled Linux kernel and RTAI distribution.
+user: root
+params:    "grub"   (lilo not supported any more)
+env variables: LINUX_HOME, RTAI_HOME
+log: standard and error output of the script are re-directed to $PWD/installRTOS.log
+backups: files or directories to be installed but already existing will
+be backed up by using as extension the date and time at which the script
+was executed. For example, a backup of /boot/ vmlinuz-2.4.25-rtos-3.1 will
+looks like /boot/vmlinuz-2.4.25-rtos-3.1.2004-06-30T15:30:51
+procedure: installation of the Linux kernel involves the following 3 steps:
+
+0. change directory to LINUX_HOME
+
+1. install kernel modules by means of the following command
+
+make modules_install
+
+This target installs the modules at /lib/modules/$_LINUX_VER, where
+_LINUX_VER is locally built by the script by means of the following command
+
+_LINUX_VER=`awk '/UTS_RELEASE/ {print substr($3, 2, length($3)-2) }'
+include/linux/version.h`
+
+which normally will have values like '2.4.25-rtos-3.1'.
+
+2. copy the Linux boot image to its location
+
+cp arch/i386/boot/bzImage /boot/vmlinuz-$_RTOS_NAME
+
+where _RTOS_NAME has actually the same value as the _LINUX_VER variable
+explained before.
+
+3. create a ramdisk image for this kernel. The file is created
+immediately in its final location, any pre-existing version is backed up
+as explained at the beginning. The command used for creating this ramdisk
+file is like this
+
+cd /boot
+/sbin/mkinitrd initrd-$_RTOS_NAME.img $_RTOS_NAME
+
+After successfully completing these steps the Linux installation is
+finished, and what remains is to install RTAI. In this case there are
+two steps involved:
+
+0. cd $RTAI_HOME
+1. the RTAI Makefile contains an 'install' target that in this case has
+effect only within the RTAI_HOME directory tree, but is in any case
+required before actually copying the modules to their final location. The
+command is like this
+
+make install
+
+After this command is completed successfully, $RTAI_HOME contains the
+right file as for allowing user's application compilations.
+
+2. Now the RTAI kernel modules are installed into its final location
+
+cp $RTAI_HOME/modules/*  /lib/modules/$_LINUX_VER/alma
+
+With this the RTOS installation if finish.
+
+There are two final steps contained in the installRTOS script. First the
+RTAI_HOME and LINUX_HOME directories are moved to a hard coded locations
+and a link is the created from RTAI_HOME and LINUX_HOME to where the
+directories were moved. The idea behind this procedure is to preserve
+the Linux and RTAI installations in a place physically different from
+ACS, leading this to easier way for updating ACS without affecting the
+Linux kernel and RTAI installations. The commands used for executing
+this step are the following ones:
+
+Linux
+mv $LINUX_HOME /usr/src/linux
+chown -R root:root /usr/src/linux
+chmod -R 755 /usr/src/linux
+ln -s /usr/src/linux $LINUX_HOME
+chown almamgr:alma $LINUX_HOME
+
+RTAI
+mv $RTAI_HOME /usr/src/rtai
+chown -R root:root /usr/src/rtai
+chmod -R 755 /usr/src/rtai
+ln -s /usr/src/rtai $RTAI_HOME
+chown almamgr:alma $RTAI_HOME
+
+Finally, the last action of installRTOS is to configure grub
+as for including in their configuration file the identity of the just
+installed Linux kernel. installRTOS will modify one and only one of
+the following files:
+
+/etc/grub.conf
+
+which of them is decided by parameter passed to the script (see params
+description). In either case, the file is appended with the identity
+of this new kernel. If no parameter is passed then no action is taken.
+
+

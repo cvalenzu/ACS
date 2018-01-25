@@ -23,6 +23,7 @@
  */
 package alma.TMCDB.alarm;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import com.cosylab.cdb.jdal.hibernate.InternalElementsMap;
@@ -32,7 +33,7 @@ import com.cosylab.cdb.jdal.hibernate.NameOverrideFeature;
  * @author msekoranja
  *
  */
-public class ReductionThreshold implements NameOverrideFeature {
+public class ReductionThreshold implements NameOverrideFeature, Serializable {
 	
 	private int value;
 	

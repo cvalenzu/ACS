@@ -23,6 +23,7 @@
  */
 package alma.TMCDB.alarm;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -41,7 +42,7 @@ import com.cosylab.cdb.jdal.hibernate.NameOverrideFeature;
  * @author msekoranja
  *
  */
-public class FaultFamily implements ExtraDataFeature, NameOverrideFeature {
+public class FaultFamily implements ExtraDataFeature, NameOverrideFeature, Serializable {
 	
 	private String name;
 	

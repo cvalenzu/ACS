@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # The purpose of this test is to check if the parameter passed in the command line
 # with --passthroughProcessStart when starting a conmtainer arrives to java

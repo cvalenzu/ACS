@@ -193,7 +193,7 @@ CSOURCENAMES = \
 #
 # INCLUDE STANDARDS
 # -----------------
-SHELL = /bin/bash 
+SHELL = /bin/sh 
 MAKEDIRTMP := $(shell searchFile include/acsMakefile)
 ifneq ($(MAKEDIRTMP),\#error\#)
    MAKEDIR := $(MAKEDIRTMP)/include

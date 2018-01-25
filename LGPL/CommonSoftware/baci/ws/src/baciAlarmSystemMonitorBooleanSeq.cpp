@@ -31,6 +31,11 @@
 
 namespace baci {
 
+const bool AlarmSystemMonitorBooleanSeq::ENABLE = true;
+const bool AlarmSystemMonitorBooleanSeq::DISABLE = false;
+const int32_t AlarmSystemMonitorBooleanSeq::ALARM_NOT_RAISED = 0;
+const int32_t AlarmSystemMonitorBooleanSeq::ALARM_RAISED = 1;
+
 AlarmSystemMonitorBooleanSeq::AlarmSystemMonitorBooleanSeq(RObooleanSeq* property,
 		EventDispatcher * eventDispatcher)
 	: AlarmSystemMonitor<RObooleanSeq>(property, eventDispatcher)
@@ -49,10 +54,10 @@ void AlarmSystemMonitorBooleanSeq::updateAlarm(int32_t pos,bool enable)
 	if(enable == ENABLE)
 	{
 		sendAlarm(1, true);
-		alarmsRaised_m[pos] = static_cast<int32_t>(ALARM_RAISED);
+		alarmsRaised_m[pos] = ALARM_RAISED;
 	} else if(enable == DISABLE) {
 		sendAlarm(1, false);
-		alarmsRaised_m[pos] = static_cast<int32_t>(ALARM_NOT_RAISED);
+		alarmsRaised_m[pos] = ALARM_NOT_RAISED;
 	}
 }
 
@@ -70,13 +75,13 @@ void AlarmSystemMonitorBooleanSeq::check(BACIValue &val,
 	if (alarmsRaised_m.size() != valueSeq.length())
 	{
 		alarmsRaised_m.clear();
-		alarmsRaised_m.resize(valueSeq.length(), static_cast<int32_t>(ALARM_NOT_RAISED)); // initialize to no alarm
+		alarmsRaised_m.resize(valueSeq.length(), ALARM_NOT_RAISED); // initialize to no alarm
 	}
 
 	AlarmsRaisedVec::const_iterator it = alarmsRaised_m.begin();
 	for (CORBA::ULong n = 0UL; n < valueSeq.length(); ++it, ++n)
 	{
-		if(*it != static_cast<int32_t>(ALARM_NOT_RAISED) && valueSeq[n] != property_mp->alarm_on())
+		if(*it != ALARM_NOT_RAISED && valueSeq[n] != property_mp->alarm_on())
 		{
 			std::ostringstream oss;
 			std::string ts;
@@ -87,7 +92,7 @@ void AlarmSystemMonitorBooleanSeq::check(BACIValue &val,
 			setProperty("BACI_Position", n);
 
 			updateAlarm(n, DISABLE);
-		} else if(*it == static_cast<int32_t>(ALARM_NOT_RAISED) && valueSeq[n] == property_mp->alarm_on()) {
+		} else if(*it == ALARM_NOT_RAISED && valueSeq[n] == property_mp->alarm_on()) {
 			std::ostringstream oss;
 			std::string ts;
 			oss << (valueSeq[n] ? "true" : "false") << std::ends;

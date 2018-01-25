@@ -42,7 +42,8 @@ BulkDataNTReceiverFlow::BulkDataNTReceiverFlow(BulkDataNTReceiverStreamBase *rec
     const char* flowName,
     const ReceiverFlowConfiguration &rcvCfg,
     BulkDataNTCallback *cb,
-    bool releaseCB) :
+    bool releaseCB,
+	bool skipReceivingDataAfterFailure) :
     BulkDataNTFlow(flowName),
     receiverStream_m(receiverStream),
     callback_m(cb), releaseCB_m(releaseCB),
@@ -72,7 +73,7 @@ BulkDataNTReceiverFlow::BulkDataNTReceiverFlow(BulkDataNTReceiverStreamBase *rec
 
   ddsTopic_m = ddsSubscriber_m->createDDSTopic(topicName.c_str());
 
-  dataReaderListener_m = new BulkDataNTReaderListener(topicName.c_str(), callback_m);
+  dataReaderListener_m = new BulkDataNTReaderListener(topicName.c_str(), callback_m, skipReceivingDataAfterFailure);
 
   ddsDataReader_m= ddsSubscriber_m->createDDSReader(ddsTopic_m, dataReaderListener_m);
   ACS_LOG(LM_RUNTIME_CONTEXT, __FUNCTION__, (LM_INFO, "Receiver Flow: %s @ Stream: %s has been created.", flowName_m.c_str(), streamName.c_str()));

@@ -20,11 +20,12 @@
  *******************************************************************************/
 package alma.TMCDB.alarm;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import com.cosylab.cdb.jdal.hibernate.InternalElementsMap;
 
-public class FaultMemberDefault {
+public class FaultMemberDefault implements Serializable {
     // hierarchical support
     // must be public to be accessible, but should not have getter to be come visible as node
     // since childred can be properties and subcomponent Object is used

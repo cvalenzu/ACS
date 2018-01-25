@@ -29,6 +29,9 @@
 
 namespace baci {
 
+const int32_t AlarmEventStrategyBooleanSeq::ALARM_NOT_RAISED = 0;
+const int32_t AlarmEventStrategyBooleanSeq::ALARM_RAISED = 1;
+
 AlarmEventStrategyBooleanSeq::AlarmEventStrategyBooleanSeq(RObooleanSeq * property,
 		EventDispatcher * eventDispatcher)
  : AlarmEventStrategy<ACS::booleanSeq, RObooleanSeq, ACS::Alarmboolean>(property, eventDispatcher)
@@ -57,7 +60,7 @@ void AlarmEventStrategyBooleanSeq::check(BACIValue &val,
 	if(alarmsRaised_m.size() != static_cast<size_t>(valueSeq.length()))
 	{
 		alarmsRaised_m.clear();
-		alarmsRaised_m.resize(valueSeq.length(), static_cast<int32_t>(ALARM_NOT_RAISED));
+		alarmsRaised_m.resize(valueSeq.length(), ALARM_NOT_RAISED);
 	}
 
 	for (CORBA::ULong i = 0UL; i < valueSeq.length(); ++i)
@@ -70,13 +73,13 @@ void AlarmEventStrategyBooleanSeq::checkItem(int32_t &alarmRaised, CORBA::Boolea
 		const ACSErr::Completion & c, const ACS::CBDescOut & desc)
 {
 	ACS_TRACE("AlarmEventStrategyBooleanSeq::checkItem");
-	if ((alarmRaised != static_cast<int32_t>(ALARM_NOT_RAISED)) && (value != property_mp->alarm_on())) { // we have an alarm (0 indicates no alarm) & "Off"
+	if ((alarmRaised != ALARM_NOT_RAISED) && (value != property_mp->alarm_on())) { // we have an alarm (0 indicates no alarm) & "Off"
 		try {
 			Completion c = ACSErrTypeAlarm::ACSErrAlarmClearedCompletion();
 			callback_mp->alarm_cleared(value, c, desc);
 
 			succeeded();
-			alarmRaised = static_cast<int32_t>(ALARM_NOT_RAISED);
+			alarmRaised = ALARM_NOT_RAISED;
 		} catch(...) {
 			if (failed() == true)
 			{
@@ -84,7 +87,7 @@ void AlarmEventStrategyBooleanSeq::checkItem(int32_t &alarmRaised, CORBA::Boolea
 			}
 		}
 
-	} else if ((alarmRaised == static_cast<int32_t>(ALARM_NOT_RAISED)) && (value == property_mp->alarm_on())) { // no alarm for now & alarm state
+	} else if ((alarmRaised == ALARM_NOT_RAISED) && (value == property_mp->alarm_on())) { // no alarm for now & alarm state
 		try {
 			Completion c;
 			c.timeStamp = getTimeStamp();

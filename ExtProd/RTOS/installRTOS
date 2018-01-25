@@ -1,0 +1,463 @@
+#! /bin/sh
+#*******************************************************************************
+# E.S.O. - ACS project
+#
+# "@(#) $Id: installRTOS,v 1.40 2010/08/12 22:38:51 vsuorant Exp $"
+#
+# who       when      what
+# --------  --------  ----------------------------------------------
+# bjeram  2004-05-04  created
+#
+
+LINUX_INST_SRC=/usr/src/kernels
+
+#RTAI_INST_SRC=/usr/src/rtai-$_RTOS_VERSION
+
+# signal trap (if any)
+
+LOG=installRTOS.log
+#
+exec > $LOG 2>&1
+
+date
+
+DATE=`date +%Y-%m-%dT%H:%M:%S`
+
+WHO=`whoami`
+
+if [ "$WHO" != "root" ]
+then
+ echo " This script has to be run as a root !! "
+ exit
+fi
+
+if [ "X$LINUX_HOME" = X ]
+then
+    echo "LINUX_HOME is not defined !!!!"
+    echo "Please define it and re-run the script !"
+    exit
+fi
+
+if [ "X$RTAI_HOME" = X ]
+then
+    echo "RTAI_HOME is not defined !!!!"
+    echo "Please define it and re-run the script !"
+    exit
+fi
+
+#
+# parse and check script parameters
+while getopts "d" o
+do      case "$o" in
+	d)	_USE_DISK_BASE_INIT_RAM_DISK="yes";;
+        [?])    echo "Usage: installRTOS [-d]"
+		echo "-d force init ram disk creation based on sata_nv,"
+		echo "   required for Opterons at the NTC."
+                exit 1;;
+        esac
+done
+
+if [ "$_USE_DISK_BASE_INIT_RAM_DISK" == "yes" ]
+then
+  echo using init ram disk for NTC
+fi
+
+_RTOS_VERSION=`$RTAI_HOME/bin/rtai-config --version`
+RTAI_INST=/usr/realtime-$_RTOS_VERSION
+
+cd $LINUX_HOME
+
+#
+# Different versions of Linux use different files to hold the version number.
+if [ -e include/linux/utsrelease.h ]; then
+    versionFile=include/linux/utsrelease.h
+elif [ -e include/linux/version.h ]; then 
+    versionFile=include/linux/version.h
+else 
+    echo "ERROR: Linux kernel version not found."
+    exit 1
+fi
+
+_LINUX_VER=`awk '/UTS_RELEASE/ {print substr($3, 2, length($3)-2) }' $versionFile`
+_RTOS_NAME=$_LINUX_VER
+
+
+####################################################################
+#
+# First we copy the sources  and make links to the right place and install for there
+#
+####################################################################
+
+echo "==== Moving linux sources from: $LINUX_HOME to $LINUX_INST_SRC/$_LINUX_VER and making link to it"
+if [ -d $LINUX_INST_SRC/$_LINUX_VER ]
+then
+  echo "=== current $LINUX_INST_SRC/$_LINUX_VER backed-up to $LINUX_INST_SRC/$_LINUX_VER.$DATE"
+  mv $LINUX_INST_SRC/$_LINUX_VER $LINUX_INST_SRC/$_LINUX_VER.$DATE
+fi
+mv $LINUX_HOME $LINUX_INST_SRC/$_LINUX_VER
+if [ $? -ne 0 ]
+then
+    echo "========= FAILED mv $LINUX_HOME $LINUX_INST_SRC/$_LINUX_VER =========="
+    exit 1
+fi
+
+chown -R root:root $LINUX_INST_SRC/$_LINUX_VER
+chmod -R 755 $LINUX_INST_SRC/$_LINUX_VER
+
+#echo "=== create LINUX links"
+#if [ -h /usr/src/linux ]
+#then
+#  OLD_LINK=`ls -l /usr/src/linux`
+#  echo "=== removed old link: $OLD_LINK"
+#  rm -rf /usr/src/linux
+#fi
+
+#if [ -d /usr/src/linux ]
+#then
+#    echo "=== current /usr/src/linux backed-up to /usr/src/linux.$DATE"
+#    echo "=== /usr/src/linux will be used for a link"
+#    mv /usr/src/linux /usr/src/linux.$DATE
+#fi
+
+#ln -s /usr/src/linux-$_LINUX_VER /usr/src/linux
+#chown -R root:root /usr/src/linux
+#chmod -R 755 /usr/src/linux
+
+ln -s $LINUX_INST_SRC/$_LINUX_VER $LINUX_HOME
+chown -h almamgr:alma $LINUX_HOME
+
+###################################################################
+#
+#   installing Linux
+#
+##################################################################
+echo "==== Installing Linux modules"
+cd $LINUX_INST_SRC/$_LINUX_VER
+if [ -d /lib/modules/$_LINUX_VER ]
+then
+  echo "=== current /lib/modules/$_LINUX_VER saved at /lib/modules/$_LINUX_VER.$DATE"
+  mv /lib/modules/$_LINUX_VER /lib/modules/$_LINUX_VER.$DATE
+fi
+make modules_install
+if [ $? -ne 0 ]
+then
+  echo "========= FAILED make modules_install =========="
+  exit 1
+fi
+
+##################################################################
+#
+#  copying boot stuff
+#
+##################################################################
+
+echo "==== Copying boot image: /boot/vmlinuz-$_RTOS_NAME"
+if [ -f /boot/vmlinuz-$_RTOS_NAME ]
+then
+  echo "=== current boot image saved at /boot/vmlinuz-$_RTOS_NAME.$DATE"
+  mv /boot/vmlinuz-$_RTOS_NAME /boot/vmlinuz-$_RTOS_NAME.$DATE
+fi
+cp arch/i386/boot/bzImage /boot/vmlinuz-$_RTOS_NAME
+if [ $? -ne 0 ]
+then
+  echo "========= FAILED cp arch/i386/boot/bzImage /boot/vmlinuz-$_RTOS_NAME =========="
+  exit 1
+fi
+
+echo "=== Create ramdisk image"
+cd /boot
+if [ -f initrd-$_RTOS_NAME.img ]
+then
+  echo "=== current ramdisk image saved at initrd-$_RTOS_NAME.img.$DATE" 
+  mv initrd-$_RTOS_NAME.img initrd-$_RTOS_NAME.img.$DATE
+fi
+
+# Warning, next command (mkinitrd) can fail in some hardware with S-ATA or SCSI disks
+# The reason is that mkinitrd wants to include every possible scsi or raid controller drive in 
+# the RAID disk even if it is not used.
+#
+# Using a minimal kernel configuration, we don't have any of this modules compiled and that is 
+# where the error is coming from 
+# If the script is failing with something like:
+#% ==== Copying boot image: /boot/vmlinuz-2.6.10-adeos-3.2
+#% === Create ramdisk image
+#% No module megaraid_mbox found for kernel 2.6.10-adeos-3.2, aborting.
+#% ========= FAILED to create ramdisk image ==========
+# then try to exclude every scsi and raid modules from the ram disk
+# Change the following uncommented line with 
+# /sbin/mkinitrd --omit-scsi-modules --omit-raid-modules initrd-$_RTOS_NAME.img $_RTOS_NAME
+# and then start the procedure again from buildRTOS
+#
+# It looks like this is the case for RHEL 5.x. So I commented old way and applied above described way.
+#/sbin/mkinitrd --builtin=mptbase --builtin=mptscsih initrd-$_RTOS_NAME.img $_RTOS_NAME
+
+##
+# S. Rankin & T. Juerges - 2009-02-12
+#
+# mkinitrd looks at /etc/modprobe.conf to determine which kernel modules may be required.  This file on gns is 
+# not suitable for real time kernels.  We can eliminate the "--builtin=*" options by moving /etc/modprobe.conf
+# to another name before running mkinitrd, and restoring it after running mkinitrd.
+# 
+# However, after testing we found we must add some "--builtin=*" options.
+
+BUILTIN_MODULES="--builtin=ata_piix \
+--builtin=dm-mem-cache \
+--builtin=dm-message \
+--builtin=dm-region_hash \
+--builtin=dm-raid45 \
+--builtin=mptsas \
+--builtin=mptspi"
+
+mv /etc/modprobe.conf /etc/restore.modprobe.conf
+if [ "$_USE_DISK_BASE_INIT_RAM_DISK" == "yes" ]
+then
+  /sbin/mkinitrd -v --without-usb --builtin=mptbase --builtin=mptscsih --builtin=sata_nv --without-dmraid initrd-$_RTOS_NAME.img $_RTOS_NAME
+else
+  /sbin/mkinitrd -v --without-usb --omit-scsi-modules --omit-raid-modules $BUILTIN_MODULES initrd-$_RTOS_NAME.img $_RTOS_NAME
+fi
+if [ $? -ne 0 ]
+then
+  mv /etc/restore.modprobe.conf /etc/modprobe.conf
+  echo "========= FAILED to create ramdisk image =========="
+  exit 1
+fi
+mv /etc/restore.modprobe.conf /etc/modprobe.conf
+
+echo "==== Copying System.map : /boot/System.map-$_RTOS_NAME"
+if [ -f /boot/System.map-$_RTOS_NAME ]
+then
+  echo "=== current System.map-$_RTOS_NAME saved at /boot/System.map-$_RTOS_NAME.$DATE"
+  mv /boot/System.map-$_RTOS_NAME /boot/System.map-$_RTOS_NAME.$DATE
+fi
+cp $LINUX_INST_SRC/$_LINUX_VER/System.map /boot/System.map-$_RTOS_NAME
+if [ $? -ne 0 ]
+then
+  echo "========= FAILED to copy System.map =========="
+  exit 1
+fi
+
+
+echo "==== Copying .config file to: /boot/config-$_RTOS_NAME"
+if [ -f /boot/config-$_RTOS_NAME ]
+then
+  echo "=== current config-$_RTOS_NAME saved at /boot/config-$_RTOS_NAME.$DATE"
+  mv /boot/config-$_RTOS_NAME /boot/config-$_RTOS_NAME.$DATE
+fi
+cp $LINUX_INST_SRC/$_LINUX_VER/.config /boot/config-$_RTOS_NAME
+if [ $? -ne 0 ]
+then
+  echo "========= FAILED to copy .config file =========="
+  exit 1
+fi
+
+echo "Linux installation done"
+
+
+#######################################################################3
+#
+# RTOS
+#
+#######################################
+#########################
+#   moving rtai 
+########################
+echo "==== Moving RTOS from: $RTAI_HOME to $RTAI_INST and making link to it"
+
+if [ -d $RTAI_INST ]
+then
+    echo "=== current $RTAI_INST backed-up to $RTAI_INST.$DATE"
+    mv $RTAI_INST $RTAI_INST.$DATE
+fi
+
+mv $RTAI_HOME $RTAI_INST
+if [ $? -ne 0 ]
+then
+  echo "========= FAILED to move $RTAI_HOME to $RTAI_INST =========="
+  exit 1
+fi
+
+rm -rf $RTAI_HOME
+
+#chown -R root:root $RTAI_INST_SRC
+#chmod -R 755 $RTAI_INST_SRC
+
+echo "=== create RTOS links"
+
+if [ -h /usr/realtime ]
+then
+  OLD_LINK=`ls -l /usr/realtime`
+  echo "=== removed old link: $OLD_LINK"
+  rm -rf /usr/realtime
+fi
+
+if [ -d /usr/realtime ]
+then
+    echo "=== current /usr/realtime backed-up to /usr/realtime.$DATE"
+    echo "=== /usr/src/realtime will be used for link"
+    mv /usr/realtime /usr/realtime.$DATE
+fi
+
+ln -s $RTAI_INST /usr/realtime
+chown -R root:root /usr/realtime
+chmod -R 755 /usr/realtime
+
+ln -s $RTAI_INST $RTAI_HOME
+chown -h almamgr:alma $RTAI_HOME
+
+echo " === Copying RTOS modules to /lib/modules/$_LINUX_VER/alma"
+cp -a $RTAI_INST/modules /lib/modules/$_LINUX_VER/alma
+if [ $? -ne 0 ]
+then
+  echo "========= FAILED to copy $RTAI_INST/modules to /lib/modules/$_LINUX_VER/alma =========="
+  exit 1
+fi
+
+# depmod -a can't be run until the new kernel is booted
+echo " ========= NOTE:  Please run 'depmod -a' once you boot into the new kernel"
+
+
+echo "=== creating devs      "
+# this code is copied from the rtai (GNU) makefile (target device dev)
+# ... and modified that the nodes are created under /etc/udev/devices
+# ... that udev automatiaclly copies to /dev
+if [ ! -d /etc/udev/devices ]
+then
+   mkdir /etc/udev/devices
+ if [ $? -ne 0 ]
+   then
+    echo "========= FAILED to create /etc/udev/devices/ =========="
+   fi
+fi
+
+# adding rules that fifos and shared memory are created for evrone access
+echo "# RTAI:rtai_shm" > /etc/udev/rules.d/99-rtai.rules
+echo "KERNEL==\"rtai_shm\", MODE=\"0666\"" >> /etc/udev/rules.d/99-rtai.rules
+echo "# RTAI:rtai_fifos" >> /etc/udev/rules.d/99-rtai.rules
+echo "KERNEL==\"rtf[0-9]*\", MODE=\"0666\"" >> /etc/udev/rules.d/99-rtai.rules
+
+if [ ! -c /etc/udev/devices/rtai_shm ]
+then 
+   mknod -m 666 /etc/udev/devices/rtai_shm c 10 254
+   if [ $? -ne 0 ]
+   then
+    echo "========= FAILED to create /etc/udev/devices/rtai_shm =========="
+   fi
+fi
+
+RHEL_RELEASE=`awk '{ print $7 }' /etc/redhat-release`
+RHEL_MAJOR_VERSION=${RHEL_RELEASE%%.*}
+if [ $RHEL_MAJOR_VERSION = "4" ]
+then
+   echo "4"
+   for n in `seq 0 9`
+   do 
+      f="/etc/udev/devices/rtf$n" 
+      if [ ! -c $f ]
+      then 
+         mknod -m 666 $f c 150 $n 
+         if [ $? -ne 0 ]
+         then
+          echo "========= FAILED to create node: $f =========="
+         fi
+      fi 
+   done
+fi
+
+# this one is required by each cdp node machine, given that machines not
+# requiring it will not be affect by its presence the code below will
+# create it for any machine where installRTOS is used
+if [ ! -c /etc/udev/devices/hpdi32 ]
+then
+    mknod -m 666 /etc/udev/devices/hpdi32 c 10 253
+    if [ $? -ne 0 ]
+        then
+        echo "========= FAILED to create /etc/udev/devices/hpdi32 =========="
+    fi
+fi
+
+echo "Fixing path in files under $RTAI_HOME/$LINUX_HOME to /usr/.. and links."
+# #############################################################################
+# #
+# #  Here we have to fix the path in files from $RTAI_HOME/$LINUX_HOME to /usr/.....
+# #  ... and fix link(s). The same code is in postRTOSinstall
+# #
+# ##########################################################################
+# 
+# # - first we remove slash(/) at the end if exists
+# # - and than we replace slashes(/) with \/ which can be used in sed
+# _RTAI_HOME=`echo $RTAI_HOME | sed 's/\/$//' | sed 's/\//\\\\\//g'`
+# _LINUX_HOME=`echo $LINUX_HOME | sed 's/\/$//' | sed 's/\//\\\\\//g'`
+# 
+# # - first we remove slash(/) at the end if exists
+# # - get the link
+# # -  replace slashes (/) with (\/) for sed
+# _LN_RTAI_HOME=`ls -al \`echo $RTAI_HOME | sed "s/\/$//"\` | awk  '{print $11;}' | sed 's/\//\\\\\//g'`
+# _LN_LINUX_HOME=`ls -al \`echo $LINUX_HOME | sed "s/\/$//"\` | awk  '{print $11;}' | sed 's/\//\\\\\//g'`
+# 
+# # here we do the replacment 
+# LIST=`egrep -rIl  --exclude=*.org "$RTAI_HOME|$LINUX_HOME" $RTAI_HOME`
+# 
+# if [ "X$LIST" = X ]
+# then
+#   echo "WARNING: It looks like there is nothing to fix !! - neither $RTAI_HOME nor $LINUX_HOME found in $RTAI_HOME"
+# fi
+# 
+# for f in $LIST; 
+# do 
+#    $CMD_ECHO cp -f $f $f.org
+#    if [ $CMD_ECHO ] 
+#    then
+#       $CMD_ECHO sed "s/$_RTAI_HOME/$_LN_RTAI_HOME/g" $f.org \| sed "s/$_LINUX_HOME/$_LN_LINUX_HOME/g" \> $f
+#    else
+#       sed "s/$_RTAI_HOME/$_LN_RTAI_HOME/g" $f.org | sed "s/$_LINUX_HOME/$_LN_LINUX_HOME/g" > $f
+#    fi
+#    echo "Copied original file $f into $f.org and did the replacment"
+# done
+ 
+# 
+# Here we fix link(s)
+#
+
+CURDIR=$PWD
+$CMD_ECHO rm $RTAI_HOME/bin/rstsmi
+cd $RTAI_HOME/bin
+$CMD_ECHO ln -fs ./setsmi rstsmi
+cd  $CURDIR
+ 
+echo "Path fixed!"
+ 
+echo "RTOS installation done"
+
+#########################################
+#
+# configuring loader (grub) update
+#
+########################################
+if [ "$1" = "LILO" -o "$1" = "lilo" ]
+then
+    echo "LILO is not supported anymore please use GRUB instead !!"
+    exit 1
+else
+    if [ "$1" = "GRUB" -o "$1" = "grub" ]
+	then
+        ROOT_FS=
+	BL_FILE=/etc/grub.conf
+	echo "==== Modifying:  $BL_FILE ..... "
+	cp $BL_FILE $BL_FILE.org
+        echo "    old one has been copied to: $BL_FILE.org "
+
+	echo "" >> $BL_FILE
+	echo "title Red Hat Linux ($_RTOS_NAME)" >> $BL_FILE
+	echo "        root (hd0,0)" >> $BL_FILE
+	echo "        kernel /boot/vmlinuz-$_RTOS_NAME ro root="`mount | grep '/ ' | awk '{print $1}'` lapic >> $BL_FILE
+	echo "        initrd /boot/initrd-$_RTOS_NAME.img" >> $BL_FILE
+	echo "$BL_FILE has been updated"
+    else
+	echo "You may now configure your boot loader to boot using this kernel.  See the GRUB documentation for instructions."
+    fi
+fi
+
+date
+
+#
+# ___oOo___

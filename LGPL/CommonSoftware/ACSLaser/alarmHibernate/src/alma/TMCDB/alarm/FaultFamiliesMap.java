@@ -43,11 +43,11 @@ public class FaultFamiliesMap extends InternalElementsMap<String, alma.TMCDB.ala
 
 	public static final String ALARM_CATEGORY_DEFINITION_PATH = "/Alarms/AlarmDefinitions";
 
-	private final Session session;
-	private final Configuration config;
-	private final ConfigurationAccessor conf;
+	transient private final Session session;
+	transient private final Configuration config;
+	transient private final ConfigurationAccessor conf;
 	private final Map<String, Object> rootMap;
-	private final Logger m_logger;
+	transient private final Logger m_logger;
 	
 	public FaultFamiliesMap(Session session, Configuration config, ConfigurationAccessor conf, Map<String, Object> rootMap, Logger m_logger) {
 		this.session = session;

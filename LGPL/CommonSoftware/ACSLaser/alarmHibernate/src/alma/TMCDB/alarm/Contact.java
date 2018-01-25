@@ -23,11 +23,13 @@
  */
 package alma.TMCDB.alarm;
 
+import java.io.Serializable;
+
 /**
  * @author msekoranja
  *
  */
-public class Contact {
+public class Contact implements Serializable {
 
 	private String name;
 	private String email;

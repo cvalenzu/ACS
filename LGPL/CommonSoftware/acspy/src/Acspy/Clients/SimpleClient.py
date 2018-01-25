@@ -130,7 +130,7 @@ class PySimpleClient(BaseClient, ContainerServices):
             print_exc()
             print "Error getting the host name!"
         #just to be sure
-        name = name + " initialized by " + loginName + "@" + hostName
+        name = name + ": initialized by " + loginName + "@" + hostName
         name = str(name)
         
         BaseClient.__init__(self, name)

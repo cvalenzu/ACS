@@ -7,27 +7,27 @@
 # who       when      what
 # --------  --------  ----------------------------------------------
 # almamgr 2004-03-24 created
-# lopatin 2010-06-30 ported to mico 2.3.13 and gcc version 4.4.1 
+# lopatin 2010-06-30 ported to mico 2.3.13 and gcc version 4.4.1
 # lopatin 2010-06-30 now putting only "make install" files into MICO home, to cut down the distribution size
 
 #************************************************************************
 #   NAME
 #   buildMico
-# 
+#
 #   SYNOPSIS
-# 
+#
 #   DESCRIPTION
 #   This script is used to build Mico and install it in the proper
-#   ACS place ($ALMASW_ROOTDIR/$ALMASW_RELEASE/mico). 
+#   ACS place ($ALMASW_ROOTDIR/$ALMASW_RELEASE/mico).
 #   The script assumes that:
-#   - The environment variables 
+#   - The environment variables
 #     $ALMASW_ROOTDIR and $ALMASW_RELEASE
 #     are set.
 #   - The user has write permission in the installation directory
 #   Any previous installation of Mico will be erased.
 #
 #   To download Mico go to the home page:
-#    
+#
 #       http://www.mico.org/
 #
 #   FILES
@@ -42,7 +42,7 @@
 #
 #   SEE ALSO
 #
-#   BUGS     
+#   BUGS
 #
 #------------------------------------------------------------------------
 
@@ -152,4 +152,3 @@ echo "========= DONE   =========="
 
 echo MICO installation done!
 date
-

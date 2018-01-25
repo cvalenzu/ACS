@@ -27,11 +27,12 @@
  */
 package com.cosylab.cdb.jdal;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-public class XMLTreeNode {
+public class XMLTreeNode implements Serializable {
 	public static final String ARRAY_TYPE = "_ArrayNode_";
 	public static final String DYNAMIC_TYPE = "_DynamicNode_";
 	public static final String MAP_TYPE = "_MapNode_";

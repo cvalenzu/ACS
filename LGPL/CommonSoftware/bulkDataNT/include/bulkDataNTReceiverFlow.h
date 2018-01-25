@@ -58,12 +58,14 @@ public:
 	 * @param rcvCfg receiver flow configuration
 	 * @param cb  pointer to the receiver flow callback
 	 * @param releaseCB should the callback be relased when the flow is destroyed
+	 * @param skipReceivingDataAfterFailure if true will kepp going sending data to callback after a problem is detected
 	 */
 	BulkDataNTReceiverFlow(BulkDataNTReceiverStreamBase *receiverStream,
 							const char* flowName,
 							const ReceiverFlowConfiguration &rcvCfg,
 							BulkDataNTCallback *cb,
-							bool releaseCB);
+							bool releaseCB,
+							bool skipReceivingDataAfterFailure = false);
 
 	/**
 	 *Receiver flow destructor

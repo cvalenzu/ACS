@@ -47,27 +47,25 @@ EXECUTABLES     = $(PROG) maciContainer maciManagerShutdown maciContainerShutdow
 EXECUTABLES_L   = 
 
 maciContainer_OBJECTS   = maciContainer 
-maciContainer_LIBS = maci acsContainerServices acsComponentListener TAO_CosNotification_MC_Ext TAO_DynamicInterface logging \
-		TAO_PortableServer TAO ACE baselogging acsutil loki TAO_DynamicAny TAO_IFR_Client
+maciContainer_LIBS = maci acsContainerServices acsComponentListener TAO_CosNotification_MC_Ext TAO_DynamicInterface
 
 maciManagerShutdown_OBJECTS = maciManagerShutdown
-maciManagerShutdown_LIBS = maci maciStubs ACE TAO TAO_PortableServer baselogging acsutil loki logging baselogging
+maciManagerShutdown_LIBS = maci
 
 maciContainerShutdown_OBJECTS = maciContainerShutdown
-maciContainerShutdown_LIBS = maci maciStubs ACE TAO TAO_PortableServer loki logging baselogging 
+maciContainerShutdown_LIBS = maci
 
 maciReleaseComponent_OBJECTS = maciReleaseComponent
-maciReleaseComponent_LIBS = maci maciStubs ACE TAO TAO_PortableServer loki acsutil logging baselogging
+maciReleaseComponent_LIBS = maci
 
 maciContainerLogLevel_OBJECTS = maciContainerLogLevel
-maciContainerLogLevel_LIBS = maci maciStubs ACE TAO TAO_PortableServer loki logging baselogging
+maciContainerLogLevel_LIBS = maci
 
 maciContainerLogStatsConfiguration_OBJECTS = maciContainerLogStatsConfiguration
 maciContainerLogStatsConfiguration_LIBS = maci
 
 maciComponentRefDump_OBJECTS = maciComponentRefDump
-maciComponentRefDump_LIBS= maciClient maciStubs ACSErrTypeCommon ACE TAO TAO_PortableServer loki logging baselogging \
-			acserr acserrStubs
+maciComponentRefDump_LIBS= maciClient
 
 # <brief description of xxxxx program>
 
@@ -102,8 +100,7 @@ LIBRARIES_L     =
 maci_OBJECTS   = maciLibraryManager maciORBTask  maciContainerThreadHook \
 		 maciServantManager maciContainerServices maciContainerImpl \
 		 maciHelper maciComponentStateManager maciLogThrottleAlarmImpl
-maci_LIBS = acsContainerServices maciErrType acsErrTypeContainerServices maciStubs acsAlSysSource acsErrTypeAlarmSourceFactory AcsContainerLogLTS \
-		alarmSource acscomponent acsQoS archiveevents TAO_IFR_Client
+maci_LIBS = acsContainerServices maciErrType acsErrTypeContainerServices maciStubs acsAlSysSource acsErrTypeAlarmSourceFactory AcsContainerLogLTS alarmSource acscomponent acsQoS archiveevents
 maci_LDFLAGS = -ggdb
 maci_CFLAGS = -DMACI_BUILD_DLL
 

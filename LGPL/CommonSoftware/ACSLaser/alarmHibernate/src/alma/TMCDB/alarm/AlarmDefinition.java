@@ -23,6 +23,8 @@
  */
 package alma.TMCDB.alarm;
 
+import java.io.Serializable;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -37,7 +39,7 @@ import com.cosylab.cdb.jdal.hibernate.NameOverrideFeature;
  * @author msekoranja
  *
  */
-public class AlarmDefinition implements ExtraDataFeature, NameOverrideFeature {
+public class AlarmDefinition implements ExtraDataFeature, NameOverrideFeature, Serializable {
 
     // extra data support
     private Element _extraData;

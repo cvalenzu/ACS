@@ -23,6 +23,7 @@
  */
 package alma.TMCDB.alarm;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import com.cosylab.cdb.jdal.hibernate.InternalElementsMap;
@@ -32,7 +33,7 @@ import com.cosylab.cdb.jdal.hibernate.NameOverrideFeature;
  * @author msekoranja
  *
  */
-public class ReductionThresholds implements NameOverrideFeature {
+public class ReductionThresholds implements NameOverrideFeature, Serializable {
 	
     // hierarchical support
     // must be public to be accessible, but should not have getter to be come visible as node

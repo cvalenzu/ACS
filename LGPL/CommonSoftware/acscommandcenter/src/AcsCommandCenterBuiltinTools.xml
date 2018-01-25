@@ -127,7 +127,7 @@ Please read the documentation in "AcsCommandCenterTools.xml" first. The differen
 
       <tool>
             <caption> Container_startRemote_java</caption>
-            <command>nohup accStarter2 3 ? acsStartContainer -? -b ? -m corbaloc::?:?/Manager ?</command>
+            <command>nohup accStarter2 3 ? acsStartContainer -? -b ? -managerReference corbaloc::?:?/Manager ?</command>
             <insertion source="model">ContainerName</insertion>
             <insertion source="model">ContainerType</insertion>
             <insertion source="model">ContainerScriptBase</insertion>
@@ -138,7 +138,7 @@ Please read the documentation in "AcsCommandCenterTools.xml" first. The differen
       </tool>
       <tool>
             <caption> Container_startRemote_cpp</caption>
-            <command>accStarter2 3 ? acsStartContainer -? -b ? -m corbaloc::?:?/Manager -d ? ?</command>
+            <command>accStarter2 3 ? acsStartContainer -? -b ? -managerReference corbaloc::?:?/Manager -d ? ?</command>
             <insertion source="model">ContainerName</insertion>
             <insertion source="model">ContainerType</insertion>
             <insertion source="model">ContainerScriptBase</insertion>
@@ -150,7 +150,7 @@ Please read the documentation in "AcsCommandCenterTools.xml" first. The differen
       </tool>
       <tool>
             <caption> Container_startRemote_cpp_intrep</caption>
-            <command>accStarter2 3 ? acsStartContainer -? -b ? -m corbaloc::?:?/Manager -d ? ?</command>
+            <command>accStarter2 3 ? acsStartContainer -? -b ? -managerReference corbaloc::?:?/Manager -d ? ?</command>
             <insertion source="model">ContainerName</insertion>            
             <insertion source="model">ContainerType</insertion>
             <insertion source="model">ContainerScriptBase</insertion>
@@ -162,7 +162,7 @@ Please read the documentation in "AcsCommandCenterTools.xml" first. The differen
       </tool>
       <tool>
             <caption> Container_startRemote_py</caption>
-            <command>accStarter2 3 ? acsStartContainer -? -b ? -m corbaloc::?:?/Manager ?</command>
+            <command>accStarter2 3 ? acsStartContainer -? -b ? -managerReference corbaloc::?:?/Manager ?</command>
             <insertion source="model">ContainerName</insertion>
             <insertion source="model">ContainerType</insertion>
             <insertion source="model">ContainerScriptBase</insertion>
@@ -174,7 +174,7 @@ Please read the documentation in "AcsCommandCenterTools.xml" first. The differen
 
       <tool>
             <caption> Container_stopRemote_java</caption>
-            <command>accStarter2 3 ? acsStopContainer -b ? -m corbaloc::?:?/Manager ?</command>
+            <command>accStarter2 3 ? acsStopContainer -b ? -managerReference corbaloc::?:?/Manager ?</command>
             <insertion source="model">ContainerName</insertion>
             <insertion source="model">ContainerScriptBase</insertion>
             <insertion source="model">ContainerAgainstManagerHost</insertion>
@@ -184,7 +184,7 @@ Please read the documentation in "AcsCommandCenterTools.xml" first. The differen
       </tool>
       <tool>
             <caption> Container_stopRemote_cpp</caption>
-            <command>accStarter2 3 ? acsStopContainer -b ? -m corbaloc::?:?/Manager ?</command>
+            <command>accStarter2 3 ? acsStopContainer -b ? -managerReference corbaloc::?:?/Manager ?</command>
             <insertion source="model">ContainerName</insertion>
             <insertion source="model">ContainerScriptBase</insertion>
             <insertion source="model">ContainerAgainstManagerHost</insertion>
@@ -194,7 +194,7 @@ Please read the documentation in "AcsCommandCenterTools.xml" first. The differen
       </tool>
       <tool>
             <caption> Container_stopRemote_py</caption>
-            <command>accStarter2 3 ? acsStopContainer -b ? -m corbaloc::?:?/Manager ?</command>
+            <command>accStarter2 3 ? acsStopContainer -b ? -managerReference corbaloc::?:?/Manager ?</command>
             <insertion source="model">ContainerName</insertion>
             <insertion source="model">ContainerScriptBase</insertion>
             <insertion source="model">ContainerAgainstManagerHost</insertion>

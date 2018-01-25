@@ -907,7 +907,7 @@ $GNU_ROOT/bin/make install
 #
 if [ -f $GNU_ROOT/bin/tar ]
 then
-    mv $GNU_ROOT/bin/tar $GNU_ROOT/bin/gtar
+    mv $GNU_ROOT/bin/tar $GNU_ROOT/bin/tar
 fi
 
 
@@ -952,7 +952,7 @@ then
     exit 1
 else
     cd $GNU_ROOT/bin
-    gtar xzf ${INSTALL_ROOT}/PRODUCTS/patch.tar.gz
+    tar xzf ${INSTALL_ROOT}/PRODUCTS/patch.tar.gz
     if [ "$?" != "0" ]
     then
         echo "untar of patch tar file failed"

@@ -23,6 +23,7 @@
  */
 package alma.TMCDB.alarm;
 
+import java.io.Serializable;
 import com.cosylab.cdb.jdal.hibernate.ElementValueFeature;
 import com.cosylab.cdb.jdal.hibernate.NameOverrideFeature;
 
@@ -31,7 +32,7 @@ import com.cosylab.cdb.jdal.hibernate.NameOverrideFeature;
  *
  */
 public class AlarmSystemConfiguration implements ElementValueFeature,
-		NameOverrideFeature {
+		NameOverrideFeature, Serializable {
 
 	public String getElementValue() {
 		return "<configuration-property name=\"Implementation\">CERN</configuration-property>";

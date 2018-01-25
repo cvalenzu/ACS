@@ -23,6 +23,7 @@
  */
 package alma.TMCDB.alarm;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import com.cosylab.cdb.jdal.hibernate.ElementValue;
@@ -32,7 +33,7 @@ import com.cosylab.cdb.jdal.hibernate.NameOverrideFeature;
 /**
  * @author msekoranja
  */
-public class FaultCode implements NameOverrideFeature {
+public class FaultCode implements NameOverrideFeature, Serializable {
 
 	private int value;
 	private boolean instant;

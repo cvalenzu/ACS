@@ -1,0 +1,33 @@
+# Imported from SVN
+Benchmark/util excludees=NO_TEST
+LGPL/CommonSoftware/acsalarmidl excludees=NO_TEST sinners=acaproni
+LGPL/CommonSoftware/acsalarm sinners=acaproni
+LGPL/CommonSoftware/acscomponentidl excludees=NO_TEST
+LGPL/CommonSoftware/acsdaemonidl excludees=NO_TEST
+LGPL/CommonSoftware/acserridl excludees=NO_TEST
+LGPL/CommonSoftware/acsGUIs/acsEclipseUtils excludees=NO_TEST sinners=acaproni
+LGPL/CommonSoftware/ACSLaser/cmw-mom excludees=NO_TEST
+LGPL/CommonSoftware/ACSLaser/gp excludees=NO_TEST
+LGPL/CommonSoftware/ACSLaser/gp-openide excludees=NO_TEST
+LGPL/CommonSoftware/ACSLaser/laser-client excludees=NO_TEST
+LGPL/CommonSoftware/ACSLaser/laser-console excludees=NO_TEST
+LGPL/CommonSoftware/ACSLaser/laser-definition excludees=NO_TEST
+LGPL/CommonSoftware/ACSLaser/laser-extlib excludees=NO_TEST
+LGPL/CommonSoftware/acsthread sinners=pcolomer
+LGPL/CommonSoftware/cdbidl excludees=NO_TEST
+LGPL/CommonSoftware/loggingidl excludees=NO_TEST
+LGPL/CommonSoftware/monitoring/moncollect sinners=mmanas
+LGPL/CommonSoftware/nsStatisticsService sinners=pcolomer
+LGPL/Kit/acs sinners=eallaert
+LGPL/Tools/castor excludees=NO_TEST
+LGPL/Tools/doxygen excludees=NO_TEST
+LGPL/Tools/emacs excludees=NO_TEST
+LGPL/Tools/expat excludees=NO_TEST
+LGPL/Tools/extidl excludees=NO_TEST
+LGPL/Tools/extjars excludees=NO_TEST
+LGPL/Tools/log4cpp excludees=NO_TEST
+LGPL/Tools/loki excludees=NO_TEST
+LGPL/Tools/oAW excludees=NO_TEST
+LGPL/Tools/scxml_apache excludees=NO_TEST
+LGPL/Tools/tat sinners=eallaert
+LGPL/Tools/vtd-xml excludees=NO_TEST

@@ -31,10 +31,10 @@ class baci_EXPORT AlarmSystemMonitorBooleanSeq : public AlarmSystemMonitor<ROboo
  
   private:
 
-    static const bool ENABLE = true;
-    static const bool DISABLE = false;
-    static const int32_t ALARM_NOT_RAISED = 0;
-    static const int32_t ALARM_RAISED = 1;
+    static const bool ENABLE;
+    static const bool DISABLE;
+    static const int32_t ALARM_NOT_RAISED;
+    static const int32_t ALARM_RAISED;
 
     AlarmsRaisedVec alarmsRaised_m;
 

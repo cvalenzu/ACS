@@ -15,14 +15,14 @@
 #   build - build ACS software TOOLS
 #
 #   SYNOPSIS
-#   build 
+#   build
 #
 #   DESCRIPTION
 #   Wrapper script to control the overall building of ACS Software TOOLS.
 #
 #   According to the current environment, the procedure builds all
 #   what can be built by calling the build<XXXX> specific procedure.
-#   
+#
 #   Use the -vw command line option to force building VxWorks on Linux.
 #   VxWorks is built automatically only on Sun. When VxWorks is built,
 #   also msql and msqltcl will be generated.
@@ -51,7 +51,7 @@ if ! (! lsb_loc="$(type -p "lsb_release")" || [ -z "$lsb_loc" ])
 then
 	UBDIST=`lsb_release -d | awk '{print $2}'`
 
-else	
+else
 	UBDIST="Other"
 fi
 
@@ -59,7 +59,7 @@ fi
 # No INTROOT please!
 #
 if [ "$INTROOT" != "" ]
-then 
+then
     echo ""
     echo " ERROR: INTROOT shall not be defined (current \$INTROOT >$INTROOT<)"
     echo "     This installation procedure cannot handle this."
@@ -77,7 +77,7 @@ echo "WARNING: Do not close this terminal: some build might fail!"
 if [ "X$DISPLAY" = "X" ]
 then
    echo "WARNING: DISPLAY not set. Some build/tests might fail!"
-fi 
+fi
 
 
 # Read and execute instructions in:
@@ -99,7 +99,7 @@ fi
 
 # This is the order that must be followed when compiling the different tools
 # To be noted: if OS is not Solaris, RH9, RH 7.3 or RH 7.2 GNU tools must
-# not be compiled, but we use what is installed with the system 
+# not be compiled, but we use what is installed with the system
 # see later on for Tcl/Tk
 if [ "$OS" != "LINUX" -a "$OS" != "$CYGWIN_VER" -o "${DISTRO}-${REL}" = "RHLX-7.2"  -o "${DISTRO}-${REL}" = "RHLX-7.3"  -o "${DISTRO}-${REL}" = "RHLX-9" ]
 then
@@ -119,12 +119,12 @@ if [ "X$1" = "X-vw" ]
 then
     echo "VxWorks build explicitly requested"
     BUILD_VX_WORKS=1
-else	
+else
     if [ "$OS" = "SOLARIS" ]
     then
        echo "VxWorks always built on Solaris"
        BUILD_VX_WORKS=1
-    fi   
+    fi
 fi
 
 # if we build VxWorks, Tcl/Tk must include msqltcl - hence msql must also
@@ -138,7 +138,7 @@ then
     # for VxWorks (better: vcc/CCSLite) we still need to install msqltcl
     echo "buildTcltk"
     ./buildTcltk -m
-else 
+else
     echo -n "buildTcltk"
     ./buildTcltk &&  echo_success || echo_failure
 fi
@@ -149,7 +149,7 @@ fi
 if [ "$BUILD_VX_WORKS" = "1" ]
 then
     # for SUN only: put VxWorks 5.5 and CCSLite ; prepare the msql and launch the deamon
-    # NB: CCSLite/vw/bin/PPC604 contains binaries prepared by B. Gustafsson 
+    # NB: CCSLite/vw/bin/PPC604 contains binaries prepared by B. Gustafsson
     # which work with Tornado 2.
     echo "buildVxWorks"
     ./buildVxWorks
@@ -161,7 +161,7 @@ then
     echo "buildCCSLite (ignore the following login messages and wait for buildCCSLite to complete)"
     bash --login ./buildCCSLite
 else
-    # If we have no VxWorks, we do not use msql; although it is compiled and installed 
+    # If we have no VxWorks, we do not use msql; although it is compiled and installed
     # in $TCLTK_ROOT we remove the useless directory under $ACSDATA.
     # to clean ACSDATA cleaner
     rm -rf $ACSDATA/msql
@@ -210,7 +210,7 @@ then
 	./buildAnt && echo_success || echo_failure
 fi
 
-echo  -n "buildJacORB" 
+echo  -n "buildJacORB"
 ./buildJacORB && echo_success || echo_failure
 echo -n "buildPython"
 ./buildPython && echo_success || echo_failure
@@ -254,4 +254,3 @@ echo "WARNING: Now log out and login again to make sure that"
 echo "         the environment is re-evaluated!"
 echo " "
 echo "__oOo__"
-

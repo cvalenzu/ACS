@@ -34,7 +34,7 @@ PY_DISUTIL	   = PyXML-0.8.4 Pmw
 PYXML: PyXML-0.8.4.tar.gz
 	@echo "== Building PYXML"
 	@tar -zxvf PyXML-0.8.4.tar.gz; 
-	@cd PyXML-0.8.4; python setup.py build --with-libexpat=$(ACSROOT)/lib; python setup.py install --home=$(INSTALL_ROOT) --install-purelib=$(INSTALL_ROOT)/lib/python/site-packages --install-platlib=$(INSTALL_ROOT)/lib/python/site-packages;
+	@cd PyXML-0.8.4; python setup.py build; python setup.py install --home=$(INSTALL_ROOT) --install-purelib=$(INSTALL_ROOT)/lib/python/site-packages --install-platlib=$(INSTALL_ROOT)/lib/python/site-packages;
 
 #LXML: lxml-2.2.6.tar.gz
 #	@echo "== Building LXML"
@@ -43,40 +43,40 @@ PYXML: PyXML-0.8.4.tar.gz
 
 PYXB: PyXB-full-1.1.2.tar.gz
 	@echo "== Building PyXB"
-	@gtar -zxvf PyXB-full-1.1.2.tar.gz;
+	@tar -zxvf PyXB-full-1.1.2.tar.gz;
 	@cd PyXB-1.1.2; patch -p1 < ../pyxb-datatypes-repr.patch;$(PYTHON_ROOT)/bin/python setup.py build; $(PYTHON_ROOT)/bin/python setup.py install --home=$(INSTALL_ROOT) --install-purelib=$(INSTALL_ROOT)/lib/python/site-packages --install-platlib=$(INSTALL_ROOT)/lib/python/site-packages;
 
 PMW: Pmw.1.2.tar.gz
 	@echo "== Building Python Mega Widgets"
-	@gtar -zxvf Pmw.1.2.tar.gz;
+	@tar -zxvf Pmw.1.2.tar.gz;
 
 #NUMERIC: Numeric-24.2.tar.gz
 #	@echo "== Building Numeric"
-#	@gtar -zxvf Numeric-24.2.tar.gz;
+#	@tar -zxvf Numeric-24.2.tar.gz;
 #	@cd Numeric-24.2; patch -p1 < ../Numeric-gettimeofday.patch; python setup.py install --home=$(INSTALL_ROOT) --install-purelib=$(INSTALL_ROOT)/lib/python/site-packages --install-platlib=$(INSTALL_ROOT)/lib/python/site-packages; 
 
 #NUMARRAY: numarray-1.3.3.tar.gz
 #	@echo "== Building numarray"
-#	@gtar -zxvf numarray-1.3.3.tar.gz;
+#	@tar -zxvf numarray-1.3.3.tar.gz;
 #	@cd numarray-1.3.3; python setup.py install --gencode; 
 
 #LDAP: python-ldap-2.0.1.tar.gz
 #	@echo "== Building Python LDAP"
-#	@gtar -zxvf python-ldap-2.0.1.tar.gz;
+#	@tar -zxvf python-ldap-2.0.1.tar.gz;
 #	@cd python-ldap-2.0.1; cat setup.cfg | sed 's/local\/openldap-REL_ENG_2_1\///' >> setup.cfg.tmp
 #	@mv python-ldap-2.0.1/setup.cfg.tmp python-ldap-2.0.1/setup.cfg 
 #	@cd python-ldap-2.0.1; python setup.py install;
 
 #SUDS: suds-0.4.tar.gz
 #	@echo "== Building suds"
-#	@gtar -zxvf suds-0.4.tar.gz;
+#	@tar -zxvf suds-0.4.tar.gz;
 #	@cd suds-0.4; python setup.py install --home=$(INSTALL_ROOT) --install-purelib=$(INSTALL_ROOT)/lib/python/site-packages --install-platlib=$(INSTALL_ROOT)/lib/python/site-packages;
 
 #
 # list all python tarballs
 # ------------------------------
 PY_DOC :
-	$(foreach file, $(PY_EXT_DOC_L), - $(AT) cd ../doc; if [ -e $(file).tgz ]; then echo "== Extracting external documentation: $(file).tgz"; gtar -zxvf $(file).tgz; fi )
+	$(foreach file, $(PY_EXT_DOC_L), - $(AT) cd ../doc; if [ -e $(file).tgz ]; then echo "== Extracting external documentation: $(file).tgz"; tar -zxvf $(file).tgz; fi )
 
 
 #PY_DISUTIL_BUILD : PYXML NUMERIC NUMARRAY LDAP PYXML

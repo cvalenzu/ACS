@@ -50,7 +50,7 @@ A Tool definition has the following elements:
 
 	<tool>
 		<caption>Object Explorer</caption>
-		<command>accEnableVars accStarter -e ACS_INSTANCE=? -p $HOME/.acs/commandcenter/objexp objexp -m corbaloc::?:?/Manager</command>
+		<command>accEnableVars accStarter -e ACS_INSTANCE=? -p $HOME/.acs/commandcenter/objexp objexp -managerReference corbaloc::?:?/Manager</command>
 		<insertion source="model">ScriptBase</insertion>
 		<insertion source="model">ToolAgainstManagerHost</insertion>
 		<insertion source="model">ToolAgainstManagerPort</insertion>

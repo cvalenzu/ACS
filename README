@@ -1,14 +1,14 @@
 #*******************************************************************************
 # E.S.O. - ACS project
 #
-#  ACS SVN Archive README  
+#  ACS SVN Archive README
 #
-#  This file describes the basic contents of the 
+#  This file describes the basic contents of the
 #  ACS SVN Archive
-# 
+#
 #*******************************************************************************
 
-README    
+README
    This file
 
 README-new-release
@@ -48,6 +48,5 @@ VmwareFactory
    This machine is used for automatic builds and tests and for the
    automatic generation of releases.
 
-Web   
+Web
    ACS Web pages and web-start applications
-   

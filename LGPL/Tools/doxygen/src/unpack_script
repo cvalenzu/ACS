@@ -82,7 +82,7 @@ do
       echo "\t$file.gz . . . ERROR missing file!" 
       exit 1
    else
-      gtar -xzf $file.gz
+      tar -xzf $file.gz
    fi
 done
 

@@ -220,19 +220,19 @@ int main(int argc, char *argv[])
     printf("%d.\n\n", (unsigned long)tCondition);
 
     IS_XYZ_TEST(doubleSeqAny, isDoubleSeq);
-    ACS::doubleSeq* tDoubleSeq = testAny<ACS::doubleSeq *>("doubleSeq", doubleSeqAny);
+    const ACS::doubleSeq* tDoubleSeq = testAny<const ACS::doubleSeq *>("doubleSeq", doubleSeqAny);
     printf("[ %f ].\n\n", (*tDoubleSeq)[0]);
     
     IS_XYZ_TEST(longSeqAny, isLongSeq);
-    ACS::longSeq* tLongSeq = testAny<ACS::longSeq *>("longSeq", longSeqAny);
+    const ACS::longSeq* tLongSeq = testAny<const ACS::longSeq *>("longSeq", longSeqAny);
     printf("[ %d ].\n\n", (*tLongSeq)[0]);
 
     IS_XYZ_TEST(stringSeqAny, isStringSeq);
-    ACS::stringSeq* tStringSeq = testAny<ACS::stringSeq *>("stringSeq", stringSeqAny);
+    const ACS::stringSeq* tStringSeq = testAny<const ACS::stringSeq *>("stringSeq", stringSeqAny);
     printf("[ %s ].\n\n", (*tStringSeq)[0].in());
 
     IS_XYZ_TEST(floatSeqAny, isFloatSeq);
-    ACS::floatSeq* tFloatSeq = testAny<ACS::floatSeq *>("floatSeq", floatSeqAny);
+    const ACS::floatSeq* tFloatSeq = testAny<const ACS::floatSeq *>("floatSeq", floatSeqAny);
     printf("[ %f ].\n\n", (*tFloatSeq)[0]);
 
 //    IS_XYZ_TEST(doubleSeqSeqAny, isDoubleSeqSeq);

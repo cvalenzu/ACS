@@ -23,6 +23,7 @@
  */
 package alma.TMCDB.alarm;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import com.cosylab.cdb.jdal.hibernate.InternalElementsMap;
@@ -32,7 +33,7 @@ import com.cosylab.cdb.jdal.hibernate.NameOverrideFeature;
  * @author msekoranja
  *
  */
-public class ReductionLink implements NameOverrideFeature {
+public class ReductionLink implements NameOverrideFeature, Serializable {
 	
 	private String type;
 	
@@ -48,7 +49,7 @@ public class ReductionLink implements NameOverrideFeature {
 		return "reduction-link";
 	}
 	
-	public class HierarchyElement
+	public class HierarchyElement implements Serializable
 	{
 		public Map<String, Object> _ = new InternalElementsMap<String, Object>();
 		

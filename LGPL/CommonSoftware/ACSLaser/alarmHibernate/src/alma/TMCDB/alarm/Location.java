@@ -23,6 +23,7 @@
  */
 package alma.TMCDB.alarm;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import com.cosylab.cdb.jdal.hibernate.ElementValue;
@@ -31,7 +32,7 @@ import com.cosylab.cdb.jdal.hibernate.InternalElementsMap;
 /**
  * @author msekoranja
  */
-public class Location {
+public class Location implements Serializable {
 
 	// hierarchical support
     // must be public to be accessible, but should not have getter to be come visible as node

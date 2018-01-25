@@ -23,6 +23,7 @@
  */
 package alma.TMCDB.alarm;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -47,15 +48,15 @@ import com.cosylab.cdb.jdal.hibernate.plugin.HibernateWDALAlarmPluginImpl;
 /**
  * @author msekoranja
  */
-public class ReductionDefinitions implements ExtraDataFeature, NameOverrideFeature, XMLSaver {
+public class ReductionDefinitions implements ExtraDataFeature, NameOverrideFeature, XMLSaver, Serializable {
 
 	public static final String REDUCTION_DEFINITIONS_PATH = "/Alarms/Administrative/ReductionDefinitions";
 
-	private final Session session;
-	private final Configuration config;
-	private final ConfigurationAccessor conf;
+	transient private final Session session;
+	transient private final Configuration config;
+	transient private final ConfigurationAccessor conf;
 	private final Map<String, Object> rootMap;
-	private final Logger m_logger;
+	transient private final Logger m_logger;
 	
 	private ReductionLinks linksToCreate = new ReductionLinks("links-to-create");
 	private ReductionLinks linksToRemove = new ReductionLinks("links-to-remove");

@@ -14,15 +14,15 @@ os     = $(shell uname)
 
 MODULE_PREFIX = LGPL
 #!#MODULES_KIT = vlt doc acs acstempl
-MODULES_KIT =  # doc acs acstempl acsutilpy
+MODULES_KIT = doc acs acstempl acsutilpy
 
-MODULES_TOOLS =  #Tools
+MODULES_TOOLS = Tools
 #
 # I skip doxygen, that should be after compat and before tat,
 # because it is already built in the prepare phase.
 #
 
-MODULES_ACS = jacsutil # xmljbind xmlpybind acserridl acsidlcommon acsutil acsstartup loggingidl logging acserr acserrTypes acsQoS acsthread acscomponentidl cdbidl maciidl baciidl acsncidl acsjlog repeatGuard loggingts loggingtsTypes jacsutil2 cdb cdbChecker codegen cdb_rdb acsalarmidl acsalarm acsContainerServices acscomponent recovery basenc archiveevents parameter baci enumprop acscallbacks acsdaemonidl jacsalarm jmanager maci task acstime acsnc acsdaemon acslog acstestcompcpp acsexmpl jlogEngine acspycommon acsalarmpy acspy comphelpgen XmlIdl define acstestentities jcont jcontnc nsStatisticsService jacsalarmtest jcontexmpl jbaci monitoring acssamp mastercomp acspyexmpl nctest acscommandcenter acssim bulkDataNT bulkData containerTests acscourse ACSLaser acsGUIs acsExtras
+MODULES_ACS = jacsutil xmljbind xmlpybind acserridl acsidlcommon acsutil acsstartup loggingidl logging acserr acserrTypes acsQoS acsthread acscomponentidl cdbidl maciidl baciidl acsncidl acsjlog repeatGuard loggingts loggingtsTypes jacsutil2 cdb cdbChecker codegen cdb_rdb acsalarmidl acsalarm acsContainerServices acscomponent recovery basenc archiveevents parameter baci enumprop acscallbacks acsdaemonidl jacsalarm jmanager maci task acstime acsnc acsdaemon acslog acstestcompcpp acsexmpl jlogEngine acspycommon acsalarmpy acspy comphelpgen XmlIdl define acstestentities jcont jcontnc nsStatisticsService jacsalarmtest jcontexmpl jbaci monitoring acssamp mastercomp acspyexmpl nctest acscommandcenter acssim bulkDataNT bulkData containerTests acscourse ACSLaser acsGUIs acsExtras
 ######## end Modules ###########################
 
 ###############################################
@@ -33,23 +33,50 @@ define makeIt
 endef
 
 define makeItAux
-   (( make $(MAKE_FLAGS) -C $1 $2 2>&1 ) || ( echo "### ==> FAILED $2 ! " | tee -a $3 $4 1>&2 )) | tee -a $3 $4 >/dev/null;
+   (( $(MAKE) $(MAKE_FLAGS) -C $1 $2 2>&1 ) || ( echo "### ==> FAILED $2 ! " | tee -a $3 $4 1>&2 )) | tee -a $3 $4 >/dev/null;
 endef
-
 ###############################################
 
 #
-# Try to build BENCHMARK modules only if they are part of the distribution 
+# Try to build BENCHMARK modules only if they are part of the distribution
 #
 HAS_BENCHMARK = $(shell if [ -d Benchmark ]; then echo "TRUE"; else echo "FALSE"; fi)
 ifeq ($(HAS_BENCHMARK),TRUE)
-   MODULES_BENCHMARK = # util analyzer
+   MODULES_BENCHMARK = util analyzer
+endif
+
+#
+# Try to build NO-LGPL modules only if they are part of the distribution
+#
+MODULE_PREFIX_NO-LGPL = NO-LGPL
+HAS_NO-LGPL = $(shell if [ -d NO-LGPL ]; then echo "TRUE"; else echo "FALSE"; fi)
+
+ifeq ($(HAS_NO-LGPL),TRUE)
+  MODULES_NO-LGPL = fftw
+endif
+
+# RTOS related things are build only if they are part of distribution and RTAI_HOME is defined
+HAS_RTOS = $(shell if [ "X$(RTAI_HOME)" != X -a -d NO-LGPL/rtos ] ; then echo "TRUE"; else echo "FALSE"; fi)
+MODULE_PREFIX_RTOS = $(MODULE_PREFIX_NO-LGPL)/rtos
+ifeq ($(HAS_RTOS),TRUE)
+    MODULES_RTOS =  $(MODULE_PREFIX_NO-LGPL)/rtos
+endif
+
+
+VXWORKS_RTOS = $(shell if [ $(WIND_BASE) ] ; then echo "YES"; else echo "NO"; fi)
+
+HAS_VW = $(shell if [ -d NO-LGPL/vw ] ; then echo "TRUE"; else echo "FALSE"; fi)
+MODULE_PREFIX_VW = $(MODULE_PREFIX_NO-LGPL)/vw
+ifeq ($(VXWORKS_RTOS) $(HAS_VW),YES TRUE)
+    MODULES_VW = lcuboot accdb
+    ACCDB_CONFIG = accdb_config
 endif
 
 MODULES =  $(foreach kit, $(MODULES_KIT), $(MODULE_PREFIX)/Kit/$(kit)) \
            $(MODULE_PREFIX)/Tools \
            $(foreach acs, $(MODULES_ACS), $(MODULE_PREFIX)/CommonSoftware/$(acs)) \
 	   $(foreach bm, $(MODULES_BENCHMARK), Benchmark/$(bm)) \
+           $(foreach nolgpl, $(MODULES_NO-LGPL), $(MODULE_PREFIX_NO-LGPL)/$(nolgpl)) \
 	   $(MODULES_RTOS) \
 	   $(addprefix $(MODULE_PREFIX_VW)/, $(MODULES_VW)) \
            $(MODULE_PREFIX)/acsBUILD
@@ -58,7 +85,7 @@ MODULES =  $(foreach kit, $(MODULES_KIT), $(MODULE_PREFIX)/Kit/$(kit)) \
 #!## No VLT Central Common Software (CCS) is available.
 #!## Some modules in the KIT and TOOLS sub-packages
 #!## come from the VLT CCS and use the NOCCS flag to
-#!## compile when the core of CCS is not available 
+#!## compile when the core of CCS is not available
 #!##
 #!#
 #!## Commented out empty MAKE_FLAGS, because it does not work on SUN
@@ -72,7 +99,7 @@ SHELL=/bin/ksh
 ECHO=echo
 
 ifdef MAKE_VERBOSE
-    AT = 
+    AT =
     OUTPUT =
 else
     AT = @
@@ -81,6 +108,7 @@ endif
 #
 
 startupDir = $(shell pwd)
+
 
 #
 #
@@ -91,7 +119,7 @@ startupDir = $(shell pwd)
 # o   recognize if you live on SunOS
 #     and set the compiler accordingly
 #     (that's already done at local Makefile level)
-# o   turn verbose on and off 
+# o   turn verbose on and off
 # o   have logging into some well defined place
 # o   set specialized variables for CXX/CC/JAVA
 #
@@ -120,7 +148,7 @@ define canned
 endef
 
 #
-# This target builds and installs the complete ACS 
+# This target builds and installs the complete ACS
 # on a clean directory structure.
 # Per each module it executes:
 #    make clean all install
@@ -129,7 +157,7 @@ build: 	clean_log checkModuleTree prepare update
 	@$(ECHO) "... done"
 
 #
-# This target builds and installs the complete ACS 
+# This target builds and installs the complete ACS
 # on a clean directory structure.
 # Per each module it executes:
 #    make clean all man install clean
@@ -138,7 +166,7 @@ build_clean:   	svn-tag clean_log checkModuleTree prepare update_clean
 	@$(ECHO) "... done"
 
 #
-# This target builds and installs the complete ACS 
+# This target builds and installs the complete ACS
 # on a clean directory structure.
 # Per each module it executes:
 #    make clean all man install clean
@@ -151,7 +179,7 @@ build_clean_test:   	svn-tag clean_log checkModuleTree prepare update_clean_test
 	@$(ECHO) "... done"
 
 #
-# This target re-builds and installs the complete ACS 
+# This target re-builds and installs the complete ACS
 # on an existing directory structure.
 # Per each module it executes:
 #    make clean all man install clean
@@ -172,7 +200,7 @@ clean_test_log:
 #
 # Check module tree
 #
-checkModuleTree:	
+checkModuleTree:
 	@$(ECHO) "############ Check directory tree for modules  #################"| tee -a build.log
 	@for member in  $(foreach name, $(MODULES), $(name) ) ; do \
 		    if [ ! -d $${member} ]; then \
@@ -200,7 +228,7 @@ checkModuleTree:
 #   Notice that vlt and doc have a circular dependency
 #   and therefore they are built "ad hoc" by the prepare kit script
 # - doxygen
-prepare:	
+prepare:
 	@$(ECHO) "############ Prepare installation areas      #################" | tee -a build.log
 	@cd $(MODULE_PREFIX); $(SHELL) acsBUILD/src/acsBUILDPrepareKit.sh >> ../build.log 2>& 1
 	@$(MAKE) $(MAKE_FLAGS) -C $(MODULE_PREFIX)/Kit/acs/src/ all install clean >> build.log 2>& 1 || echo "### ==> FAILED! " | tee -a build.log
@@ -404,11 +432,11 @@ accdb_config:
 # with the current setup
 #
 show_modules:
-	@$(ECHO) "Modules in build list are:" 
+	@$(ECHO) "Modules in build list are:"
 	@$(ECHO) ${MODULES}
 
 #
-# This target gets from SVN all files needed for an LGPL distribution 
+# This target gets from SVN all files needed for an LGPL distribution
 #
 LGPL_FILES=README README-new-release LGPL
 svn-get-lgpl: svn-tag svn-get-version
@@ -423,11 +451,11 @@ svn-get-lgpl: svn-tag svn-get-version
 #
 # Standard targets
 #
-clean:	
+clean:
 	$(canned)
-all:	
+all:
 	$(canned)
-install:	
+install:
 	$(canned)
 
 man:

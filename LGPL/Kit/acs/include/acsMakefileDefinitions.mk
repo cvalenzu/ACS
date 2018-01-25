@@ -57,6 +57,7 @@ $(if $(subst $(abspath $(dir $1)),,$(abspath .)),T,)
 
 cutOffCWD = \
 $(if $(call isNotCurrentDir,$1),$1,$(notdir $1))
+
 ################################################################################
 # FUNCTION createJar
 #
@@ -198,7 +199,6 @@ endef
 
 # $(call acsMakeIDLDependencies,idl-file,ext)
 define acsMakeIDLDependencies
-
 
 .PHONY: do_idl_$1
 do_idl_$1: $(do_idl_$1_prereq)
@@ -348,7 +348,7 @@ $1_IDL_Python: ../lib/python/site-packages/$1_idl.py ;
 ../lib/python/site-packages/$1_idl.py: $(CURDIR)/../idl/$1.idl $($1_IDLprereq)
 	$(AT)lockfile -s 2 -r 10 ../lib/python/site-packages/.make-OmniOrb.lock || echo "WARNING, ignoring lock ../lib/python/site-packages/.make-OmniOrb.lock"
 	- @echo "== IDL Compiling for OmniOrb (Python): $1"
-	$(AT) $(OMNI_IDL)  -I$(OMNI_ROOT) $(MK_IDL_PATH) $(TAO_MK_IDL_PATH) -bacs_python -C../lib/python/site-packages $$<
+	$(AT) $(OMNI_IDL)  -I$(OMNI_ROOT)/idl/ $(MK_IDL_PATH) $(TAO_MK_IDL_PATH) -bacs_python -C../lib/python/site-packages $$<
 	-$(AT)$(RM) ../lib/python/site-packages/.make-OmniOrb.lock
 
 .PHONY: clean_IDL_$1_Python
@@ -364,7 +364,7 @@ clean_IDL_$1_Python:
 .PHONY: install_IDL_$1_Python
 install_IDL_$1_Python: $(CURDIR)/../idl/$1.idl
 	$(AT)lockfile -s 2 -r 10 $(LIB)/python/site-packages/.make-OmniOrb.lock || echo "WARNING, ignoring lock $(LIB)/python/site-packages/.make-OmniOrb.lock"
-	$(AT)$(OMNI_IDL)  -I$(OMNI_ROOT) $(MK_IDL_PATH) $(TAO_MK_IDL_PATH) -bacs_python -C$(LIB)/python/site-packages $$< > /dev/null 2>&1
+	$(AT)$(OMNI_IDL)  -I$(OMNI_ROOT)/idl/ $(MK_IDL_PATH) $(TAO_MK_IDL_PATH) -bacs_python -C$(LIB)/python/site-packages $$< > /dev/null 2>&1
 	-$(AT)$(RM) $(LIB)/python/site-packages/.make-OmniOrb.lock
 
 .PHONY: install_IDL_$1_Java
@@ -806,7 +806,8 @@ $(if $(or $3,$6), \
                         $(eval MESSAGE += please remove iostream), \
 	                $(if $(findstring Cygwin, $(platform)), \
 	                    $(eval $2_lList += -l$(lib) $(eval $2_dList += $(call deps,$(lib)))), \
-                            $(eval $2_lList += -l$(lib)) 
+                            $(if $(filter $(lib), $(LIBRARY_LIST) $(addsuffix Stubs,$(IDL_LIST) $(ACSERRDEF)) $(ACSERRDEF)), $(eval $2_lList += $(if $5,$(CURDIR)/../lib/lib$(lib).a,$(if $(MAKE_NOSTATIC),,$(CURDIR)/../lib/lib$(lib).a) $(CURDIR)/../lib/lib$(lib).so)),
+                            $(eval $2_lList += -l$(lib)))
                          ) \
                      ) \
                  ) \
@@ -875,7 +876,7 @@ $(CURDIR)/../lib/lib$2.$(SHLIB_EXT): $$(xyz_$2_OBJ) $$($2_lList)
 ifeq ($(platform),Cygwin)
 	$(AT)$(CXX) $(LDFLAGS_GCOV) -shared -fPIC $$($2_sharedLibName) -Wl,--enable-auto-image-base -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--enable-runtime-pseudo-reloc $(L_PATH) -Wl,--whole-archive $$(xyz_$2_OBJ) -Wl,--no-whole-archive $(sort $($2_libraryList)) $4 -o ../lib/lib$2.$(SHLIB_EXT)
 else
-	$(AT)$(CXX) $(LDFLAGS_GCOV) -shared -fPIC $$($2_sharedLibName) -Wl,--copy-dt-needed-entries $(L_PATH) $4 -o ../lib/lib$2.$(SHLIB_EXT) $$(xyz_$2_OBJ) $($2_libraryList) 
+	$(AT)$(CXX) $(LDFLAGS_GCOV) -shared -fPIC $$($2_sharedLibName) $(L_PATH) $($2_libraryList) $4 -o ../lib/lib$2.$(SHLIB_EXT) $$(xyz_$2_OBJ)
 endif
 	$(AT) if [ "$$$$MAKE_NOSYMBOL_CHECK" == "" ]; then acsMakeCheckUnresolvedSymbols -w ../lib/lib$2.$(SHLIB_EXT); fi 
 	$(AT) chmod a-w+x ../lib/lib$2.$(SHLIB_EXT)
@@ -982,7 +983,8 @@ $(if $(or $3,$6),
                         $(eval $2_exe_lList += -lstdc++), \
 	                $(if $(findstring Cygwin, $(platform)), \
 	                    $(eval $2_exe_lList += -l$(lib) $(eval $2_exe_dList += $(call deps,$(lib)))), \
-                            $(eval $2_exe_lList += -l$(lib)) \
+                            $(if $(filter $(lib), $(LIBRARY_LIST) $(addsuffix Stubs,$(IDL_LIST) $(ACSERRDEF)) $(ACSERRDEF)), $(eval $2_exe_lList += $(if $5,$(CURDIR)/../lib/lib$(lib).a,$(if $(MAKE_NOSTATIC),,$(CURDIR)/../lib/lib$(lib).a) $(CURDIR)/../lib/lib$(lib).so)),
+                            $(eval $2_exe_lList += -l$(lib))) \
                          ) \
                      ) \
                  ) \
@@ -1021,7 +1023,7 @@ ifeq ($(strip $(MAKE_NOSHARED) $($2_NOSHARED)),)
 ifeq ($(platform),Cygwin)
 	$(AT)$(PURIFY) $(PURECOV) $(LD) $(CFLAGS) -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--enable-runtime-pseudo-reloc -Wl,--whole-archive $($2_exe_objList) -Wl,--no-whole-archive $(LDFLAGS) $(L_PATH) $4 $($2_libraryList)  -o ../bin/$2
 else
-	$(AT)$(PURIFY) $(PURECOV) $(LD) $(CFLAGS) -Wl,--copy-dt-needed-entries $(LDFLAGS) $(L_PATH) $4 $($2_exe_objList)  $($2_libraryList)  -o ../bin/$2
+	$(AT)$(PURIFY) $(PURECOV) $(LD) $(CFLAGS) $(LDFLAGS) $(L_PATH) $4 $($2_exe_objList)  $($2_libraryList)  -o ../bin/$2
 endif
 else
 	$(AT)$(PURIFY) $(PURECOV) $(LD) $(CFLAGS) $(LDFLAGS) $(L_PATH) $4  $($2_exe_objList) $($2_libraryListNoshared)  -o ../bin/$2
@@ -1519,17 +1521,18 @@ endif
 	$(AT)$(ECHO) "USR_INC := $(USR_INC)"   >> Kbuild
 	$(AT)$(ECHO) "EXTRA_CFLAGS := $(EXTRA_CFLAGS)" >> Kbuild
 	$(AT)$(ECHO) "KBUILD_EXTRA_SYMBOLS=\"$(RTAI_HOME)/modules/Module.symvers\"" >> Kbuild
+# ICT-9314: remove kbuild.lock immediately if make of kernel modules fails
 ifdef MAKE_VERBOSE
 ifeq ($(CPU),x86_64)
-	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=2 modules
+	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=2 modules || $(MAKE) remove_kbuild_lock_$1
 else
-	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) ARCH=i386 RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=2 modules
+	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) ARCH=i386 RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=2 modules || $(MAKE) remove_kbuild_lock_$1
 endif
 else
 ifeq ($(CPU),x86_64)
-	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=0 modules
+	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=0 modules || $(MAKE) remove_kbuild_lock_$1
 else
-	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) ARCH=i386 RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=0 modules
+	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCRTAI) ARCH=i386 RTAI_CONFIG=$(RTAI_CONFIG) M=$(PWD) V=0 modules || $(MAKE) remove_kbuild_lock_$1
 endif
 endif
 	$(AT)$(RM) Kbuild.lock
@@ -1635,10 +1638,11 @@ kernel_module_$1_components = $(if $(and $(filter 1,$(words $2)),$(filter $1,$(w
 	$(AT)$(ECHO) "EXTRA_CFLAGS := $(EXTRA_CFLAGS)" >> Kbuild
 	$(AT)$(ECHO) "KBUILD_EXTRA_SYMBOLS=\"$(LINUX_HOME)/modules/Module.symvers\"" >> Kbuild
 # ICT-2680: remove "ARCH=i386" from list of compilation flags for plain linux kernel modules
+# ICT-9314: remove kbuild.lock immediately if make of kernel modules fails
 ifdef MAKE_VERBOSE
-	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCKERNEL) M=$(PWD) V=2 modules
+	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCKERNEL) M=$(PWD) V=2 modules || $(MAKE) remove_kbuild_lock_$1
 else
-	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCKERNEL) M=$(PWD) V=0 modules
+	+$(AT)$(MAKE) -C $(KDIR) CC=$(CCKERNEL) M=$(PWD) V=0 modules || $(MAKE) remove_kbuild_lock_$1
 endif
 	$(AT)$(RM) Kbuild.lock
 	$(AT)mv $1.ko ../kernel/$(kernel_install_subfold)
@@ -1692,6 +1696,12 @@ $(PRJTOP)/kernel/$(kernel_install_subfold)/$1.ko: ../kernel/$(kernel_install_sub
 
 .PHONY: clean_dist_kernel_module_$1
 clean_dist_kernel_module_$1:
+
+#
+# this target is used in case of make error for kernel modules (ICT-9314)
+#
+remove_kbuild_lock_$1:
+	$(AT)$(RM) Kbuild.lock
 
 endef
 

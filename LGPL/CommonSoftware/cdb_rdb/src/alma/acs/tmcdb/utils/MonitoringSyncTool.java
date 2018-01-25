@@ -267,9 +267,10 @@ public class MonitoringSyncTool {
     			ex.printStackTrace();
     		}
 	    	//lets invoke the methods
+			SessionFactory sessionF = null;
 	    	try {
 	    		createAcsConfigurationFromDbConfig.invoke(null,dbconf);
-	    		SessionFactory sessionF = (SessionFactory)getSessionFactory.invoke(null);
+	    		sessionF = (SessionFactory)getSessionFactory.invoke(null);
 	    		Session session = sessionF.openSession();
 	    		Transaction tx = session.beginTransaction();
 	            
@@ -311,7 +312,7 @@ public class MonitoringSyncTool {
 			                qstr = "FROM Component WHERE componentType = :type AND configuration = :conf";
 			                query = session.createQuery(qstr);
 			                // let's replace the HibernateUtil
-//              			query.setParameter("type", compType, HibernateUtil.getSessionFactory().getTypeHelper().entity(ComponentType.class));
+			                query.setParameter("type", compType, sessionF.getTypeHelper().entity(ComponentType.class));
 			                query.setParameter("conf", configuration, sessionF.getTypeHelper().entity(Component.class));
 			                components.addAll(query.list());
 			            }
@@ -549,7 +550,10 @@ public class MonitoringSyncTool {
 	    		e.printStackTrace();
     	  	}catch (InvocationTargetException e) {
     	  		e.printStackTrace();
-    	  	}
+    	  	} finally {
+				if (sessionF != null)
+					sessionF.close();
+			}
 	    	
 	    	
         }catch (ClassNotFoundException ex){
@@ -696,7 +700,7 @@ public class MonitoringSyncTool {
             retVal.addAll(getXmlBaciProperties(types.get("ColdCartSIS"), types));
         } else if (type.getName().equals("ColdCart5")) {
             retVal.addAll(getXmlBaciProperties(types.get("ColdCartSIS"), types));
-	} else if (type.getName().equals("ColdCart6")) {
+        } else if (type.getName().equals("ColdCart6")) {
             retVal.addAll(getXmlBaciProperties(types.get("ColdCartSIS"), types));
         } else if (type.getName().equals("ColdCart7")) {
             retVal.addAll(getXmlBaciProperties(types.get("ColdCartSIS"), types));
@@ -704,7 +708,7 @@ public class MonitoringSyncTool {
             retVal.addAll(getXmlBaciProperties(types.get("ColdCartSIS"), types));
         } else if (type.getName().equals("ColdCart9")) {
             retVal.addAll(getXmlBaciProperties(types.get("ColdCartSIS"), types));
-	} else if (type.getName().equals("ColdCart10")) {
+        } else if (type.getName().equals("ColdCart10")) {
             retVal.addAll(getXmlBaciProperties(types.get("ColdCartSIS"), types));
         } else if (type.getName().equals("PowerDist1")) {
             retVal.addAll(getXmlBaciProperties(types.get("PowerDist"), types));
@@ -714,7 +718,7 @@ public class MonitoringSyncTool {
             retVal.addAll(getXmlBaciProperties(types.get("PowerDist"), types));
         } else if (type.getName().equals("PowerDist4")) {
             retVal.addAll(getXmlBaciProperties(types.get("PowerDist"), types));
-	} else if (type.getName().equals("PowerDist5")) {
+        } else if (type.getName().equals("PowerDist5")) {
             retVal.addAll(getXmlBaciProperties(types.get("PowerDist"), types));
         } else if (type.getName().equals("PowerDist6")) {
             retVal.addAll(getXmlBaciProperties(types.get("PowerDist"), types));
@@ -730,13 +734,13 @@ public class MonitoringSyncTool {
             retVal.addAll(getXmlBaciProperties(types.get("WCA"), types));
         } else if (type.getName().equals("WCA2")) {
             retVal.addAll(getXmlBaciProperties(types.get("WCA"), types));
-	} else if (type.getName().equals("WCA3")) {
+        } else if (type.getName().equals("WCA3")) {
             retVal.addAll(getXmlBaciProperties(types.get("WCA"), types));
         } else if (type.getName().equals("WCA4")) {
             retVal.addAll(getXmlBaciProperties(types.get("WCA"), types));
         } else if (type.getName().equals("WCA5")) {
             retVal.addAll(getXmlBaciProperties(types.get("WCA"), types));
-	} else if (type.getName().equals("WCA6")) {
+        } else if (type.getName().equals("WCA6")) {
             retVal.addAll(getXmlBaciProperties(types.get("WCA"), types));
         } else if (type.getName().equals("WCA7")) {
             retVal.addAll(getXmlBaciProperties(types.get("WCA"), types));
@@ -748,11 +752,13 @@ public class MonitoringSyncTool {
             retVal.addAll(getXmlBaciProperties(types.get("WCA"), types));
         } else if (type.getName().equals("ColdCartSIS")) {
             retVal.addAll(getXmlBaciProperties(types.get("ColdCart"), types));
-	} else if (type.getName().equals("ColdCart")) {
+        } else if (type.getName().equals("ColdCart")) {
             retVal.addAll(getXmlBaciProperties(types.get("FEMC"), types));
         } else if (type.getName().equals("PowerDist")) {
             retVal.addAll(getXmlBaciProperties(types.get("FEMC"), types));
         } else if (type.getName().equals("WCA")) {
+            retVal.addAll(getXmlBaciProperties(types.get("FEMC"), types));
+        } else if (type.getName().equals("FETIM")) {
             retVal.addAll(getXmlBaciProperties(types.get("FEMC"), types));
         }
         return retVal;

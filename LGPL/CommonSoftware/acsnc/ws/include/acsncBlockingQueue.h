@@ -14,8 +14,8 @@ struct event_info {
     T event;
     double maxProcessTime;
     std::string type_name;
-    event_info(T &event, double &maxProcessTime, std::string & type_name);
-    event_info(T &event, double &maxProcessTime, const char *type_name);
+    event_info(const T &event, double &maxProcessTime, std::string & type_name);
+    event_info(const T &event, double &maxProcessTime, const char *type_name);
 };
 
 template<class T>

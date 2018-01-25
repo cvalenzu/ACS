@@ -67,7 +67,7 @@ BulkDataNTReceiverStream<TReceiverCallback>::~BulkDataNTReceiverStream()
 
 
 template<class TReceiverCallback>
-BulkDataNTReceiverFlow* BulkDataNTReceiverStream<TReceiverCallback>::createFlow(const char *flowName, const ReceiverFlowConfiguration &cfg, BulkDataNTCallback *cb, bool releaseCB)
+BulkDataNTReceiverFlow* BulkDataNTReceiverStream<TReceiverCallback>::createFlow(const char *flowName, const ReceiverFlowConfiguration &cfg, BulkDataNTCallback *cb, bool releaseCB, bool skipReceivingDataAfterFailure)
 {
 	AUTO_TRACE(__PRETTY_FUNCTION__);
 	BulkDataNTCallback *callback=0;
@@ -82,7 +82,7 @@ BulkDataNTReceiverFlow* BulkDataNTReceiverStream<TReceiverCallback>::createFlow(
 	}//if
 	try{
 		callback = (cb==0) ? new TReceiverCallback() : cb;
-		flow = new BulkDataNTReceiverFlow(this, flowName, cfg, callback, (cb==0)||releaseCB);
+		flow = new BulkDataNTReceiverFlow(this, flowName, cfg, callback, ((cb==0)||releaseCB), skipReceivingDataAfterFailure);
 		receiverFlows_m.insert(std::pair<std::string, BulkDataNTReceiverFlow*>(flowName, flow));
 		if (enabledCallingCBforAllFlows_m==false)
 			flow->disableCallingCB();
@@ -188,7 +188,7 @@ void BulkDataNTReceiverStream<TReceiverCallback>::createMultipleFlowsFromConfig(
 			this->createFlow(strFlowNumber, cfg);
 		}//for
 
-	}catch(const ACSErr::ACSbaseExImpl &ex)
+	}catch(ACSErr::ACSbaseExImpl &ex)
 	{
 		ex.log();
 	}

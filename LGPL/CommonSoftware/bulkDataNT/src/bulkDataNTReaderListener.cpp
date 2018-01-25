@@ -40,14 +40,17 @@ using namespace std;
 
 const char *BulkDataNTReaderListener::state2String[] = {"StartState", "DataRcvState", "StopState", "IgnoreDataState" };
 
-BulkDataNTReaderListener::BulkDataNTReaderListener(const char* name, BulkDataNTCallback* cb)
+BulkDataNTReaderListener::BulkDataNTReaderListener(const char* name, BulkDataNTCallback* cb, bool skipReceivingDataAfterFailure)
 : BulkDataNTDDSLoggable("BulkDataNT:"+string(name)),
   currentState_m(StartState),
   topicName_m(name),
   dataLength_m(0),
   frameCounter_m(0),
   totalFrames_m(0),
-  callback_mp (cb), enableCB_m(true)
+  callback_mp (cb), enableCB_m(true),
+  skipdata_m(skipReceivingDataAfterFailure),
+  processQueue(NULL),
+  tm(getNamedLogger("BDNTThrMgrLogger"))
 {
   ACS_TRACE(__FUNCTION__);
   nextFrame_m=0;
@@ -57,6 +60,11 @@ BulkDataNTReaderListener::BulkDataNTReaderListener(const char* name, BulkDataNTC
   cbReceiveTimeoutSec_m = callback_mp->getCBReceiveProcessTimeout();
   cbReceiveAvgTimeoutSec_m = callback_mp->getCBReceiveAvgProcessTimeout();
   cbReceiveTotalSec_m = 0.0;  cbReceiveNumCalls_m =0;
+  processingQueue = cb->getUseProcessingQueue();
+  processQueue = tm.create<ProcessQueue>(name);
+  processQueue->setCallback(cb);
+  processQueue->setTopicName(name);
+  processQueue->resume();
 }//BulkDataNTReaderListener
 
 
@@ -76,11 +84,15 @@ BulkDataNTReaderListener::~BulkDataNTReaderListener ()
 				  drps.sent_nack_count, drps.sent_nack_bytes,
 				  drps.rejected_sample_count));
 */
+  processQueue->cleanUp();
+  tm.join(processQueue->getThreadID());
+  tm.destroy(processQueue);
 }//~BulkDataNTReaderListener
 
 void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
 {
   initalizeLogging(); //force initialization of logging sys TBD changed
+  LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
   if (DDSConfiguration::debugLevel>3)
   {
 	  // the message can cause performance penalty for small data sizes
@@ -93,7 +105,10 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
 	  ACS_DDS_Errors::DDSNarrowFailedCompletion nerr(__FILE__, __LINE__, __FUNCTION__);
 	  nerr.setVariable("frameDataReader_mp");
 	  nerr.setNarrowType("ACSBulkData::BulkDataNTFrameDataReader");
-	  callback_mp->onError(nerr);
+	  if (processingQueue)
+	    processQueue->onError(nerr);
+	  else
+	    callback_mp->onError(nerr);
 	  return;
   }//if
 
@@ -129,7 +144,10 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
             		  currentState_m = DataRcvState;
             		  cbReceiveTotalSec_m = 0.0; cbReceiveNumCalls_m =0;
             		  message.data.to_array(tmpArray, message.data.length());
-            		  if (enableCB_m) { BDNT_LISTENER_USER_ERR( callback_mp->cbStart(tmpArray, message.data.length()) ) }
+            		  if (processingQueue) {
+            		    if (enableCB_m) { processQueue->cbStart(tmpArray, message.data.length()); }
+            		  } else
+            		    if (enableCB_m) { BDNT_LISTENER_USER_ERR( callback_mp->cbStart(tmpArray, message.data.length()) ) }
             		  conseqErrorCount_m=0;
             	  }
             	  else //error
@@ -138,7 +156,10 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
             		  wfo.setDataType("BD_PARAM"); wfo.setState(state2String[currentState_m]);
             		  wfo.setStreamFlowName(topicName_m.c_str()); wfo.setFrameCount(frameCounter_m);
             		  wfo.setTotalFrameCount(totalFrames_m); wfo.setFrameLength(message.data.length());
-            		  callback_mp->onError(wfo);
+            		  if (processingQueue)
+            		    processQueue->onError(wfo);
+            		  else
+            		    callback_mp->onError(wfo);
             		  increasConseqErrorCount();
             	  }//if-else
             	  break;
@@ -173,9 +194,13 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
                               lde.setRestFrames(message.restDataLength);
                               lde.setFrameLength(message.data.length());
                               lde.setStreamFlowName(topicName_m.c_str());
-                              BDNT_LISTENER_USER_ERR( callback_mp->onDataLost(frameCounter_m, totalFrames_m, lde))
+                              if (processingQueue)
+                                processQueue->onDataLost(frameCounter_m, totalFrames_m, lde);
+                              else
+                                BDNT_LISTENER_USER_ERR( callback_mp->onDataLost(frameCounter_m, totalFrames_m, lde))
                               increasConseqErrorCount();
-                              return; // ??
+                              if (!skipdata_m)
+                            	  return; // ??
                             }
                           nextFrame_m = message.restDataLength-1;
                         }
@@ -202,7 +227,10 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
 
                       cbReceiveStartTime_m = ACE_OS::gettimeofday();
                       message.data.to_array(tmpArray, message.data.length());
-                      if (enableCB_m) { BDNT_LISTENER_USER_ERR( callback_mp->cbReceive(tmpArray, message.data.length()) ) }
+                      if (processingQueue) {
+                        if (enableCB_m) { processQueue->cbReceive(tmpArray, message.data.length()); }
+                      } else
+                        if (enableCB_m) { BDNT_LISTENER_USER_ERR( callback_mp->cbReceive(tmpArray, message.data.length()) ) }
                       conseqErrorCount_m=0;
                       cbReceiveElapsedTime_m = ACE_OS::gettimeofday() - cbReceiveStartTime_m;
                       cbReceiveElapsedTimeSec_m = cbReceiveElapsedTime_m.sec() + (cbReceiveElapsedTime_m.usec() / 1000000.0);
@@ -213,7 +241,10 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
                     	  cbReceiveTO.setStreamFlowName(topicName_m.c_str());
                     	  cbReceiveTO.setProcessTimeoutSec(cbReceiveTimeoutSec_m);cbReceiveTO.setActualProcessTime(cbReceiveElapsedTimeSec_m);
                     	  cbReceiveTO.setFrameCount(frameCounter_m);cbReceiveTO.setTotalFrameCount(totalFrames_m);
-                    	  callback_mp->onError(cbReceiveTO);
+                    	  if (processingQueue)
+                    	    processQueue->onError(cbReceiveTO);
+                    	  else
+                    	    callback_mp->onError(cbReceiveTO);
                     	  //TBD should we increase error counter here or not ?
                       }//if cbReceiveTimeoutSec_m
                     }
@@ -224,7 +255,10 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
                       wfo.setStreamFlowName(topicName_m.c_str()); wfo.setFrameCount(frameCounter_m);
                       wfo.setTotalFrameCount(totalFrames_m); wfo.setFrameLength(message.data.length());
                       wfo.addData("Note", "all BD_DATA frames will be ignored until next BD_START/BD_STOP");
-                      callback_mp->onError(wfo);
+                      if (processingQueue)
+                        processQueue->onError(wfo);
+                      else
+                        callback_mp->onError(wfo);
                       currentState_m = IgnoreDataState; //we go to IgnoreData state, so all data until next start/stop will be ignored
                       //increasConseqErrorCount();
                     }
@@ -254,7 +288,10 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
                                 lde.setRestFrames(message.restDataLength); // should be ??
                                 lde.setFrameLength(message.data.length()); // should be 0
                                 lde.setStreamFlowName(topicName_m.c_str());
-                                BDNT_LISTENER_USER_ERR( callback_mp->onDataLost(frameCounter_m, totalFrames_m, lde) )
+                                if (processingQueue)
+                                  processQueue->onDataLost(frameCounter_m, totalFrames_m, lde);
+                                else
+                                  BDNT_LISTENER_USER_ERR( callback_mp->onDataLost(frameCounter_m, totalFrames_m, lde) )
                                 increasConseqErrorCount();
                               }//if
                           }//if-else
@@ -274,7 +311,10 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
                           }//if-else
                       }
                   // in all above warning/error case we call  user's cbStop()
-                  if (enableCB_m) { BDNT_LISTENER_USER_ERR( callback_mp->cbStop() ) }
+                  if (processingQueue) {
+                    if (enableCB_m) { processQueue->cbStop(); }
+                  } else
+                    if (enableCB_m) { BDNT_LISTENER_USER_ERR( callback_mp->cbStop() ) }
                   conseqErrorCount_m=0;
                   if (cbReceiveNumCalls_m>0) // if we call cbReceive at least once we calculate the average
                   {
@@ -285,7 +325,10 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
                 		  cbReceiveAvgTO.setStreamFlowName(topicName_m.c_str());
                 		  cbReceiveAvgTO.setAvgProcessTimeoutSec(cbReceiveAvgTimeoutSec_m);cbReceiveAvgTO.setActualAvgProcessTime(cbReceiveAvgSec_m);
                 		  cbReceiveAvgTO.setCallsCount(cbReceiveNumCalls_m);cbReceiveAvgTO.setThroughput((ACSBulkData::FRAME_MAX_LEN/(1024.0*1024.0)/cbReceiveAvgSec_m));
-                		  callback_mp->onError(cbReceiveAvgTO);
+                		  if (processingQueue)
+                		    processQueue->onError(cbReceiveAvgTO);
+                		  else
+                		    callback_mp->onError(cbReceiveAvgTO);
                 		  //TBD should we increase error counter here or not ?
                 	  }//if (cbReceiveAvgSec_m > cbReceiveTimeoutSec_m)
                 	  if (DDSConfiguration::debugLevel>1)
@@ -321,7 +364,10 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
                   {
                      ACS_LOG(LM_RUNTIME_CONTEXT, __FUNCTION__,(LM_DEBUG, "sendReset has been received for: %s", topicName_m.c_str()));
                   }
-                  if (enableCB_m) { BDNT_LISTENER_USER_ERR( callback_mp->cbReset() ) }
+                  if (processingQueue) {
+                    if (enableCB_m) { processQueue->cbReset(); }
+                  } else
+                    if (enableCB_m) { BDNT_LISTENER_USER_ERR( callback_mp->cbReset() ) }
                   //Clean all parameters
                   currentState_m = StopState;
             	  dataLength_m = 0;
@@ -337,7 +383,10 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
                 udt.setDataType(message.typeOfdata);
                 udt.setFrameCount(frameCounter_m);
                 udt.setTotalFrameCount(totalFrames_m);
-                callback_mp->onError(udt);
+                if (processingQueue)
+                  processQueue->onError(udt);
+                else
+                  callback_mp->onError(udt);
               }//switch
             }//if(si.valid_data)
         }
@@ -346,7 +395,10 @@ void BulkDataNTReaderListener::on_data_available(DDS::DataReader* reader)
           conseqErrorCount_m++;
           DDSReturnErrorCompletion retErr(__FILE__, __LINE__, __FUNCTION__);
           retErr.setRetCode(retCode);  //would be good if we can give also string value
-          callback_mp->onError(retErr);
+          if (processingQueue)
+            processQueue->onError(retErr);
+          else
+            callback_mp->onError(retErr);
         }//if(retCode)
     }//while
 }//on_data_available
@@ -355,18 +407,28 @@ void BulkDataNTReaderListener::on_requested_deadline_missed(DDS::DataReader*, co
 {
   ACS_DDS_Errors::DDSRequestedDeadlineMissedCompletion dmerr(__FILE__, __LINE__, __FUNCTION__);
   initalizeLogging(); //force initialization of logging sys TBD changed
-  callback_mp->onError(dmerr);
+  LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
+  if (processingQueue)
+    processQueue->onError(dmerr);
+  else
+    callback_mp->onError(dmerr);
 }//on_requested_deadline_missed
 
 void BulkDataNTReaderListener::on_requested_incompatible_qos(DDS::DataReader*, const DDS::RequestedIncompatibleQosStatus&)
 {
   ACS_DDS_Errors::DDSRequestedIncompatibleQoSCompletion iqerr(__FILE__, __LINE__, __FUNCTION__);
   initalizeLogging(); //force initialization of logging sys TBD changed
-  callback_mp->onError(iqerr);
+  LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
+  if (processingQueue)
+    processQueue->onError(iqerr);
+  else
+    callback_mp->onError(iqerr);
 }//on_requested_incompatible_qos
 
 void BulkDataNTReaderListener::on_liveliness_changed(DDS::DataReader*, const DDS::LivelinessChangedStatus& lcs)
 {
+  initalizeLogging(); //force initialization of logging sys TBD changed
+  LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
   if (lcs.alive_count_change>0)
     {
       for(int i=0; i<lcs.alive_count_change; i++)
@@ -385,7 +447,10 @@ void BulkDataNTReaderListener::on_liveliness_changed(DDS::DataReader*, const DDS
         	                    callback_mp->getFlowName(), callback_mp->getStreamName(),
         	                    lcs.alive_count));
           }
-          BDNT_LISTENER_USER_ERR( callback_mp->onSenderConnect(lcs.alive_count) )
+          if (processingQueue)
+            processQueue->onSenderConnect(lcs.alive_count);
+          else
+            BDNT_LISTENER_USER_ERR( callback_mp->onSenderConnect(lcs.alive_count) )
         }//for
     }else
       {
@@ -395,18 +460,25 @@ void BulkDataNTReaderListener::on_liveliness_changed(DDS::DataReader*, const DDS
                 (LM_INFO, "A sender has disconnected to flow: %s of the stream: %s. Total alive connection(s): %d",
                     callback_mp->getFlowName(), callback_mp->getStreamName(),
                     lcs.alive_count));
-            BDNT_LISTENER_USER_ERR( callback_mp->onSenderDisconnect(lcs.alive_count) )
+            if (processingQueue)
+              processQueue->onSenderConnect(lcs.alive_count);
+            else
+              BDNT_LISTENER_USER_ERR( callback_mp->onSenderDisconnect(lcs.alive_count) )
           }//for
       }//if-else
 }//on_liveliness_changed
 
 void BulkDataNTReaderListener::on_subscription_matched(DDS::DataReader*, const DDS::SubscriptionMatchedStatus&)
 {
+  initalizeLogging(); //force initialization of logging sys TBD changed
+  LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
   ACS_TRACE(__FUNCTION__);
 }//on_subscription_matched
 
 void BulkDataNTReaderListener::on_sample_rejected( DDS::DataReader*, const DDS::SampleRejectedStatus& srs)
 {
+	initalizeLogging(); //force initialization of logging sys TBD changed
+	LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
 	RepeatGuard rg(5000000/*=0.5s*/,0);
 	if ( DDSConfiguration::debugLevel > 0 || rg.checkAndIncrement() )
 	{
@@ -429,7 +501,11 @@ void BulkDataNTReaderListener::on_sample_lost(DDS::DataReader*, const DDS::Sampl
   sle.setTotalSampleLost(s.total_count);
   sle.setReason(s.last_reason);
   initalizeLogging(); //force initialization of logging sys TBD changed
-  BDNT_LISTENER_USER_ERR( callback_mp->onDataLost(frameCounter_m, totalFrames_m, sle) )
+  LoggingProxy::ThreadName((std::string(callback_mp->getReceiverName()) + std::string(":") + topicName_m).c_str());
+  if (processingQueue)
+    processQueue->onDataLost(frameCounter_m, totalFrames_m, sle);
+  else
+    BDNT_LISTENER_USER_ERR( callback_mp->onDataLost(frameCounter_m, totalFrames_m, sle) )
 }//on_sample_lost
 
 void BulkDataNTReaderListener::increasConseqErrorCount()

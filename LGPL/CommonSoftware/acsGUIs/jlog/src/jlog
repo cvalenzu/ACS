@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 #*******************************************************************************
 # ALMA - Atacama Large Millimiter Array
 # (c) European Southern Observatory, 2002
@@ -41,4 +41,4 @@ fi
 # Set JVM_GC_LOG_NAME so that acsStartJava will run the JVM printing garbage collector details to file "jlog.gclog". 
 export JVM_GC_LOG_NAME=jlog
 
-acsStartJava -maxHeapSize 512m --noDirectory alma.acs.logging.dialogs.main.LogFrame $*
+acsStartJava -endorsed -maxHeapSize 512m --noDirectory alma.acs.logging.dialogs.main.LogFrame $*

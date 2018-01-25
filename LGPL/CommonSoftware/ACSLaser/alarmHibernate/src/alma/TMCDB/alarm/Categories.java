@@ -44,11 +44,11 @@ public class Categories extends InternalElementsMap<String, Category> implements
 
 	public static final String CATEGORY_DEFINITION_PATH = "/Alarms/Administrative/Categories";
 
-	private final Session session;
-	private final Configuration config;
-	private final ConfigurationAccessor conf;
+	transient private final Session session;
+	transient private final Configuration config;
+	transient private final ConfigurationAccessor conf;
 	private final Map<String, Object> rootMap;
-	private final Logger m_logger;
+	transient private final Logger m_logger;
 	
 	public Categories(Session session, Configuration config, ConfigurationAccessor conf, Map<String, Object> rootMap, Logger m_logger) {
 		this.session = session;

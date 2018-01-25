@@ -63,8 +63,8 @@ class baci_EXPORT AlarmEventStrategyBooleanSeq
 
   private:
 
-    static const int32_t ALARM_NOT_RAISED = 0;
-    static const int32_t ALARM_RAISED = 1;
+    static const int32_t ALARM_NOT_RAISED;
+    static const int32_t ALARM_RAISED;
 
     std::vector<int32_t> alarmsRaised_m;
 

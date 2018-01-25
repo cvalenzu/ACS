@@ -51,6 +51,19 @@ cdbrdbTest_DIRS = alma
 SCRIPTS         = 
 SCRIPTS_L       = cdbrdbTATEnvironment cdbrdbTATPrologue cdbrdbTATEpilogue
 
+#
+# Python stuff (public and local)
+# ----------------------------
+PY_SCRIPTS         =
+PY_SCRIPTS_L       = WDAOServantTest
+
+PY_MODULES         =
+PY_MODULES_L       =
+
+PY_PACKAGES        =
+PY_PACKAGES_L      =
+pppppp_MODULES	   =
+
 #>>>>> END OF standard rules
 
 

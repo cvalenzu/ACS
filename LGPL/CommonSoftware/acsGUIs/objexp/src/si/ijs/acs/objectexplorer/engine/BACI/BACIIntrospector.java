@@ -456,12 +456,8 @@ public java.lang.Object extractAny(Any argument) {
 		else {
 			return null;
 		}
-		java.lang.Object array = java.lang.reflect.Array.newInstance(cl.getComponentType(), els.length);
-		java.lang.Object[] objs;
-		if (cl.getComponentType().isPrimitive())
-			objs = DataFormatter.convertPrimitiveArray(array);
-		else
-			objs = (java.lang.Object[]) array;
+		java.lang.Object array = java.lang.reflect.Array.newInstance(DataFormatter.getPrimitiveType(cl.getComponentType()), els.length);
+		java.lang.Object[] objs = (java.lang.Object[]) array;
 		for(int i = 0; i < els.length; i++) {
 			objs[i] = extractAny(els[i]);
 		}

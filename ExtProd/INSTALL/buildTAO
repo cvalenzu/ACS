@@ -12,9 +12,9 @@
 
 #************************************************************************
 #   NAME
-# 
+#
 #   SYNOPSIS
-# 
+#
 #   DESCRIPTION
 #
 #   FILES
@@ -29,7 +29,7 @@
 #
 #   SEE ALSO
 #
-#   BUGS     
+#   BUGS
 #
 #------------------------------------------------------------------------
 #
@@ -68,7 +68,7 @@ NUM_CPU=`grep -c processor  /proc/cpuinfo`
 CURR_DIR=`pwd`
 
 if [ "$OS" = "LINUX" ]
-then 
+then
   OSTAG=linux
 elif [ "$OS" = "SOLARIS" ]
 then
@@ -82,7 +82,7 @@ else
 fi
 
 echo "Installing ACE/TAO for $OSTAG using $NUM_CPU CPU(s)"
-echo 
+echo
 
 if [ -d $ALMASW_ROOTDIR/$ALMASW_RELEASE/TAO ]
 then
@@ -96,12 +96,12 @@ mkdir $ALMASW_ROOTDIR/$ALMASW_RELEASE/TAO
 # Unpack the tar file
 # put the sources under $ALMASW_ROOTDIR/$ALMASW_RELEASE/TAO
 #
-FILE=ACE+TAO-6.3.0
+FILE=ACE+TAO-6.4.3
 #5.8.1
 ARCHIVE=`pwd`/../PRODUCTS/$FILE.tar.gz
 cd $ALMASW_ROOTDIR/$ALMASW_RELEASE/TAO
 echo "unpacking the archive"
-gzip -cd $ARCHIVE | tar -xf - 
+gzip -cd $ARCHIVE | tar -xf -
 echo "done"
 echo ""
 
@@ -280,7 +280,7 @@ if [ "$DONTSTRIP" = "yes" ]; then
   echo "build of ACE/TAO for $OSTAG finished"
 fi
 
-# Compilation for VxWorks: 
+# Compilation for VxWorks:
 #
 
 if [ ! "X$WIND_BASE" = X ]
@@ -356,4 +356,3 @@ fi
 cd $CURR_DIR
 echo ACE/TAO installation done
 date
-

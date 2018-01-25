@@ -1,5 +1,6 @@
 package com.cosylab.cdb.jdal;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -42,12 +43,12 @@ import alma.cdbErrType.wrappers.AcsJWrongCDBDataTypeEx;
  * Window>Preferences>Java>Code Generation.
  */
 
-public class DAOImpl implements DAOOperations {
+public class DAOImpl implements DAOOperations, Serializable {
 	private final String m_name;
 	private XMLTreeNode m_rootNode;
-	private final POA m_poa;
+	transient private final POA m_poa;
 	private boolean m_silent;
-	private final Logger m_logger;
+	transient private final Logger m_logger;
 
 	public DAOImpl(String name, XMLTreeNode rootNode, POA poa, Logger logger) {
 		this(name, rootNode, poa, logger, false);
